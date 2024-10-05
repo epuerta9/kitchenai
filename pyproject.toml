@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "kitchenai-mono-repo"
+version = "0.1.0"
+description = "shareable runtime AI cookbooks"
+authors = ["epuerta <esteban_puerta@rhinosearch.io>"]
+readme = "README.md"
+packages = []  # This line tells Poetry not to look for a package in the root
+package-mode = false  # This line disables package mode
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+kitchenai-sdk = {path = "kitchenai-sdk", develop = true}
+kitchenai = {path = "kitchenai", develop = true}
+
