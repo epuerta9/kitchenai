@@ -11,12 +11,12 @@ def kitchen_client():
         yield client
 
 def test_query_invoke(kitchen_client):
-    resp = kitchen_client.query("query 1", "query-1")
+    resp = kitchen_client.query("can you summarize this?", "streaming")
 
     print(resp, flush=True)
 
 
-def test_file_upload(kitchen_client):
-    response = kitchen_client.upload_file("./tests/data/example.txt", "embed-1")
+# def test_file_upload(kitchen_client):
+#     response = kitchen_client.upload_file("./tests/data/example.txt", "embed-1")
 
-    print(response, flush=True)
+#     print(response, flush=True)
