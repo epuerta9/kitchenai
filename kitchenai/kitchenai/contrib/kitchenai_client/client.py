@@ -1,8 +1,6 @@
 import json
 import os
 from typing import Dict, Any, Optional
-from dapr.clients import DaprClient
-from dapr.clients.http.client import DaprHttpClient
 from tenacity import retry, stop_after_attempt, wait_exponential
 import mimetypes
 
@@ -11,10 +9,9 @@ class KitchenClient:
         self._config = config or {}
         self.app_id = kwargs.get('app_id', "kitchenai")
         self._namespace = kwargs.get('namespace', "default")
-        self._dapr_client: Optional[DaprHttpClient] = None
 
     def __enter__(self):
-        self._dapr_client = DaprClient()
+        self._dapr_client = None
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

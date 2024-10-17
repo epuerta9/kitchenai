@@ -1,0 +1,4 @@
+#!/command/with-contenv execlineb
+
+cd /app
+exec python kitchenai/__main__.py qcluster
