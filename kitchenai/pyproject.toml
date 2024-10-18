@@ -16,6 +16,9 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
 ]
+
+
+
 dependencies = [
   "django[argon2]",
   "django-allauth[socialaccount]",
@@ -45,12 +48,13 @@ dependencies = [
   "whitenoise",
   "refreshcss",
   "django-ninja",
-  "kitchenai-sdk==0.1.5a1",
   "djp", 
   "llama-index", 
   "chromadb", 
   "llama-index-vector-stores-chroma", 
-  "typer"
+  "typer", 
+  "honcho", 
+  "pyyaml"
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"

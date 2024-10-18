@@ -31,6 +31,7 @@ env.read_env(Path(BASE_DIR, ".env").as_posix())
 # False when deployed, whether or not it's a production environment.
 DEBUG = env.bool("DEBUG", default=False)
 
+
 # 1. Django Core Settings
 # -----------------------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/4.0/ref/settings/
@@ -419,6 +420,11 @@ if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not DEBUG:
 # -----------------------------------------------------------------------------------------------------
 
 ADMIN_URL = env.str("ADMIN_URL", default="admin/")
+
+
+#KITCHEN AI 
+
+KITCHENAI_APP = "kitchen:router"
 
 
 KITCHENAI = {}
