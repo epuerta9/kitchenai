@@ -1,12 +1,10 @@
 import typer
 import sys
 import django
-from django.conf import settings
 import os
 from importlib import import_module
-from kitchenai.core.utils import load_config_from_db, set_app
 import logging
-from kitchenai.api import api
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 app = typer.Typer()
@@ -38,51 +36,45 @@ def qcluster() -> None:
 def runserver() -> None:
     """Run Django runserver."""
     # from django.core.management import execute_from_command_line
-    # sys.argv.pop(1)
-    # django.setup()
+    #sys.argv pop to remove the command line "dev" before extending the gunicorn command
+    sys.argv.pop(1)
+    django.setup()
+    from kitchenai.api import api
+    from kitchenai.core.utils import set_app, load_config_from_db
+
     # # Load configuration from the database
-    # config = load_config_from_db()
+    config = load_config_from_db()
 
-    # if not config:
-    #     logger.error('No configuration found. Please run "kitchenai init" first.')
-    #     return
+    if not config:
+        logger.error('No configuration found. Please run "kitchenai init" first.')
+        return
     
-    # print(config)
-
     # Update INSTALLED_APPS and import modules
     # self.update_installed_apps(config.get('installed_apps', []))
-    # set_app(config.get("app"))
+    set_app(config.get("app"))
     # self.import_modules(config.get('module_paths', {}))
-    # if settings.KITCHENAI_APP:
+    if settings.KITCHENAI_APP:
 
-    #     # Determine the user's project root directory (assumes the command is run from the user's project root)
-    #     project_root = os.getcwd()
+        # Determine the user's project root directory (assumes the command is run from the user's project root)
+        project_root = os.getcwd()
 
-    #     # Add the user's project root directory to the Python path
-    #     if project_root not in sys.path:
-    #         sys.path.insert(0, project_root)
+        # Add the user's project root directory to the Python path
+        if project_root not in sys.path:
+            sys.path.insert(0, project_root)
 
-    #     print(f"in dynamic routes: {settings.KITCHENAI_APP}")
-    #     module_path, instance_name = settings.KITCHENAI_APP.split(':')
-    #     print(f"module path {module_path}")
-    #     print(f"instance name: {instance_name}")
-    #     try:
-    #         module_path, instance_name = settings.KITCHENAI_APP.split(':')
-    #         module = import_module(module_path)
-    #         instance = getattr(module, instance_name)
+        module_path, instance_name = settings.KITCHENAI_APP.split(':')
+
+        try:
+            module_path, instance_name = settings.KITCHENAI_APP.split(':')
+            module = import_module(module_path)
+            instance = getattr(module, instance_name)
             
-    #         logger.info(f'Imported {instance_name} from {module_path}')
-    #     except (ImportError, AttributeError) as e:
-    #         logger.error(f"Error loading module: {e}")
+            logger.info(f'Imported {instance_name} from {module_path}')
+        except (ImportError, AttributeError) as e:
+            logger.error(f"Error loading module: {e}")
 
-    #     print(instance)
-    # api.add_router("/core", instance)
-
-
-
-    #_run_dev_uvicorn(sys.argv)
-
-    #execute_from_command_line(["manage", "dev_kitchenai"])
+    api.add_router("/core", instance)
+    _run_dev_uvicorn(sys.argv)
 
 @app.command()
 def run() -> None:
@@ -91,24 +83,23 @@ def run() -> None:
     _run_uvicorn(sys.argv)
 
 
-
 @app.command()
 def dev(address: str ="0.0.0.0:8000"):
     """
     Reads the kitchen config file, reads the application file and runs the KitchenAI server
     """
     commands = {"server": f"kitchenai runserver"}
-    # if "django_tailwind_cli" in settings.INSTALLED_APPS:
-    #     commands["tailwind"] = f"django-admin tailwind watch"
-    # if "tailwind" in settings.INSTALLED_APPS:
-    #     commands["tailwind"] = f"django-admin tailwind start"
-    # if "django_q" in settings.INSTALLED_APPS:
-    #     commands["qcluster"] = f"django-admin qcluster"
+    if "django_tailwind_cli" in settings.INSTALLED_APPS:
+        commands["tailwind"] = f"django-admin tailwind watch"
+    if "tailwind" in settings.INSTALLED_APPS:
+        commands["tailwind"] = f"django-admin tailwind start"
+    if "django_q" in settings.INSTALLED_APPS:
+        commands["qcluster"] = f"kitchenai qcluster"
 
     typer.echo(f"[INFO] starting development server on {address}")
 
     # call_command("migrate")
-    #_run_with_honcho(commands)
+    _run_with_honcho(commands)
 
 @app.command()
 def manage() -> None:
@@ -187,8 +178,6 @@ def _run_dev_uvicorn(argv: list) -> None:
     https://docs.gunicorn.org/en/stable/settings.html
     https://adamj.eu/tech/2021/12/29/set-up-a-gunicorn-configuration-file-and-test-it/
     """
-
-    import multiprocessing
     from gunicorn.app import wsgiapp  # for gunicorn
 
     workers = 2

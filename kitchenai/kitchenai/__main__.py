@@ -42,5 +42,5 @@ def main() -> None:
 #     argv.extend(gunicorn_args)
 #     wsgiapp.run()
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

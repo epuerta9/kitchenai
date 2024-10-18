@@ -1,8 +1,10 @@
 from kitchenai.core.models import KitchenAIManagement
 from django.conf import settings
-import django
 import yaml
 from importlib import import_module
+import logging
+
+logger = logging.getLogger("kitchenai.core.utils")
 
 def load_config_from_db():
     config = {}
@@ -17,19 +19,19 @@ def update_installed_apps(self, apps):
         settings.INSTALLED_APPS += tuple(apps)
         self.stdout.write(self.style.SUCCESS(f'Updated INSTALLED_APPS: {settings.INSTALLED_APPS}'))
 
-def set_app(self, app):
+def set_app(app):
     if app:
         # Set the KITCHENAI_APP setting dynamically
         settings.KITCHENAI_APP = app
-        self.stdout.write(self.style.SUCCESS(f'KITCHENAI_APP set to: {settings.KITCHENAI_APP}'))
+        logger.info(f'KITCHENAI_APP set to: {settings.KITCHENAI_APP}')
 
-def import_modules(self, module_paths):
+def import_modules(module_paths):
     for name, path in module_paths.items():
         try:
             module_path, instance_name = path.split(':')
             module = import_module(module_path)
             instance = getattr(module, instance_name)
             globals()[name] = instance
-            self.stdout.write(self.style.SUCCESS(f'Imported {instance_name} from {module_path}'))
+            logger.info(f'Imported {instance_name} from {module_path}')
         except (ImportError, AttributeError) as e:
-            self.stdout.write(self.style.ERROR(f"Error loading module '{path}': {e}"))
+            logger.error(f"Error loading module '{path}': {e}")
