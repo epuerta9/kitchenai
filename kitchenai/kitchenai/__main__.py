@@ -1,17 +1,18 @@
-from kitchenai.cli.main import app
 import sys
+
+from kitchenai.cli.main import app
+
 
 def main() -> None:
     from pathlib import Path
     import os
-    os.environ.setdefault(
-        "DJANGO_SETTINGS_MODULE", "kitchenai.settings"
-    )
+
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kitchenai.settings")
     current_path = Path(__file__).parent.parent.resolve()
     sys.path.append(str(current_path))
 
     app()
-    return
+
 
 # def _run_gunicorn(argv: list) -> None:
 #     """

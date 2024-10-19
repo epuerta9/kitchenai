@@ -1,16 +1,17 @@
-from ninja import Router
-import functools
 import asyncio
+import functools
 import logging
+
+from ninja import Router
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class KitchenAIApp:
-    def __init__(self, router: Router, namespace: str = 'default'):
+    def __init__(self, router: Router = None, namespace: str = 'default'):
         self._namespace = namespace
-        self._router = router  
+        self._router = router if router else Router()
 
     # Helper method to create a decorator for a given route type
     def _create_decorator(self, route_type: str, label: str):
@@ -25,7 +26,7 @@ class KitchenAIApp:
 
             # Define the path for the route using the namespace and label
             route_path = f"/{self._namespace}/{route_type}/{label}"
-            
+
             # Register the route using add_api_operation
             self._router.add_api_operation(
                 path=route_path,

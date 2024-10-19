@@ -1,0 +1,15 @@
+version: 0.0.1
+project_name: my-cookbook
+app: my_cookbook.kitchen:kitchen
+description: |
+  this is my entire description of my current running cookbook
+installed_apps:
+  - app1
+  - app2.kitchen
+  - app.kitchen
+plugins:
+  - app1
+  - app2
+  - app.kitchen:kitchen
+dependencies:
+  - chromadb

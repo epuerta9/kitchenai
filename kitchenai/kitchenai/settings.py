@@ -1,20 +1,18 @@
 import multiprocessing
-import sys
 import os
-
+import sys
 from email.utils import parseaddr
 from pathlib import Path
 
+import djp
 import sentry_sdk
 from environs import Env
+from falco_toolbox.sentry import sentry_profiles_sampler
+from falco_toolbox.sentry import sentry_traces_sampler
 from marshmallow.validate import Email
 from marshmallow.validate import OneOf
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
-
-from falco_toolbox.sentry import sentry_profiles_sampler
-from falco_toolbox.sentry import sentry_traces_sampler
-import djp
 
 # 0. Setup
 # --------------------------------------------------------------------------------------------
@@ -422,13 +420,10 @@ if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not DEBUG:
 ADMIN_URL = env.str("ADMIN_URL", default="admin/")
 
 
-#KITCHEN AI 
-
-KITCHENAI_APP = "kitchen:router"
-
+#KITCHEN AI
 
 KITCHENAI = {}
 
 
-# Django plugin system. This has to be the last line 
+# Django plugin system. This has to be the last line
 djp.settings(globals())

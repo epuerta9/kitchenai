@@ -18,9 +18,8 @@ _default:
 # Setup local environnment (maybe install hatch and setup postgres (create database, etc..))
 setup:
     #!/usr/bin/env bash
-    [ ! -d .git ] && git init && git add -A
     just bootstrap
-    just run pre-commit install --install-hooks
+    # just run pre-commit install --install-hooks
     just migrate
     just createsuperuser
     just lint > /dev/null 2>&1 || true
@@ -237,4 +236,3 @@ build-docker-image:
     docker build -t "${image_name}:${current_version}" -f deploy/Dockerfile .
     docker tag "${image_name}:${current_version}" "${image_name}:latest"
     echo "Built docker image ${image_name}:${current_version}"
-

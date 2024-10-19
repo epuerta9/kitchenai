@@ -9,7 +9,7 @@ name = "kitchenai"
 version = "0.0.1"
 description = ""
 readme = "README.md"
-authors = [{ name = "epuerta", email = "esteban_puerta@rhinosearch.io" }]
+authors = [ { name = "epuerta", email = "esteban_puerta@rhinosearch.io" } ]
 requires-python = ">=3.11"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
@@ -17,79 +17,49 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 
-
-
 dependencies = [
+  "boto3",
+  "chromadb",
+  "crispy-tailwind",
+  "diskcache",
   "django[argon2]",
   "django-allauth[socialaccount]",
   "django-anymail[amazon-ses]",
-  "django-storages[s3]",
   "django-compressor",
+  "django-extensions",
+  "django-health-check",
+  "django-htmx",
+  "django-lifecycle",
+  "django-ninja",
+  "django-q-registry",
+  "django-q2",
+  "django-storages[s3]",
   "django-tailwind-cli",
   "django-template-partials",
-  "django-lifecycle",
-  "django-q2",
-  "django-q-registry",
-  "django-health-check",
   "django-unique-user-email",
-  "django-extensions",
-  "django-htmx",
+  "djp",
+  "environs[django]",
   "falco-toolbox",
   "falco-ui",
-  "diskcache",
-  "environs[django]",
-  "heroicons[django]",
   "gunicorn",
-  "boto3",
-  "crispy-tailwind",
-  "Pillow",
+  "heroicons[django]",
+  "honcho",
+  "llama-index",
+  "llama-index-vector-stores-chroma",
+  "pillow",
   "psycopg[binary]",
-  "sentry-sdk",
-  "whitenoise",
+  "pyyaml",
   "refreshcss",
-  "django-ninja",
-  "djp", 
-  "llama-index", 
-  "chromadb", 
-  "llama-index-vector-stores-chroma", 
-  "typer", 
-  "honcho", 
-  "pyyaml"
+  "sentry-sdk",
+  "typer",
+  "whitenoise",
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"
 
-[tool.django-stubs]
-django_settings_module = "kitchenai.settings"
-
-[tool.coverage.run]
-source_pkgs = ["kitchenai", "tests"]
-branch = true
-parallel = true
-
-[tool.coverage.paths]
-kitchenai = ["*/kitchenai/kitchenai"]
-tests = ["tests", "*/kitchenai/tests"]
-
-[tool.coverage.report]
-exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
-
-[tool.falco]
-htmx = "kitchenai/static/vendors/htmx/htmx.min.js:2.0.2"
-revision = "5ffa1f8e00881e1a2d77700ee1748664324d73d5"
-skip = ["playground.ipynb", "README.md", "*/static/*"]
-blueprint = "https://github.com/falcopackages/starter-template"
-
-[tool.falco.work]
-server = "python manage.py migrate && python manage.py runserver {address}"
-tailwind = "python manage.py tailwind watch"
-worker = "python manage.py qcluster"
-
-[tool.falco.crud]
-
 [tool.hatch.env]
 requires = [
-  "hatch-pip-compile>=1.11.2"
+  "hatch-pip-compile>=1.11.2",
 ]
 
 [tool.hatch.metadata]
@@ -106,7 +76,7 @@ artifacts = [
 [tool.hatch.build.targets.binary]
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.11", "3.12"]
+python = [ "3.11", "3.12" ]
 
 [tool.hatch.envs.default]
 type = "pip-compile"
@@ -117,23 +87,23 @@ lock-filename = "requirements.txt"
 
 [tool.hatch.envs.dev]
 dependencies = [
-    "django-browser-reload",
-    "django-debug-toolbar",
-    "dj-notebook>=0.6.1",
-    "Werkzeug[watchdog]>=3.0.1",
-    "django-stubs[compatible-mypy]",
-    "django-fastdev",
-    "coverage[toml]>=6.5",
-    "pre-commit",
-    "pytest",
-    "pytest-django",
-    "pytest-sugar",
-    "pytest-xdist",
-    "falco-cli",
-    "django-watchfiles",
-    "git-cliff",
-    "bump-my-version",
-    "hatch-pip-compile",
+  "django-browser-reload",
+  "django-debug-toolbar",
+  "dj-notebook>=0.6.1",
+  "Werkzeug[watchdog]>=3.0.1",
+  "django-stubs[compatible-mypy]",
+  "django-fastdev",
+  "coverage[toml]>=6.5",
+  "pre-commit",
+  "pytest",
+  "pytest-django",
+  "pytest-sugar",
+  "pytest-xdist",
+  "falco-cli",
+  "django-watchfiles",
+  "git-cliff",
+  "bump-my-version",
+  "hatch-pip-compile",
 ]
 lock-filename = "requirements-dev.txt"
 
@@ -149,32 +119,13 @@ extra-dependencies = [
 ]
 lock-filename = "docs/requirements.txt"
 
-[tool.mypy]
-python_version = "3.11"
-check_untyped_defs = true
-ignore_missing_imports = true
-warn_unused_ignores = true
-warn_redundant_casts = true
-warn_unused_configs = true
-plugins = ["mypy_django_plugin.main"]
-
-[[tool.mypy.overrides]]
-ignore_errors = true
-module = [
-  "allauth.*",
-  "boto3.*",
-  "botocore.*",
-  "debug_toolbar.*",
-  "django_filters.*",
-  "django_q.*",
-  "djclick.*",
-  "gunicorn.*",
-  "health_check.*",
-  "*.migrations.*"
-]
-
-[tool.mypy_django_plugin]
-ignore_missing_model_attributes = true
+[tool.ruff]
+lint.extend-ignore = [ "EM101", "I001", "I002", "RUF012", "TID252", "TRY003" ]
+lint.extend-per-file-ignores."*/__main__.py" = [ "S104" ]
+lint.extend-per-file-ignores."*/migrations/*" = [ "E501" ]
+lint.extend-per-file-ignores."deploy/*" = [ "INP001" ]
+lint.extend-per-file-ignores."docs/conf.py" = [ "A001", "INP001" ]
+lint.extend-per-file-ignores."tests/**/*" = [ "ARG001", "PLR2004", "S101", "TID252" ]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "kitchenai.settings"
@@ -182,15 +133,17 @@ addopts = "--reuse-db -n auto"
 norecursedirs = ".* bin build dist *.egg htmlcov logs node_modules static templates venv"
 python_files = "tests.py test_*.py *_tests.py"
 
-[tool.ruff.lint]
-extend-ignore = ["TID252", "RUF012", "TRY003", "EM101", "I001", "I002"]
+[tool.coverage.run]
+source_pkgs = [ "kitchenai", "tests" ]
+branch = true
+parallel = true
 
-[tool.ruff.lint.extend-per-file-ignores]
-"deploy/*" = ["INP001"]
-"*/__main__.py" = [ "S104" ]
-"*/migrations/*" = ["E501"]
-"tests/**/*" = ["PLR2004", "S101", "TID252", "ARG001"]
-"docs/conf.py" = ["INP001", "A001"]
+[tool.coverage.paths]
+kitchenai = [ "*/kitchenai/kitchenai" ]
+tests = [ "tests", "*/kitchenai/tests" ]
+
+[tool.coverage.report]
+exclude_lines = [ "no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:" ]
 
 [tool.bumpversion]
 current_version = "0.0.1"
@@ -216,6 +169,49 @@ commit_args = "--no-verify"
 filename = "pyproject.toml"
 search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
+
+[tool.mypy]
+python_version = "3.11"
+check_untyped_defs = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+plugins = [ "mypy_django_plugin.main" ]
+
+[[tool.mypy.overrides]]
+ignore_errors = true
+module = [
+  "allauth.*",
+  "boto3.*",
+  "botocore.*",
+  "debug_toolbar.*",
+  "django_filters.*",
+  "django_q.*",
+  "djclick.*",
+  "gunicorn.*",
+  "health_check.*",
+  "*.migrations.*",
+]
+
+[tool.django-stubs]
+django_settings_module = "kitchenai.settings"
+
+[tool.falco]
+htmx = "kitchenai/static/vendors/htmx/htmx.min.js:2.0.2"
+revision = "5ffa1f8e00881e1a2d77700ee1748664324d73d5"
+skip = [ "playground.ipynb", "README.md", "*/static/*" ]
+blueprint = "https://github.com/falcopackages/starter-template"
+
+[tool.falco.work]
+server = "python manage.py migrate && python manage.py runserver {address}"
+tailwind = "python manage.py tailwind watch"
+worker = "python manage.py qcluster"
+
+[tool.falco.crud]
+
+[tool.mypy_django_plugin]
+ignore_missing_model_attributes = true
 
 [tool.git-cliff.changelog]
 header = """

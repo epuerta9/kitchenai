@@ -1,15 +1,15 @@
-from django.core.management.base import BaseCommand
-from django.core.management import call_command
-from django.db.models import Prefetch
-import django
-import yaml
+import logging
 import os
 import sys
-from django.conf import settings
 from importlib import import_module
-from kitchenai.core.models import KitchenAIManagement
-import logging
+
+import django
+import yaml
+from django.conf import settings
+from django.core.management import call_command
+from django.core.management.base import BaseCommand
 from kitchenai.api import api
+from kitchenai.core.models import KitchenAIManagement
 
 logger = logging.getLogger("kitchenai.core.commands")
 
@@ -17,7 +17,7 @@ class Command(BaseCommand):
     help = 'Runs the development server'
 
 
-    def handle(self, *args, **options):        
+    def handle(self, *args, **options):
         django.setup()
         # Load configuration from the database
         config = self.load_config_from_db()
@@ -47,7 +47,7 @@ class Command(BaseCommand):
                 module_path, instance_name = settings.KITCHENAI_APP.split(':')
                 module = import_module(module_path)
                 instance = getattr(module, instance_name)
-                
+
                 logger.info(f'Imported {instance_name} from {module_path}')
             except (ImportError, AttributeError) as e:
                 logger.error(f"Error loading module: {e}")
@@ -60,7 +60,7 @@ class Command(BaseCommand):
     def load_config_from_db(self):
         config = {}
         mgmt = KitchenAIManagement.objects.get(name="kitchenai_management")
-        
+
         app = mgmt.kitchenaimodules_set.first()
         config["app"] = yaml.safe_load(app.name)
         return config

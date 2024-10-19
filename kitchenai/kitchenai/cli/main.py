@@ -1,9 +1,8 @@
-import typer
-import sys
-import django
-import os
-from importlib import import_module
 import logging
+import sys
+
+import django
+import typer
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -40,14 +39,11 @@ def runserver() -> None:
     sys.argv.pop(1)
     django.setup()
     from kitchenai.api import api
-    from kitchenai.core.utils import set_app, load_config_from_db
+    from kitchenai.core.utils import setup
 
-    _setup(
-        set_app, 
-        load_config_from_db,
+    setup(
         api
     )
-
     _run_dev_uvicorn(sys.argv)
 
 @app.command()
@@ -56,11 +52,9 @@ def run() -> None:
     sys.argv.pop(1)
     django.setup()
     from kitchenai.api import api
-    from kitchenai.core.utils import set_app, load_config_from_db
+    from kitchenai.core.utils import setup
 
-    _setup(
-        set_app, 
-        load_config_from_db,
+    setup(
         api
     )
 
@@ -72,13 +66,13 @@ def dev(address: str ="0.0.0.0:8000"):
     """
     Reads the kitchen config file, reads the application file and runs the KitchenAI server
     """
-    commands = {"server": f"kitchenai runserver"}
+    commands = {"server": "kitchenai runserver"}
     if "django_tailwind_cli" in settings.INSTALLED_APPS:
-        commands["tailwind"] = f"django-admin tailwind watch"
+        commands["tailwind"] = "django-admin tailwind watch"
     if "tailwind" in settings.INSTALLED_APPS:
-        commands["tailwind"] = f"django-admin tailwind start"
+        commands["tailwind"] = "django-admin tailwind start"
     if "django_q" in settings.INSTALLED_APPS:
-        commands["qcluster"] = f"kitchenai qcluster"
+        commands["qcluster"] = "kitchenai qcluster"
 
     typer.echo(f"[INFO] starting development server on {address}")
 
@@ -152,7 +146,7 @@ def _run_uvicorn(argv: list) -> None:
         "-",
     ]
     argv.extend(gunicorn_args)
-    
+
     wsgiapp.run()
 
 
@@ -184,40 +178,5 @@ def _run_dev_uvicorn(argv: list) -> None:
         "-",
     ]
     argv.extend(gunicorn_args)
-    
+
     wsgiapp.run()
-
-
-def _setup(set_app, load_config_from_db, api):
-    # # Load configuration from the database
-    config = load_config_from_db()
-
-    if not config:
-        logger.error('No configuration found. Please run "kitchenai init" first.')
-        return
-    
-    # Update INSTALLED_APPS and import modules
-    # self.update_installed_apps(config.get('installed_apps', []))
-    set_app(config.get("app"))
-    # self.import_modules(config.get('module_paths', {}))
-    if settings.KITCHENAI_APP:
-
-        # Determine the user's project root directory (assumes the command is run from the user's project root)
-        project_root = os.getcwd()
-
-        # Add the user's project root directory to the Python path
-        if project_root not in sys.path:
-            sys.path.insert(0, project_root)
-
-        module_path, instance_name = settings.KITCHENAI_APP.split(':')
-
-        try:
-            module_path, instance_name = settings.KITCHENAI_APP.split(':')
-            module = import_module(module_path)
-            instance = getattr(module, instance_name)
-            
-            logger.info(f'Imported {instance_name} from {module_path}')
-        except (ImportError, AttributeError) as e:
-            logger.error(f"Error loading module: {e}")
-
-    api.add_router("/core", instance)

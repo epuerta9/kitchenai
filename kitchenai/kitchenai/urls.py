@@ -1,3 +1,5 @@
+import djp
+from allauth.account.decorators import secure_admin_login
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -5,12 +7,11 @@ from django.urls import include
 from django.urls import path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
+from django.views.generic.base import RedirectView
 from falco_toolbox import views as toolbox_views
 from health_check.views import MainView
-from allauth.account.decorators import secure_admin_login
-import djp
+
 from .api import api
-from django.views.generic.base import RedirectView
 
 admin.autodiscover()
 admin.site.login = secure_admin_login(admin.site.login)
@@ -26,8 +27,8 @@ urlpatterns = [
         name="about",
     ),
     path("health/", MainView.as_view()),
-    # path("accounts/", include("allauth.urls")),
     path(settings.ADMIN_URL, admin.site.urls),
+    path("accounts/", include("allauth.urls")),
     path("core/", include("kitchenai.core.urls", namespace="core")),
 
 ] + djp.urlpatterns()
