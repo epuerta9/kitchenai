@@ -22,6 +22,9 @@ dependencies = [
   "chromadb",
   "crispy-tailwind",
   "diskcache",
+  "django-allauth-ui",
+  "django-widget-tweaks",
+  "slippers",
   "django[argon2]",
   "django-allauth[socialaccount]",
   "django-anymail[amazon-ses]",
@@ -54,6 +57,7 @@ dependencies = [
   "sentry-sdk",
   "typer",
   "whitenoise",
+  "cookiecutter"
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"

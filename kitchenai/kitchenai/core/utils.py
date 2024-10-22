@@ -81,7 +81,7 @@ def setup(api: "NinjaAPI"):
         logger.info(f'Imported {instance_name} from {module_path}')
         if isinstance(instance, KitchenAIApp):
             logger.info(f'{instance_name} is a valid KitchenAIApp instance.')
-            api.add_router("/custom", instance._router)
+            api.add_router(f"/{instance._namespace}", instance._router)
         else:
             logger.error(f'{instance_name} is not a valid KitchenAIApp instance.')
 

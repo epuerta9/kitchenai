@@ -14,7 +14,7 @@ class KitchenAIApp:
         self._router = router if router else Router()
 
     # Helper method to create a decorator for a given route type
-    def _create_decorator(self, route_type: str, label: str):
+    def _create_decorator(self, route_type: str, method: str, label: str):
         def decorator(func, **route_kwargs):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
@@ -25,12 +25,12 @@ class KitchenAIApp:
                 return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
 
             # Define the path for the route using the namespace and label
-            route_path = f"/{self._namespace}/{route_type}/{label}"
+            route_path = f"/{route_type}/{label}"
 
             # Register the route using add_api_operation
             self._router.add_api_operation(
                 path=route_path,
-                methods=["POST"],  # Customize as needed (GET, PUT, etc.)
+                methods=[method],  # Customize as needed (GET, PUT, etc.)
                 view_func=wrapper,
                 **route_kwargs  # Pass the custom kwargs defined by the user in the decorator
             )
@@ -40,16 +40,16 @@ class KitchenAIApp:
 
     # Query decorator
     def query(self, label: str, **route_kwargs):
-        return self._create_decorator('query', label)
+        return self._create_decorator('query',"POST", label)
 
     # Storage decorator
     def storage(self, label: str, **route_kwargs):
-        return self._create_decorator('storage', label)
+        return self._create_decorator('storage', "POST", label)
 
     # Embedding decorator
     def embedding(self, label: str, **route_kwargs):
-        return self._create_decorator('embedding', label)
+        return self._create_decorator('embedding', "POST", label)
 
     # Runnable decorator (for chaining multiple tasks)
     def runnable(self, label: str, **route_kwargs):
-        return self._create_decorator('runnable', label)
+        return self._create_decorator('runnable', "POST", label)

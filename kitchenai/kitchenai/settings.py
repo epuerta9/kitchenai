@@ -90,6 +90,7 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    "allauth_ui",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -110,6 +111,8 @@ THIRD_PARTY_APPS = [
     "heroicons",
     "template_partials",
     "unique_user_email",
+    "widget_tweaks",
+    "slippers",
 ]
 
 LOCAL_APPS = [

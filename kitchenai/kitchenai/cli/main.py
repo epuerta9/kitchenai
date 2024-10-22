@@ -4,6 +4,7 @@ import sys
 import django
 import typer
 from django.conf import settings
+from cookiecutter.main import cookiecutter
 
 logger = logging.getLogger(__name__)
 app = typer.Typer()
@@ -91,16 +92,42 @@ def manage() -> None:
 def setup():
     """Run some project setup tasks"""
     from django.core.management import execute_from_command_line
-    from django.core.management.base import CommandError
-    from contextlib import suppress
+    import os
 
     execute_from_command_line(["manage", "migrate"])
     execute_from_command_line(["manage", "setup_periodic_tasks"])
 
-    with suppress(CommandError):
-        execute_from_command_line(
-            ["manage", "createsuperuser", "--noinput", "--traceback"]
-        )
+    # Set environment variables for superuser credentials
+    email = os.environ.get("DJANGO_SUPERUSER_EMAIL", "admin@localhost")
+    password = os.environ.get("DJANGO_SUPERUSER_PASSWORD", "admin")
+    username = os.environ.get("DJANGO_SUPERUSER_USERNAME", email.split("@")[0])
+
+    if password == "admin":
+        #set it 
+        os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
+    execute_from_command_line(
+        ["manage", "createsuperuser", "--noinput", "--traceback", "--email", email, "--username", username]
+    )
+
+@app.command()
+def build():
+    """
+    Reads the kitchen config file, reads the application file and runs the KitchenAI server
+    """
+    from django.core.management import execute_from_command_line
+    django.setup()
+
+    execute_from_command_line(["manage", "build_container"])
+
+
+@app.command()
+def new():
+    """
+    Reads the kitchen config file, reads the application file and runs the KitchenAI server
+    """
+
+    cookiecutter("https://github.com/epuerta9/cookiecutter-cookbook.git", output_dir=".")
+
 
 
 def _run_with_honcho(commands: dict):
