@@ -1,0 +1,19 @@
+
+# Stage 1: General enviroment
+FROM kitchenai:latest
+
+# Install dependencies
+WORKDIR $PYSETUP_PATH
+COPY ./requirements.txt ./
+RUN pip install --upgrade pip uv \
+ && python -m uv venv $VENV_PATH && uv pip install -r requirements.txt
+
+ 
+# Build static files
+COPY . /app
+WORKDIR /app
+
+
+EXPOSE 8000
+ENTRYPOINT ["/init"]
+# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://0.0.0.0:8000/health

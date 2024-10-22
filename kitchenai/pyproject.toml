@@ -47,6 +47,7 @@ dependencies = [
   "llama-index",
   "llama-index-vector-stores-chroma",
   "pillow",
+  "chromadb",
   "psycopg[binary]",
   "pyyaml",
   "refreshcss",
