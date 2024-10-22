@@ -1,7 +1,13 @@
+import logging
+
 from ninja import NinjaAPI
-from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 api = NinjaAPI()
 
-# api.add_router("/kitchen1/", "kitchen1.kitchen1_cookbook.kitchen.router")  #   or by Python path
 
+@api.get("/health")
+async def default(request):
+
+    return {"msg":"ok"}

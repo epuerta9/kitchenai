@@ -57,4 +57,3 @@ repos:
         entry: rustywind
         args: [--write]
         types_or: [html]
-

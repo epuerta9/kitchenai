@@ -1,20 +1,18 @@
 import multiprocessing
-import sys
 import os
-
+import sys
 from email.utils import parseaddr
 from pathlib import Path
 
+import djp
 import sentry_sdk
 from environs import Env
+from falco_toolbox.sentry import sentry_profiles_sampler
+from falco_toolbox.sentry import sentry_traces_sampler
 from marshmallow.validate import Email
 from marshmallow.validate import OneOf
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
-
-from falco_toolbox.sentry import sentry_profiles_sampler
-from falco_toolbox.sentry import sentry_traces_sampler
-import djp
 
 # 0. Setup
 # --------------------------------------------------------------------------------------------
@@ -30,6 +28,7 @@ env.read_env(Path(BASE_DIR, ".env").as_posix())
 # is True or it is False. `DEBUG` should be only true in development, and
 # False when deployed, whether or not it's a production environment.
 DEBUG = env.bool("DEBUG", default=False)
+
 
 # 1. Django Core Settings
 # -----------------------------------------------------------------------------------------------
@@ -91,6 +90,7 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    "allauth_ui",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -111,6 +111,8 @@ THIRD_PARTY_APPS = [
     "heroicons",
     "template_partials",
     "unique_user_email",
+    "widget_tweaks",
+    "slippers",
 ]
 
 LOCAL_APPS = [
@@ -421,8 +423,10 @@ if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not DEBUG:
 ADMIN_URL = env.str("ADMIN_URL", default="admin/")
 
 
+#KITCHEN AI
+
 KITCHENAI = {}
 
 
-# Django plugin system. This has to be the last line 
+# Django plugin system. This has to be the last line
 djp.settings(globals())

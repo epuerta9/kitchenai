@@ -20,7 +20,7 @@ Hatch can [manage your python installation](https://hatch.pypa.io/latest/tutoria
 ```shell
 just setup
 ```
-Read the content of the justfile to understand what this command does. Essentially, it sets up your virtual environment, 
+Read the content of the justfile to understand what this command does. Essentially, it sets up your virtual environment,
 installs the dependencies, runs migrations, and creates a superuser with the credentials `admin@localhost` (email) and `admin` (password).
 
 ### Run the django development server

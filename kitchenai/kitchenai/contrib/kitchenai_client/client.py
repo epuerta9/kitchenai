@@ -1,11 +1,14 @@
 import json
-import os
-from typing import Dict, Any, Optional
-from tenacity import retry, stop_after_attempt, wait_exponential
 import mimetypes
+import os
+from typing import Any
+
+from tenacity import retry
+from tenacity import stop_after_attempt
+from tenacity import wait_exponential
 
 class KitchenClient:
-    def __init__(self, config: Optional[Dict[str, Any]] = None, **kwargs):
+    def __init__(self, config: dict[str, Any] | None = None, **kwargs):
         self._config = config or {}
         self.app_id = kwargs.get('app_id', "kitchenai")
         self._namespace = kwargs.get('namespace', "default")
@@ -21,7 +24,7 @@ class KitchenClient:
     def dapr_id(self, target: str) -> 'KitchenClient':
         self.app_id = target
         return self
-    
+
     def namespace(self, namespace: str) -> 'KitchenClient':
         self._namespace = namespace
         return self
@@ -36,7 +39,7 @@ class KitchenClient:
         return self.invoke(data, route=path)
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def invoke(self, data: Dict[str, Any], namespace: Optional[str] = None, route: Optional[str] = None) -> str:
+    def invoke(self, data: dict[str, Any], namespace: str | None = None, route: str | None = None) -> str:
         namespace = namespace or self._namespace
         if not route:
             raise ValueError("Route must be specified")

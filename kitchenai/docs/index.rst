@@ -6,7 +6,7 @@
 
    applications/index
    changelog
-   
+
 -----
 
 .. admonition:: Useful links

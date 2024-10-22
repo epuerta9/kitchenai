@@ -19,7 +19,7 @@ jobs:
           caprover-server-url: ${{ secrets.CAPROVER_SERVER_URL }}
           caprover-app-token: ${{ secrets.CAPROVER_APP_TOKEN }}
           docker-file-name: deploy/Dockerfile
-  
+
   build-python-wheel-and-sdist:
     name: Build a pure Python wheel and source distribution
     runs-on: ubuntu-latest
