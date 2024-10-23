@@ -374,7 +374,7 @@ markdown-it-py==3.0.0
     # via rich
 markupsafe==3.0.2
     # via jinja2
-marshmallow==3.22.0
+marshmallow==3.23.0
     # via
     #   dataclasses-json
     #   environs
