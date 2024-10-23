@@ -1,7 +1,0 @@
-version: 0.0.1
-project_name: "llama-index-chat-engine-best-mode"
-app: kitchenai_llama_index_chat_engine_best_mode.kitchen:kitchen
-description: |
-  this is my entire description of my current running cookbook
-dependencies:
-  - chromadb
