@@ -1,7 +1,5 @@
-Here's a revamped version of your README to make it more engaging, detailed, and better formatted:
 
 ---
-
 # 🍽️ KitchenAI
 
 [![Falco](https://img.shields.io/badge/built%20with-falco-success)](https://github.com/Tobi-De/falco)
@@ -157,6 +155,3 @@ This project draws inspiration from the [Falco Project](https://github.com/Tobi-
 
 > 💡 **Pro Tip**: Run `just` to see all available commands and streamline your development workflow!
 
----
-
-This README provides a structured and engaging way to get started with KitchenAI, helping developers quickly understand the power of the tool and how to use it effectively. Let me know if you need any more adjustments!
