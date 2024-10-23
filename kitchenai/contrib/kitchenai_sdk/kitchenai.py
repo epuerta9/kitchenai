@@ -53,3 +53,7 @@ class KitchenAIApp:
     # Runnable decorator (for chaining multiple tasks)
     def runnable(self, label: str, **route_kwargs):
         return self._create_decorator('runnable', "POST", label)
+
+    # Agent decorator
+    def agent(self, label: str, **route_kwargs):
+        return self._create_decorator('agent', "POST", label)

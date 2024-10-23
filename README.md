@@ -8,13 +8,28 @@
 
 **Your AI Kitchen Assistant for Production-Ready Cookbooks!**
 
-KitchenAI is designed to make building, sharing, and consuming AI-powered cookbooks easy, efficient, and scalable. Whether you want to quickly prototype AI solutions or deploy robust applications, KitchenAI provides the tools you need—all in one place!
+KitchenAI is designed to make building, sharing, and consuming AI-powered cookbooks easy, efficient, and scalable. Whether you want to quickly prototype AI solutions or deploy robust applications, KitchenAI provides a hardened application runtime so you only focus on authoring AI code in simple functions.
 
 ## 🚀 Features
 - **Quick Cookbook Creation**: Spin up new cookbooks with one command.
 - **Production-Ready AI**: Turn your ideas into robust, AI-driven endpoints.
 - **Extensible Framework**: Easily add your custom recipes and integrate them into your apps.
 - **Containerized Deployment**: Build Docker containers and share your cookbooks effortlessly.
+
+
+
+
+## 🚀 Under the Hood Magic
+
+KitchenAI is built with a powerful stack of technologies that provide flexibility, performance, and ease of deployment—all optimized for a modern AI development workflow:
+
+- **⚡ Async Django (v5.0+)**: Leveraging the battle-tested Django framework for unparalleled reliability and flexibility. Built for async operations, allowing you to scale and extend your application effortlessly.
+  
+- **🌀 Django Ninja**: Streamlined, async-first API framework. With Django Ninja, async functions come as the default, enabling you to build high-performance APIs without the hassle.
+  
+- **⚙️ Django Q2**: A robust task broker that lets you offload long-running processes and background tasks with ease, ensuring your application remains fast and responsive.
+
+- **🔧 S6 Overlay**: The ultimate Docker process supervisor. S6 Overlay bundles KitchenAI into a compact and efficient container, managing processes gracefully to ensure everything runs smoothly, even under heavy loads.
 
 ---
 
@@ -27,6 +42,198 @@ Before you start, make sure you have the following:
 - [Just](https://github.com/casey/just) task runner
 
 ---
+
+Here's a revamped and more engaging version of your documentation, complete with a collapsible OpenAPI spec section for clarity and a bit of added detail for each component:
+
+---
+
+## 🍳 KitchenAI Types
+
+KitchenAI provides a standard interface between developers and AI functions through API endpoints. With these powerful types, you can easily decorate your functions and turn them into production-ready APIs. The available KitchenAI types include:
+
+1. **Storage**: Store and manage data easily.
+2. **Embedding**: Generate and work with vector embeddings.
+3. **Agent**: Build and manage autonomous agents.
+4. **Query**: Execute AI-powered queries and retrieve responses.
+
+---
+
+## 🗂️ Storage Type
+
+
+### Example Usage
+
+```python
+from ninja import Router, Schema, File
+from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
+from ninja.files import UploadedFile
+
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext
+from llama_index.vector_stores.chroma import ChromaVectorStore
+
+from llama_index.llms.openai import OpenAI
+import os 
+import tempfile
+import chromadb
+
+# Set up ChromaDB client and a new collection
+chroma_client = chromadb.EphemeralClient()
+chroma_collection = chroma_client.create_collection("quickstart")
+llm = OpenAI(model="gpt-4")
+
+
+class Query(Schema):
+    query: str
+
+kitchen = KitchenAIApp()
+
+# This decorator uniquely identifies your function as an API route.
+@kitchen.storage("storage")
+def chromadb_storage(request, file: UploadedFile = File(...)):
+    """
+    Store uploaded files into a vector store
+    """
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_file_path = os.path.join(temp_dir, file.name)
+        
+        with open(temp_file_path, "wb") as temp_file: 
+            for chunk in file.chunks():
+                temp_file.write(chunk)
+
+        documents = SimpleDirectoryReader(input_dir=temp_dir).load_data()
+
+    vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+    
+    return {"msg": "ok"}
+```
+
+This code creates a storage endpoint where uploaded files are stored as vector embeddings in a Chroma vector store. KitchenAI manages everything, making your AI functions accessible via API.
+
+---
+
+## 💬 Chat Type
+
+
+```python
+@kitchen.query("query")
+async def query(request, query: Query):
+    vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+
+    index = VectorStoreIndex.from_vector_store(vector_store)
+
+    chat_engine = index.as_chat_engine(chat_mode="best", llm=llm, verbose=True)
+    response = await chat_engine.achat(query.query)
+
+    return {"msg": response.response}
+```
+
+This code snippet turns your function into an API that processes chat queries using a vector store, returning responses dynamically.
+
+---
+
+## 📝 API Documentation
+
+### OpenAPI Specification (Click to Expand)
+
+<details>
+  <summary>View OpenAPI Spec</summary>
+
+```json
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "KitchenAI API",
+    "version": "1.0.0",
+    "description": "A powerful API for building and managing AI cookbooks"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "kitchenai_api_default",
+        "summary": "Default",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/custom/default/storage/storage": {
+      "post": {
+        "operationId": "kitchenai_chromadb_storage",
+        "summary": "ChromaDB Storage",
+        "description": "Store uploaded files into a vector store",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "title": "File",
+                    "type": "string"
+                  }
+                },
+                "required": ["file"],
+                "title": "FileParams",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/custom/default/query/query": {
+      "post": {
+        "operationId": "kitchenai_query",
+        "summary": "Query",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Query"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Query": {
+        "properties": {
+          "query": {
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": ["query"],
+        "title": "Query",
+        "type": "object"
+      }
+    }
+  },
+  "servers": []
+}
+```
+
+</details>
+
 
 ## ⚡ Quickstart
 
