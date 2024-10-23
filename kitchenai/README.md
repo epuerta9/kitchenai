@@ -4,13 +4,15 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Hatch project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)
 
+Production ready AI cookbooks and recipes. KitchenAI makes it easy to build and share cookbooks, as well as easily consume them within your apps. Extensible to 
+
 ## Prerequisites
 
 - `Python 3.11+`
 - [hatch 1.9.1+](https://hatch.pypa.io/latest/)
 - [just](https://github.com/casey/just)
 
-## Development
+## Quickstart
 
 ### Setup project
 

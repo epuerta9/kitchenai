@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "kitchenai-community"
+name = "kitchenai-client"
 dynamic = ["version"]
 description = ''
 readme = "README.md"
@@ -27,31 +27,31 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/epuerta/kitchenai-community#readme"
-Issues = "https://github.com/epuerta/kitchenai-community/issues"
-Source = "https://github.com/epuerta/kitchenai-community"
+Documentation = "https://github.com/epuerta/kitchenai-client#readme"
+Issues = "https://github.com/epuerta/kitchenai-client/issues"
+Source = "https://github.com/epuerta/kitchenai-client"
 
 [tool.hatch.version]
-path = "src/kitchenai_community/__about__.py"
+path = "src/kitchenai_client/__about__.py"
 
 [tool.hatch.envs.types]
 extra-dependencies = [
   "mypy>=1.0.0",
 ]
 [tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/kitchenai_community tests}"
+check = "mypy --install-types --non-interactive {args:src/kitchenai_client tests}"
 
 [tool.coverage.run]
-source_pkgs = ["kitchenai_community", "tests"]
+source_pkgs = ["kitchenai_client", "tests"]
 branch = true
 parallel = true
 omit = [
-  "src/kitchenai_community/__about__.py",
+  "src/kitchenai_client/__about__.py",
 ]
 
 [tool.coverage.paths]
-kitchenai_community = ["src/kitchenai_community", "*/kitchenai-community/src/kitchenai_community"]
-tests = ["tests", "*/kitchenai-community/tests"]
+kitchenai_client = ["src/kitchenai_client", "*/kitchenai-client/src/kitchenai_client"]
+tests = ["tests", "*/kitchenai-client/tests"]
 
 [tool.coverage.report]
 exclude_lines = [

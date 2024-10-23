@@ -3,10 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+
+#KitchenAI 
+.kitchenai/
+
 # C extensions
 *.so
-
-uploads/
 
 # Distribution / packaging
 .Python
