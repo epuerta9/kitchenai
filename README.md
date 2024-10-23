@@ -8,15 +8,28 @@
 
 **Your AI Kitchen Assistant for Production-Ready Cookbooks!**
 
-KitchenAI is designed to make building, sharing, and consuming AI-powered cookbooks easy, efficient, and scalable. Whether you want to quickly prototype AI solutions or deploy robust applications, KitchenAI provides a hardened application runtime so you only focus on authoring AI code in simple functions.
+KitchenAI is designed to make building, sharing, and consuming AI-powered cookbooks easy, efficient, and scalable. Whether you want to quickly prototype AI solutions or deploy robust applications, KitchenAI provides a hardened application runtime so you only focus on authoring AI code in simple functions that is completely AI framework agnostic.
+
+
+## Why? 
+
+The problem is the complexity of building AI applications has exploded within the last year with the amount of frameworks and techniques required to make things production ready. While these frameworks are crucial to delivering the best app experience, diving into langchain and llama-index is now requiring a specific skill-set entirely that puts a massive burden on application developers that are wanting to integrate AI into their products.
+
+The current solution has been to publish a list of cookbooks in jupyter notebook format and  while nice to look at, does not make it usable by other developers. You would have to read through the notebook, understand the sections you want, and copy paste the code that is needed into your application. Assuming you're also working in the same language!! Headache after headache just to integrate AI.
+
+The better solution is to let AI developers write kitchenai decorated functions in whichever framework they choose and instantly have an production ready API for everyone to use. It takes an opinionated approach, using a variety of proven technologies, to build an API server without dealing with HTTP semantics. 
+
+> _For those that do want more control, you have complete access to request objects, django ninja routers, and other django internals if your use case needs it._
+
+## Project Status
+
+We are still in alpha and welcome contributions, thoughts, suggestions. Check out our shortlist for project roadmap [Roadmap](#roadmap)
 
 ## 🚀 Features
 - **Quick Cookbook Creation**: Spin up new cookbooks with one command.
 - **Production-Ready AI**: Turn your ideas into robust, AI-driven endpoints.
 - **Extensible Framework**: Easily add your custom recipes and integrate them into your apps.
 - **Containerized Deployment**: Build Docker containers and share your cookbooks effortlessly.
-
-
 
 
 ## 🚀 Under the Hood Magic
@@ -331,6 +344,22 @@ docker compose up -d
 
 ### 💡 Tip:
 Add any necessary dependency containers to fit your specific use case and requirements!
+
+
+
+### Deployments
+
+Since this project is still in alpha, it is recommended at this time to deploy as a sidecar with minimal external access. 
+
+
+# Roadmap
+
+The following is our roadmap list of features.
+
+* Client SDK
+* Django Q2 worker integration
+* Signals framework for kitchenai functions 
+* Custom App plugins - Testing, other native integrations
 
 ---
 
