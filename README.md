@@ -44,6 +44,11 @@ KitchenAI is built with a powerful stack of technologies that provide flexibilit
 
 - **🔧 S6 Overlay**: The ultimate Docker process supervisor. S6 Overlay bundles KitchenAI into a compact and efficient container, managing processes gracefully to ensure everything runs smoothly, even under heavy loads.
 
+
+## Developer Experience
+
+![Developer Flow](./docs/images/developer-flow.png)
+
 ---
 
 ## 📋 Prerequisites
@@ -54,11 +59,7 @@ Before you start, make sure you have the following:
 - [Hatch 1.9.1+](https://hatch.pypa.io/latest/)
 - [Just](https://github.com/casey/just) task runner
 
----
 
-Here's a revamped and more engaging version of your documentation, complete with a collapsible OpenAPI spec section for clarity and a bit of added detail for each component:
-
----
 
 ## 🍳 KitchenAI Types
 
@@ -147,6 +148,8 @@ This code snippet turns your function into an API that processes chat queries us
 ---
 
 ## 📝 API Documentation
+
+The above functions translate to the following OpenAPI Spec
 
 ### OpenAPI Specification (Click to Expand)
 
