@@ -552,7 +552,7 @@ pyyaml==6.0.2
     #   llama-index-core
     #   slippers
     #   uvicorn
-rcssmin==1.1.2
+rcssmin==1.1.3
     # via django-compressor
 refreshcss==0.5.1
     # via hatch.envs.default
