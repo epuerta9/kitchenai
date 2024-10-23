@@ -13,11 +13,11 @@ KitchenAI is designed to make building, sharing, and consuming AI-powered cookbo
 
 ## Why? 
 
-The problem is the complexity of building AI applications has exploded within the last year with the amount of frameworks and techniques required to make things production ready. While these frameworks are crucial to delivering the best app experience, diving into langchain and llama-index is now requiring a specific skill-set entirely that puts a massive burden on application developers that are wanting to integrate AI into their products.
+The complexity of building AI applications has significantly increased in recent years due to the growing number of frameworks, techniques, and tools required to make solutions production-ready. While these frameworks, such as LangChain and LlamaIndex, are essential for delivering high-quality AI applications, they often demand specialized knowledge. This creates a substantial burden for application developers who aim to integrate AI into their products but may lack the specific expertise needed.
 
-The current solution has been to publish a list of cookbooks in jupyter notebook format and  while nice to look at, does not make it usable by other developers. You would have to read through the notebook, understand the sections you want, and copy paste the code that is needed into your application. Assuming you're also working in the same language!! Headache after headache just to integrate AI.
+Currently, the common approach is to provide a collection of AI "cookbooks" in Jupyter Notebook format. While these resources are helpful for learning, they are not readily usable in production by other developers. To integrate such code, developers must read through the notebooks, extract relevant sections, and adapt the code to fit their own applications—assuming they are working in the same programming language. This process is time-consuming, inefficient, and often frustrating.
 
-The better solution is to let AI developers write kitchenai decorated functions in whichever framework they choose and instantly have an production ready API for everyone to use. It takes an opinionated approach, using a variety of proven technologies, to build an API server without dealing with HTTP semantics. 
+A more efficient solution is to allow AI developers to write kitchenai-decorated functions within their preferred frameworks, automatically generating a production-ready API. This approach uses proven technologies in a structured, opinionated manner to create an API server that abstracts away the complexities of HTTP semantics. The result is a streamlined development process, enabling seamless integration of AI capabilities into applications without the need for extensive, specialized knowledge.
 
 > _For those that do want more control, you have complete access to request objects, django ninja routers, and other django internals if your use case needs it._
 
