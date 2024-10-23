@@ -1521,7 +1521,7 @@ userpath==1.9.2
     # via hatch
 uv==0.4.22
     # via hatch
-uvicorn==0.31.1
+uvicorn==0.32.0
     # via
     #   -c requirements.txt
     #   chromadb

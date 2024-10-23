@@ -686,7 +686,7 @@ urllib3==2.2.3
     #   kubernetes
     #   requests
     #   sentry-sdk
-uvicorn==0.31.1
+uvicorn==0.32.0
     # via chromadb
 uvloop==0.21.0
     # via uvicorn
