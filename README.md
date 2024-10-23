@@ -6,9 +6,9 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Hatch Project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)
 
-**Your AI Kitchen Assistant for Production-Ready Cookbooks!**
+**Your AI Kitchen for Production-Ready Cookbooks!**
 
-KitchenAI is designed to make building, sharing, and consuming AI-powered cookbooks easy, efficient, and scalable. Whether you want to quickly prototype AI solutions or deploy robust applications, KitchenAI provides a hardened application runtime so you only focus on authoring AI code in simple functions that is completely AI framework agnostic.
+KitchenAI is designed to make building, sharing, and consuming AI-powered cookbooks easy, efficient, and scalable. Whether you want to quickly prototype AI solutions or deploy robust applications, KitchenAI provides a hardened application runtime so you only focus on authoring AI code in simple functions that are completely AI framework agnostic.
 
 
 ## Why? 
