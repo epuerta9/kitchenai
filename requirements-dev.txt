@@ -819,7 +819,7 @@ markupsafe==3.0.2
     #   jinja2
     #   nbconvert
     #   werkzeug
-marshmallow==3.22.0
+marshmallow==3.23.0
     # via
     #   -c requirements.txt
     #   dataclasses-json
