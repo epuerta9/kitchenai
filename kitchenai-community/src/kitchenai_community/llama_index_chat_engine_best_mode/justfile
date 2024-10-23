@@ -13,8 +13,8 @@ _default:
     hatch env create
     hatch env create dev 
     just install
-
-
+    touch .env 
+    
 # Install dependencies
 @install:
     just run python --version
