@@ -245,8 +245,6 @@ push-docker-image:
     set -euo pipefail
     current_version=$(hatch version)
     image_name="kitchenai"
-    just install
-    docker build -t "${image_name}:${current_version}" -f deploy/Dockerfile .
     docker tag "${image_name}:${current_version}" "${image_name}:latest"
     docker push "epuerta18/${image_name}:latest"
     docker push "epuerta18/${image_name}:${current_version}"

@@ -364,6 +364,7 @@ if not DEBUG:
     }
 
 # django-compressor
+COMPRESS_ENABLED = not DEBUG
 COMPRESS_OFFLINE = not DEBUG
 COMPRESS_FILTERS = {
     "css": [
