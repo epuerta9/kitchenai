@@ -73,6 +73,12 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@v2
 
+      - name: Install Node.js and npm
+        run: sudo apt-get update && sudo apt-get install -y nodejs npm
+
+      - name: Install DaisyUI
+        run: npm install -D daisyui
+
       - name: Build staticfiles
         run: just collectstatic
       - name: Test with pytest
