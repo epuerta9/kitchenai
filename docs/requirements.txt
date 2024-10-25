@@ -489,7 +489,7 @@ flatbuffers==24.3.25
     #   onnxruntime
 fqdn==1.5.1
     # via jsonschema
-frozenlist==1.4.1
+frozenlist==1.5.0
     # via
     #   -c requirements.txt
     #   aiohttp
