@@ -5,6 +5,8 @@ import django
 import typer
 from django.conf import settings
 from cookiecutter.main import cookiecutter
+from typing_extensions import Annotated
+
 
 logger = logging.getLogger(__name__)
 app = typer.Typer()
@@ -19,7 +21,6 @@ def add(module: str = typer.Argument("app.kitchen:kitchen")):
 def init():
     from django.core.management import execute_from_command_line
     execute_from_command_line(["manage", "migrate"])
-
     execute_from_command_line(["manage", "init"])
 
 
@@ -27,47 +28,50 @@ def init():
 def qcluster() -> None:
     """Run Django-q cluster."""
     from django.core.management import execute_from_command_line
-
     # execute_from_command_line(["manage", "qcluster", *argv[2:]])
     execute_from_command_line(["manage", "qcluster"])
 
 
 @app.command()
-def runserver() -> None:
+def runserver(module: Annotated[str, typer.Option(help="Python module to load.")] = "") -> None:
     """Run Django runserver."""
-    # from django.core.management import execute_from_command_line
-    #sys.argv pop to remove the command line "dev" before extending the gunicorn command
-    sys.argv.pop(1)
+    #NOTE: doing this to reset the sys.argv for gunicorn command.
+    sys.argv = [sys.argv[0]]
+
     django.setup()
     from kitchenai.api import api
     from kitchenai.core.utils import setup
 
     setup(
-        api
+        api,
+        module=module
     )
     _run_dev_uvicorn(sys.argv)
 
 @app.command()
-def run() -> None:
+def run(module: Annotated[str, typer.Option(help="Python module to load.")] = "") -> None:
     """Run Django runserver."""
-    sys.argv.pop(1)
+    sys.argv = [sys.argv[0]]
     django.setup()
     from kitchenai.api import api
     from kitchenai.core.utils import setup
 
     setup(
-        api
+        api,
+        module=module
     )
 
     _run_uvicorn(sys.argv)
 
 
 @app.command()
-def dev(address: str ="0.0.0.0:8000"):
+def dev(address: str ="0.0.0.0:8000", module: Annotated[str, typer.Option(help="Python module to load.")] = "" ):
     """
     Reads the kitchen config file, reads the application file and runs the KitchenAI server
     """
     commands = {"server": "kitchenai runserver"}
+    if module:
+        commands["server"] = f"kitchenai runserver --module {module}"
     if "django_tailwind_cli" in settings.INSTALLED_APPS:
         commands["tailwind"] = "django-admin tailwind watch"
     if "tailwind" in settings.INSTALLED_APPS:
@@ -91,6 +95,7 @@ def manage() -> None:
 @app.command()
 def setup():
     """Run some project setup tasks"""
+    django.setup()
     from django.core.management import execute_from_command_line
     import os
 
