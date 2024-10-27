@@ -1,5 +1,5 @@
 # Stage 1: Use the kitchenai base image
-FROM epuerta18/kitchenai:latest
+FROM kitchenai:latest
 
 # Set up environment variables
 ENV PYSETUP_PATH="/opt/pysetup" \
@@ -7,13 +7,11 @@ ENV PYSETUP_PATH="/opt/pysetup" \
     PYTHONPATH="/app" \
     PATH="$VENV_PATH/bin:$PATH"
 
-# Copy additional dependencies (e.g., wheel files) into the container
-COPY dist/ /tmp
 
 # Install additional dependencies into the existing virtual environment
 WORKDIR /tmp
-#RUN python -m ensurepip && \
-    python -m pip install /tmp/*.whl
+
+ENV KITCHENAI_MODULE={{ module }}
 
 COPY requirements.txt requirements.txt
 
@@ -24,14 +22,17 @@ RUN python -m ensurepip && \
 WORKDIR /app
 
 # Run migrations and setup tasks using the existing manage.py script
+{% if admin %}
+
 RUN . $VENV_PATH/bin/activate && \
-    python manage.py migrate && \
-    python manage.py setup_periodic_tasks
+        python kitchenai init
+{% else %}
+RUN . $VENV_PATH/bin/activate && \
+        python kitchenai init --admin
+{% endif %}
 
-COPY . /app/
+COPY app.py .
 
-# Initialize the application
-RUN . $VENV_PATH/bin/activate && python manage.py init
 
 # Expose the application port
 EXPOSE 8000
