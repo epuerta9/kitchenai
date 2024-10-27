@@ -7,14 +7,16 @@ from django.conf import settings
 from cookiecutter.main import cookiecutter
 from typing_extensions import Annotated
 from rich.console import Console
-from rich.spinner import Spinner
 import os
+
+from .cook import app as cook_app
 
 console = Console()
 
 logger = logging.getLogger(__name__)
 
 app = typer.Typer()
+app.add_typer(cook_app, name="cook")
 
 @app.command()
 def add(module: str = typer.Argument("app.kitchen:kitchen")):
