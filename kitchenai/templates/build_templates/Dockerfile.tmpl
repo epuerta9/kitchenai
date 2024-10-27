@@ -1,5 +1,5 @@
 # Stage 1: Use the kitchenai base image
-FROM kitchenai:latest
+FROM epuerta18/kitchenai:latest
 
 # Set up environment variables
 ENV PYSETUP_PATH="/opt/pysetup" \
