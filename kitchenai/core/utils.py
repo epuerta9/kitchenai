@@ -17,9 +17,13 @@ logger = logging.getLogger("kitchenai.core.utils")
 def load_config_from_db(config: dict):
     try:
         mgmt = KitchenAIManagement.objects.get(name="kitchenai_management")
-
+    except KitchenAIManagement.DoesNotExist:
+        return config
+    
+    try:
         app = mgmt.kitchenaimodules_set.filter(is_root=True).first()
-        config["app"] = yaml.safe_load(app.name)
+        if app:
+            config["app"] = yaml.safe_load(app.name)
     except KitchenAIManagement.DoesNotExist:
         pass
     return config
@@ -80,8 +84,6 @@ def setup(api: "NinjaAPI", module: str = ""):
 
     #importing main app
     try:
-        print(config["app"])
-
         module_path, instance_name = config["app"].split(':')
         module = import_module(module_path)
         instance = getattr(module, instance_name)
