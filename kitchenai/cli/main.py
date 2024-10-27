@@ -6,9 +6,13 @@ import typer
 from django.conf import settings
 from cookiecutter.main import cookiecutter
 from typing_extensions import Annotated
+from rich.console import Console
+from rich.spinner import Spinner
 
+console = Console()
 
 logger = logging.getLogger(__name__)
+
 app = typer.Typer()
 
 @app.command()
@@ -18,10 +22,30 @@ def add(module: str = typer.Argument("app.kitchen:kitchen")):
     execute_from_command_line(["manage", "add_module", module])
 
 @app.command()
-def init():
+def init(verbose: Annotated[int, typer.Option(help="verbosity level. default 0")] = 0):
+    django.setup()
     from django.core.management import execute_from_command_line
-    execute_from_command_line(["manage", "migrate"])
-    execute_from_command_line(["manage", "init"])
+    from kitchenai.core.models import KitchenAIManagement
+    from django.conf import settings
+    
+    cmd = ["manage", "migrate","--verbosity", f"{verbose}"]
+
+    if not verbose == 1:
+        with console.status("Applying migrations...", spinner="dots"):
+            execute_from_command_line(cmd)
+    else:
+        execute_from_command_line(cmd)
+
+
+    KitchenAIManagement.objects.all().delete()
+    try:
+        mgmt = KitchenAIManagement.objects.create(
+            version = settings.VERSION,
+            project_name = "default"
+        )
+    except Exception as e:
+        logger.error(e)
+        return
 
 
 @app.command()

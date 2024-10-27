@@ -57,7 +57,8 @@ dependencies = [
   "sentry-sdk",
   "typer",
   "whitenoise",
-  "cookiecutter"
+  "cookiecutter", 
+  "rich"
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"

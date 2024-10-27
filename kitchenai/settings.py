@@ -17,9 +17,16 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 # 0. Setup
 # --------------------------------------------------------------------------------------------
 
+
+VERSION = "0.0.1"
+
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 APPS_DIR = BASE_DIR / "kitchenai"
+
+KITCHENAI_DB_DIR = BASE_DIR / '.kitchenai'
+
+KITCHENAI_DB_DIR.mkdir(exist_ok=True)
 
 env = Env()
 env.read_env(Path(BASE_DIR, ".env").as_posix())
@@ -56,7 +63,7 @@ if "CACHE_LOCATION" in os.environ:
 CSRF_COOKIE_SECURE = not DEBUG
 
 DATABASES = {
-    "default": env.dj_db_url("DATABASE_URL", default="sqlite:///db.sqlite3"),
+    "default": env.dj_db_url("DATABASE_URL", default=f"sqlite:///{KITCHENAI_DB_DIR / 'db.sqlite3'}"),
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 

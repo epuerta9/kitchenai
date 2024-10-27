@@ -36,6 +36,7 @@
 # - psycopg[binary]
 # - pyyaml
 # - refreshcss
+# - rich
 # - sentry-sdk
 # - slippers
 # - typer
@@ -552,6 +553,7 @@ pyyaml==6.0.2
     #   llama-index-core
     #   slippers
     #   uvicorn
+rcssmin==1.1.2
     # via django-compressor
 refreshcss==0.5.1
     # via hatch.envs.default
@@ -577,6 +579,7 @@ requests-oauthlib==2.0.0
     #   kubernetes
 rich==13.9.2
     # via
+    #   hatch.envs.default
     #   chromadb
     #   cookiecutter
     #   falco-app
