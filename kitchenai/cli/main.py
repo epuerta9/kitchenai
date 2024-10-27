@@ -8,6 +8,7 @@ from cookiecutter.main import cookiecutter
 from typing_extensions import Annotated
 from rich.console import Console
 from rich.spinner import Spinner
+import os
 
 console = Console()
 
@@ -22,7 +23,12 @@ def add(module: str = typer.Argument("app.kitchen:kitchen")):
     execute_from_command_line(["manage", "add_module", module])
 
 @app.command()
-def init(verbose: Annotated[int, typer.Option(help="verbosity level. default 0")] = 0):
+def init(
+    verbose: Annotated[int, typer.Option(help="verbosity level. default 0")] = 0,
+    email: Annotated[str, typer.Option(help="superuser email")] = os.environ.get("DJANGO_SUPERUSER_EMAIL", "admin@localhost"),
+    password: Annotated[str, typer.Option(help="superuser email")] = os.environ.get("DJANGO_SUPERUSER_PASSWORD", "admin"),
+
+    ):
     django.setup()
     from django.core.management import execute_from_command_line
     from kitchenai.core.models import KitchenAIManagement
@@ -33,8 +39,32 @@ def init(verbose: Annotated[int, typer.Option(help="verbosity level. default 0")
     if not verbose == 1:
         with console.status("Applying migrations...", spinner="dots"):
             execute_from_command_line(cmd)
+
+        with console.status("Setting up periodic tasks", spinner="dots"):
+            execute_from_command_line(["manage", "setup_periodic_tasks"])
+
+        with console.status("Creating superuser...", spinner="dots"):
+            execute_from_command_line(["manage", "setup_periodic_tasks"])
+
+            username = os.environ.get("DJANGO_SUPERUSER_USERNAME", email.split("@")[0])
+
+            if password == "admin":
+                os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
+
+            execute_from_command_line(
+                ["manage", "createsuperuser", "--noinput", "--traceback", "--email", email, "--username", username]
+            )
     else:
         execute_from_command_line(cmd)
+        execute_from_command_line(["manage", "setup_periodic_tasks"])
+        username = os.environ.get("DJANGO_SUPERUSER_USERNAME", email.split("@")[0])
+
+        if password == "admin":
+            os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
+
+        execute_from_command_line(
+            ["manage", "createsuperuser", "--noinput", "--traceback", "--email", email, "--username", username]
+        )
 
 
     KitchenAIManagement.objects.all().delete()

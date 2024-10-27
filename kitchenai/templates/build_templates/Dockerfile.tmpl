@@ -1,19 +1,40 @@
+# Stage 1: Use the kitchenai base image
+FROM epuerta18/kitchenai:latest
 
-# Stage 1: General enviroment
-FROM kitchenai:latest
+# Set up environment variables
+ENV PYSETUP_PATH="/opt/pysetup" \
+    VENV_PATH="/opt/pysetup/.venv" \
+    PYTHONPATH="/app" \
+    PATH="$VENV_PATH/bin:$PATH"
 
-# Install dependencies
-WORKDIR $PYSETUP_PATH
-COPY ./requirements.txt ./
-RUN pip install --upgrade pip uv \
- && python -m uv venv $VENV_PATH && uv pip install -r requirements.txt
+# Copy additional dependencies (e.g., wheel files) into the container
+COPY dist/ /tmp
 
+# Install additional dependencies into the existing virtual environment
+WORKDIR /tmp
+#RUN python -m ensurepip && \
+    python -m pip install /tmp/*.whl
+
+COPY requirements.txt requirements.txt
+
+RUN python -m ensurepip && \
+    python -m pip install -r requirements.txt
  
-# Build static files
-COPY . /app
+# Set the working directory
 WORKDIR /app
 
+# Run migrations and setup tasks using the existing manage.py script
+RUN . $VENV_PATH/bin/activate && \
+    python manage.py migrate && \
+    python manage.py setup_periodic_tasks
 
+COPY . /app/
+
+# Initialize the application
+RUN . $VENV_PATH/bin/activate && python manage.py init
+
+# Expose the application port
 EXPOSE 8000
+
+# Use the init system defined in the base image
 ENTRYPOINT ["/init"]
-# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://0.0.0.0:8000/health
