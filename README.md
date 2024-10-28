@@ -6,24 +6,82 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Hatch Project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)
 
-**Your AI Kitchen for Production-Ready Cookbooks!**
+![](./docs/images/kitchenai-list.gif)
 
-KitchenAI is designed to make building, sharing, and consuming AI-powered cookbooks easy, efficient, and scalable. Whether you want to quickly prototype AI solutions or deploy robust applications, KitchenAI provides a hardened application runtime so you only focus on authoring AI code in simple functions that are completely AI framework agnostic.
+**Build AI Applications Faster!**
+
+KitchenAI: Instantly turn your AI code into a production-ready API.
+
+* For AI Developers: Focus solely on building your AI techniques like RAG—no need to worry about backend setup. Just write your functions, decorate them, and KitchenAI handles the rest with a scalable, production-ready API server.
+
+* For App Developers: Integrate AI seamlessly with open-source APIs, leveraging KitchenAI’s robust foundations built on Django, background workers, and best-in-class frameworks.
+
+> Compatible with ANY AI framework.
+
+## Why?
+
+Building AI applications is increasingly complex, with developers needing to master multiple frameworks like LangChain and LlamaIndex just to get solutions production-ready. This creates a barrier for app developers who want to integrate AI but lack the specialized expertise.
+
+The common approach—using Jupyter Notebooks as "cookbooks"—is limited. Developers must manually extract, adapt, and rewrite code from these notebooks for their own use, which is time-consuming and inefficient.
+
+KitchenAI simplifies this by letting AI developers write functions using familiar frameworks, decorated with KitchenAI syntax. It then automatically generates a production-ready API, using proven technologies to handle the backend. This removes the need for developers to understand the complexities of HTTP or build their own servers, allowing seamless AI integration with minimal effort.
 
 
-## Why? 
-
-The complexity of building AI applications has significantly increased in recent years due to the growing number of frameworks, techniques, and tools required to make solutions production-ready. While these frameworks, such as LangChain and LlamaIndex, are essential for delivering high-quality AI applications, they often demand specialized knowledge. This creates a substantial burden for application developers who aim to integrate AI into their products but may lack the specific expertise needed.
-
-The current common approach is to provide a collection of AI "cookbooks" in Jupyter Notebook format. While these resources are helpful for learning, they are not readily usable in production by other developers. To integrate such code, developers must read through the notebooks, extract relevant sections, and adapt the code to fit their own applications—assuming they are working in the same programming language. This process is time-consuming, inefficient, and often frustrating.
-
-A more efficient solution is to allow AI developers to write kitchenai-decorated functions within their preferred frameworks, automatically generating a production-ready API. This approach uses proven technologies in a structured, opinionated manner to create an API server that abstracts away the complexities of HTTP semantics. The result is a streamlined development process, enabling seamless integration of AI capabilities into applications without the need for extensive, specialized knowledge.
 
 > _For those that do want more control, you have complete access to request objects, django ninja routers, and other django internals if your use case needs it._
 
 ## Project Status
 
 We are still in alpha and welcome contributions, thoughts, suggestions. Check out our shortlist for project roadmap [Roadmap](#roadmap)
+
+## ⚡ Quickstart
+
+### Step 1: Export Your OpenAI API Key
+
+KitchenAI’s demo uses OpenAI as the LLM provider. Set your OpenAI key in your environment:
+
+```bash
+export OPENAI_API_KEY=<your key>
+```
+
+> _Feel free to customize this with other LLM providers as needed!_
+
+### Step 2: Install KitchenAI
+
+
+```bash
+python -m venv venv && source venv/bin/activate && pip install kitchenai
+```
+
+### Step 3: Browse Available Projects
+
+```bash
+kitchenai cook list && kitchenai cook select llama-index-chat
+```
+![](./docs/images/kitchenai-list.gif)
+
+
+### Step 4: Init Environment
+
+```bash
+kitchenai init && kitchenai dev --module app:kitchen
+```
+![](./docs/images/kitchenai-dev.gif)
+
+An entire API server is spun up in seconds.
+
+![](./docs/images/openapi.png)
+
+### Step 5: Build A Docker Container
+
+```bash
+kitchenai build . app:kitchenai
+```
+
+![](./docs/images/kitchenai-build.gif)
+
+the container will be named kitchenai-app
+
 
 ## 🚀 Features
 - **Quick Cookbook Creation**: Spin up new cookbooks with one command.
@@ -50,15 +108,6 @@ KitchenAI is built with a powerful stack of technologies that provide flexibilit
 ![Developer Flow](./docs/images/developer-flow.png)
 
 ---
-
-## 📋 Prerequisites
-
-Before you start, make sure you have the following:
-
-- Python `3.11+`
-- [Hatch 1.9.1+](https://hatch.pypa.io/latest/)
-- [Just](https://github.com/casey/just) task runner
-
 
 
 ## 🍳 KitchenAI Types
@@ -95,7 +144,7 @@ chroma_client = chromadb.EphemeralClient()
 chroma_collection = chroma_client.create_collection("quickstart")
 llm = OpenAI(model="gpt-4")
 
-
+# Use Django Ninja Schemas to define the Request Body
 class Query(Schema):
     query: str
 
@@ -131,6 +180,7 @@ This code creates a storage endpoint where uploaded files are stored as vector e
 
 
 ```python
+# Async Function
 @kitchen.query("query")
 async def query(request, query: Query):
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
@@ -153,8 +203,6 @@ The above functions translate to the following OpenAPI Spec
 
 ### OpenAPI Specification (Click to Expand)
 
-<details>
-  <summary>View OpenAPI Spec</summary>
 
 ```json
 {
@@ -248,102 +296,11 @@ The above functions translate to the following OpenAPI Spec
 }
 ```
 
-</details>
 
 
-## ⚡ Quickstart
 
-### Step 1: Export Your OpenAI API Key
-
-KitchenAI’s demo uses OpenAI as the LLM provider. Set your OpenAI key in your environment:
-
-```bash
-export OPENAI_API_KEY=<your key>
-```
-
-> _Feel free to customize this with other LLM providers as needed!_
-
-### Step 2: Install KitchenAI
-
-Install the application globally using `pipx`:
-
-```bash
-pipx install kitchenai
-```
-
-### Step 3: Create a New Cookbook
-
-```bash
-kitchenai new
-```
-
-Cookbooks are prefixed with `kitchenai_<project_name>` for easy identification and organization.
-
-### Step 4: Bootstrap Your Development Environment
-
-```bash
-just bootstrap
-```
-
-This sets up Python environments using Hatch:
-- `default` environment
-- `dev` environment for active development
-
-### Step 5: Enter Your Development Environment
-
-```bash
-hatch shell dev
-```
-
-This is equivalent to activating a virtual environment (`source venv/bin/activate`)—but better!
-
-### Step 6: Initialize Your Cookbook
-
-```bash
-kitchenai init
-```
-
-KitchenAI reads your `kitchenai.yml` file and stores the metadata locally in an SQLite database, readying your project for execution.
-
-### Step 7: Run Your Cookbook
-
-```bash
-kitchenai dev
-```
-
-This command imports your cookbook module and transforms your functions into production-ready endpoints, adhering to best practices.
 
 ---
-
-## 🛠️ Building and Sharing
-
-Ready to share your AI magic with the world? KitchenAI makes it simple to package and deploy your cookbooks!
-
-### Step 1: Build a Python Wheel
-
-```bash
-hatch build
-```
-
-This creates a distributable `.whl` package, ready for publishing to PyPI.
-
-### Step 2: Build a Docker Container
-
-```bash
-hatch run docker-build
-```
-
-With these two commands, you can quickly prepare your AI solutions for deployment and distribution!
-
----
-
-## 🐳 Running Docker Compose
-
-Once your image is built, you can run it with Docker Compose. Add any dependencies your cookbook requires, and spin up your environment:
-
-```bash
-docker compose up -d
-```
 
 ### 💡 Tip:
 Add any necessary dependency containers to fit your specific use case and requirements!
@@ -366,25 +323,25 @@ The following is our roadmap list of features.
 
 ---
 
-## 🧑‍🍳 Project Setup
+## 🧑‍🍳 Contribution Project Setup
+
+
+## Pre-reqs
+
+* Just
+* hatch
+* Python 3.11+
 
 Make sure the Python version in your `.pre-commit-config.yaml` file matches the version in your virtual environment. If you need to manage Python installations, Hatch has you covered: [Managing Python with Hatch](https://hatch.pypa.io/latest/tutorials/python/manage/).
 
 To set up your project:
 
 ```bash
-just setup
+just bootstrap && just setup
 ```
 
 This command sets up your virtual environment, installs dependencies, runs migrations, and creates a superuser (`admin@localhost` with password `admin`).
 
-### Running the Django Development Server
-
-```bash
-just server
-```
-
-This launches the Django development server, making it easy to test your application locally.
 
 ---
 
