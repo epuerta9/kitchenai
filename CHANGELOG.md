@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2024-11-05
+
+### 🚀 Features
+
+- *(sdk)* Added streaming to kitchenai SDK options. only for async functions
+
+### ⚙️ Miscellaneous Tasks
+
+- *(docs)* Added gifs to docs. re-word
+
 ## [0.1.1] - 2024-10-27
 
 ### 🐛 Bug Fixes
