@@ -1,8 +1,8 @@
-import asyncio
+from ninja import Router
 import functools
 import logging
-
-from ninja import Router
+import asyncio
+from django.http import StreamingHttpResponse
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -13,16 +13,32 @@ class KitchenAIApp:
         self._namespace = namespace
         self._router = router if router else Router()
 
-    # Helper method to create a decorator for a given route type
-    def _create_decorator(self, route_type: str, method: str, label: str):
+    def _create_decorator(self, route_type: str, method: str, label: str, streaming=False):
         def decorator(func, **route_kwargs):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
-                if asyncio.iscoroutinefunction(func):
+                if streaming:
+                    # This wrapper will call the async generator function and yield its items in an HTTP streaming response
+                    async def event_generator():
+                        async for event in func(*args, **kwargs):
+                            yield event
+
+                    return StreamingHttpResponse(
+                        event_generator(),
+                        content_type="text/event-stream",
+                        headers={
+                            'Cache-Control': 'no-cache',
+                            'Transfer-Encoding': 'chunked',
+                            'X-Accel-Buffering': 'no',
+                        }
+                    )
+                # Non-streaming behavior
+                elif asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
                 else:
                     loop = asyncio.get_event_loop()
-                return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
+                    return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
+
 
             # Define the path for the route using the namespace and label
             route_path = f"/{route_type}/{label}"
@@ -30,30 +46,28 @@ class KitchenAIApp:
             # Register the route using add_api_operation
             self._router.add_api_operation(
                 path=route_path,
-                methods=[method],  # Customize as needed (GET, PUT, etc.)
+                methods=[method],
                 view_func=wrapper,
-                **route_kwargs  # Pass the custom kwargs defined by the user in the decorator
+                **route_kwargs
             )
-            logger.debug(f"Registered route: {route_path}")
+            logger.debug(f"Registered route: {route_path} with streaming: {streaming}")
             return wrapper
         return decorator
 
-    # Query decorator
+    # Decorators for different route types
     def query(self, label: str, **route_kwargs):
-        return self._create_decorator('query',"POST", label)
+        return self._create_decorator('query', "POST", label)
 
-    # Storage decorator
     def storage(self, label: str, **route_kwargs):
         return self._create_decorator('storage', "POST", label)
 
-    # Embedding decorator
     def embedding(self, label: str, **route_kwargs):
         return self._create_decorator('embedding', "POST", label)
 
-    # Runnable decorator (for chaining multiple tasks)
-    def runnable(self, label: str, **route_kwargs):
-        return self._create_decorator('runnable', "POST", label)
+    def runnable(self, label: str, streaming=False, **route_kwargs):
+        # Allows setting streaming=True to enable streaming responses
+        return self._create_decorator('runnable', "POST", label, streaming=streaming)
 
-    # Agent decorator
     def agent(self, label: str, **route_kwargs):
         return self._create_decorator('agent', "POST", label)
+

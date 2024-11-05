@@ -26,6 +26,11 @@ COPY ./requirements.txt ./
 RUN pip install --upgrade pip uv \
  && python -m uv venv $VENV_PATH && uv pip install -r requirements.txt
 
+ # Install dependencies in a virtual environment
+RUN python -m pip install --upgrade pip && \
+python -m pip install pip-tools && \
+python -m piptools sync requirements.txt
+
 # Install s6-overlay
 RUN apt-get update && apt-get install -y xz-utils --no-install-recommends
 RUN apt-get install build-essential nodejs npm -y
