@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2024-11-05
+
+### 🐛 Bug Fixes
+
+- *(deploy)* Fixed a bug in docker build
+
 ## [0.2.0] - 2024-11-05
 
 ### 🚀 Features
