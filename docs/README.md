@@ -1,17 +1,17 @@
 
 ---
 <p align="center">
-  <img src="docs/_static/images/logo.png" alt="KitchenAI" width="100" height="100">
+  <img src="_static/images/logo.png" alt="KitchenAI" width="100" height="100">
 </p>
 
-
 # 🍽️ KitchenAI
+
 
 [![Falco](https://img.shields.io/badge/built%20with-falco-success)](https://github.com/Tobi-De/falco)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Hatch Project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)
 
-![](docs/_static/images/kitchenai-list.gif)
+![](_static/images/kitchenai-list.gif)
 
 **Build AI Applications Faster!**
 

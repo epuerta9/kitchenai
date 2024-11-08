@@ -140,7 +140,7 @@ createsuperuser EMAIL="admin@localhost" PASSWORD="admin":
 
 # Build documentation using Sphinx
 @docs-build LOCATION="docs/_build/html":
-    sphinx-build docs {{ LOCATION }}
+    hatch run docs:sphinx-build docs {{ LOCATION }}
 
 # Install documentation dependencies
 @docs-install:
@@ -153,6 +153,7 @@ createsuperuser EMAIL="admin@localhost" PASSWORD="admin":
 # Generate and upgrade documentation dependencies
 docs-upgrade:
     just run hatch-pip-compile dev --upgrade
+
 
 # ----------------------------------------------------------------------
 # LINTING / FORMATTING
