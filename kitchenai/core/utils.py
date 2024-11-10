@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import yaml
 from django.conf import settings
+from django.apps import apps
 from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
 from kitchenai.core.models import KitchenAIManagement
 
@@ -56,7 +57,7 @@ def import_cookbook(module_path):
 
 
 
-def setup(api: "NinjaAPI", module: str = ""):
+def setup(api: "NinjaAPI", module: str = "") -> "KitchenAIApp":
     # # Load configuration from the database
     config = {}
     config = load_config_from_db(config)
@@ -90,10 +91,14 @@ def setup(api: "NinjaAPI", module: str = ""):
 
         logger.info(f'Imported {instance_name} from {module_path}')
         if isinstance(instance, KitchenAIApp):
-            logger.info(f'{instance_name} is a valid KitchenAIApp instance.')
+            #add the instance to the core app
+            core_app = apps.get_app_config("core")
+            core_app.kitchenai_app = instance
+            logger.info(f'{instance_name} is a valid KitchenAIApp instance.')     
             api.add_router(f"/{instance._namespace}", instance._router)
         else:
             logger.error(f'{instance_name} is not a valid KitchenAIApp instance.')
-
+        return instance
+    
     except (ImportError, AttributeError) as e:
-        logger.error(f"Error loading module: {e}")
+        logger.warning(f"No valid KitchenAIApp instance found: {e}")

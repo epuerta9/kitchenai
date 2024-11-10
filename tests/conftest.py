@@ -1,7 +1,10 @@
 import logging
+import os
 
 import pytest
 from django.test.utils import override_settings
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 pytest_plugins = []  # type: ignore
 
@@ -41,3 +44,45 @@ TEST_SETTINGS = {
 def use_test_settings():
     with override_settings(**TEST_SETTINGS):
         yield
+
+
+@pytest.fixture(autouse=True)
+def setup_test_environment():
+    # Setup test environment variables
+    os.environ["OPENAI_API_KEY"] = "test-key"
+    
+    # Configure Django settings
+    settings.configure(
+        DEBUG=True,
+        DATABASES={
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': ':memory:',
+            }
+        },
+        INSTALLED_APPS=[
+            'django.contrib.auth',
+            'django.contrib.contenttypes',
+            'kitchenai.core',
+        ],
+        MIDDLEWARE=[
+            'django.middleware.security.SecurityMiddleware',
+            'django.middleware.common.CommonMiddleware',
+        ],
+        ROOT_URLCONF='tests.urls',
+        SECRET_KEY='test-key',
+    )
+
+
+@pytest.fixture
+def test_file_content():
+    return "This is a test document for vector storage"
+
+
+@pytest.fixture
+def uploaded_file(test_file_content):
+    return SimpleUploadedFile(
+        "test.txt",
+        test_file_content.encode(),
+        content_type="text/plain"
+    )

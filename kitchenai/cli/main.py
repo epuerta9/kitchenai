@@ -114,7 +114,7 @@ def run(module: Annotated[str, typer.Option(help="Python module to load.")] = os
 
     setup(
         api,
-        module=module
+        module=module,
     )
 
     _run_uvicorn(sys.argv)

@@ -1,4 +1,6 @@
 import logging
+from django.apps import apps
+from kitchenai.core.api import router as core_router
 
 from ninja import NinjaAPI
 
@@ -7,7 +9,13 @@ logger = logging.getLogger(__name__)
 api = NinjaAPI()
 
 
-@api.get("/health")
-async def default(request):
+# Ensure `ready()` is called for all apps
+apps.get_app_configs()
 
-    return {"msg":"ok"}
+# Get the app's router from `MyAppConfig` and add it to the main API
+api.add_router("/core", core_router)  # Add app's router here
+try:
+    kitchenai_config = apps.get_app_config("kitchenai_cookbook")
+    api.add_router(kitchenai_config.kitchenai_app._namespace, kitchenai_config.kitchenai_app._router)  # Add app's router here
+except:
+    logger.error("KitchenAI Cookbook app not found. Please ensure it is installed and configured correctly.")
