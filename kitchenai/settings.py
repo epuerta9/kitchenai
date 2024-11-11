@@ -41,8 +41,9 @@ KITCHENAI_DEBUG = env.bool("KITCHENAI_DEBUG", default=False)
 # -----------------------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/4.0/ref/settings/
 
+
 ALLOWED_HOSTS = env.list(
-    "ALLOWED_HOSTS", default=["*"] if DEBUG else ["localhost"], subcast=str
+    "ALLOWED_HOSTS", default=["*"] if DEBUG or KITCHENAI_DEBUG else ["localhost"], subcast=str
 )
 
 ASGI_APPLICATION = "kitchenai.asgi.application"
@@ -67,7 +68,7 @@ DATABASES = {
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
-if not DEBUG:
+if not DEBUG or KITCHENAI_DEBUG:
     DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)
     DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
@@ -75,7 +76,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 DEFAULT_FROM_EMAIL = env.str(
     "DEFAULT_FROM_EMAIL",
-    default="esteban_puerta@rhinosearch.io",
+    default="example@example.com",
     validate=lambda v: Email()(parseaddr(v)[1]),
 )
 
@@ -139,7 +140,7 @@ if DEBUG:
 
 INSTALLED_APPS = LOCAL_APPS + THIRD_PARTY_APPS + DJANGO_APPS
 
-if DEBUG:
+if DEBUG or KITCHENAI_DEBUG:
     INTERNAL_IPS = [
         "127.0.0.1",
         "10.0.2.2",
@@ -216,14 +217,14 @@ ROOT_URLCONF = "kitchenai.urls"
 
 SECRET_KEY = env.str("SECRET_KEY", default="django-insecure-ef6nIh7LcUjPtixFdz0_aXyUwlKqvBdJEcycRR6RvRY")
 
-SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not (DEBUG or KITCHENAI_DEBUG)
 
-SECURE_HSTS_PRELOAD = not DEBUG
+SECURE_HSTS_PRELOAD = not (DEBUG or KITCHENAI_DEBUG)
 
 # https://docs.djangoproject.com/en/dev/ref/middleware/#http-strict-transport-security
 # 2 minutes to start with, will increase as HSTS is tested
 # example of production value: 60 * 60 * 24 * 7 = 604800 (1 week)
-SECURE_HSTS_SECONDS = 0 if DEBUG else env.int("SECURE_HSTS_SECONDS", default=60 * 2)
+SECURE_HSTS_SECONDS = 0 if DEBUG or KITCHENAI_DEBUG else env.int("SECURE_HSTS_SECONDS", default=60 * 2)
 
 # https://noumenal.es/notes/til/django/csrf-trusted-origins/
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -236,7 +237,7 @@ SERVER_EMAIL = env.str(
     validate=lambda v: Email()(parseaddr(v)[1]),
 )
 
-SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not (DEBUG or KITCHENAI_DEBUG)
 
 STORAGES = {
     "default": {
@@ -252,7 +253,7 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-if DEBUG and not env.bool("USE_S3", default=False):
+if (DEBUG or KITCHENAI_DEBUG) and not env.bool("USE_S3", default=False):
     STORAGES["default"] = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     }
@@ -284,7 +285,7 @@ TEMPLATES = [
             "loaders": [
                 (
                     "template_partials.loader.Loader",
-                    DEFAULT_LOADERS if DEBUG else CACHED_LOADERS,
+                    DEFAULT_LOADERS if (DEBUG or KITCHENAI_DEBUG) else CACHED_LOADERS,
                 )
             ],
         },
@@ -322,7 +323,7 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-if DEBUG:
+if (DEBUG or KITCHENAI_DEBUG):
     AUTH_PASSWORD_VALIDATORS = []
 
 # django.contrib.staticfiles
@@ -344,7 +345,7 @@ STATICFILES_FINDERS = (
 # django-allauth
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http" if DEBUG else "https"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http" if (DEBUG or KITCHENAI_DEBUG) else "https"
 
 ACCOUNT_EMAIL_REQUIRED = True
 
@@ -361,18 +362,14 @@ ACCOUNT_USERNAME_REQUIRED = False
 LOGIN_REDIRECT_URL = "home"
 
 # django-anymail
-if not DEBUG:
+if not (DEBUG or KITCHENAI_DEBUG):
     ANYMAIL = {
-        "AMAZON_SES_CLIENT_PARAMS": {
-            "aws_access_key_id": env.str("AWS_ACCESS_KEY_ID", default=None),
-            "aws_secret_access_key": env.str("AWS_SECRET_ACCESS_KEY", default=None),
-            "region_name": env.str("AWS_S3_REGION_NAME", default=None),
-        }
+        "RESEND_API_KEY": env.str("RESEND_API_KEY"),
     }
 
 # django-compressor
-COMPRESS_ENABLED = not DEBUG
-COMPRESS_OFFLINE = not DEBUG
+COMPRESS_ENABLED = not (DEBUG or KITCHENAI_DEBUG)
+COMPRESS_OFFLINE = not (DEBUG or KITCHENAI_DEBUG)
 COMPRESS_FILTERS = {
     "css": [
         "compressor.filters.css_default.CssAbsoluteFilter",
@@ -408,7 +405,7 @@ Q_CLUSTER = {
 }
 
 # sentry
-if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not DEBUG:
+if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not (DEBUG or KITCHENAI_DEBUG):
     sentry_sdk.init(
         dsn=SENTRY_DSN.geturl(),
         environment=env.str(
@@ -428,7 +425,7 @@ if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not DEBUG:
 # 4. Project Settings
 # -----------------------------------------------------------------------------------------------------
 
-ADMIN_URL = env.str("ADMIN_URL", default="admin/")
+ADMIN_URL = env.str("ADMIN_URL", default="kitchenai-admin/")
 
 
 #KITCHEN AI
