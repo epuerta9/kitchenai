@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2024-11-11
+
+### 🚀 Features
+
+- *(storage)* Q workers with storage decorator; sdk parser; core file endpoint; signals; storage hooks
+
+### 📚 Documentation
+
+- *(setup)* Wip, skeleton setup
+
 ## [0.2.1] - 2024-11-05
 
 ### 🐛 Bug Fixes
