@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2024-11-11
+
+### 📦 Build
+
+- *(deps.resend)* Changed email provider from ses to resend
+- *(settings)* KITCHENAI_DEBUG as an application var
+
 ## [0.3.0] - 2024-11-11
 
 ### 🚀 Features
