@@ -27,7 +27,7 @@ dependencies = [
   "slippers",
   "django[argon2]",
   "django-allauth[socialaccount]",
-  "django-anymail[amazon-ses]",
+  "django-anymail[resend]",
   "django-compressor",
   "django-extensions",
   "django-health-check",

@@ -35,7 +35,7 @@ env.read_env(Path(BASE_DIR, ".env").as_posix())
 # is True or it is False. `DEBUG` should be only true in development, and
 # False when deployed, whether or not it's a production environment.
 DEBUG = env.bool("DEBUG", default=False)
-
+KITCHENAI_DEBUG = env.bool("KITCHENAI_DEBUG", default=False)
 
 # 1. Django Core Settings
 # -----------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ DEFAULT_FROM_EMAIL = env.str(
 EMAIL_BACKEND = (
     "django.core.mail.backends.console.EmailBackend"
     if DEBUG
-    else "anymail.backends.amazon_ses.EmailBackend"
+    else "anymail.backends.resend.EmailBackend"
 )
 
 DJANGO_APPS = [
