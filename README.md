@@ -41,7 +41,9 @@ We are still in alpha and welcome contributions, thoughts, suggestions. Check ou
 
 ## ⚡ Quickstart
 
-### Step 1: Export Your OpenAI API Key
+### Step 1: Export Variables 
+
+#### Your OpenAI API Key
 
 KitchenAI’s demo uses OpenAI as the LLM provider. Set your OpenAI key in your environment:
 
@@ -50,6 +52,14 @@ export OPENAI_API_KEY=<your key>
 ```
 
 > _Feel free to customize this with other LLM providers as needed!_
+
+#### KitchenAI DEBUG
+
+Set the KitchenAI DEBUG environment variable to `true` to enable debug logging:
+
+```bash
+export KITCHENAI_DEBUG=True
+```
 
 ### Step 2: Install KitchenAI
 

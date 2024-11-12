@@ -3,17 +3,35 @@ import logging
 import tempfile
 from typing import Callable
 from kitchenai.core.models import FileObject
+from kitchenai.core.utils import get_core_kitchenai_app
 from django.core.files.storage import default_storage
 from django.core.mail import send_mail
 import os
 
 logger = logging.getLogger(__name__)
 
-def process_file_task(storage_function: Callable, instance: FileObject, *args, **kwargs):
+def process_file_task_app(storage_function: Callable, instance: FileObject, *args, **kwargs):
     """
-    This is a task that will be run by the django task queue
+    process file async function for django apps
     """
+    return _process_file_task(storage_function, instance, *args, **kwargs)
 
+
+
+def process_file_task_core(instance: FileObject, *args, **kwargs):
+    """process file async function for core app using storage task"""
+    try:
+        kitchenai_app = get_core_kitchenai_app()
+        f = kitchenai_app.storage_tasks(instance.ingest_label)
+        if f:
+            return _process_file_task(f, instance)
+        else:
+            logger.warning(f"No storage task found for {instance.ingest_label}")
+    except Exception as e:
+        logger.error(f"Error in run_task: {e}")
+
+def _process_file_task(storage_function: Callable, instance: FileObject, *args, **kwargs):
+    """process file task"""
     instance.status = FileObject.Status.PROCESSING
     instance.save() 
     file = instance.file
@@ -52,7 +70,10 @@ def process_file_task(storage_function: Callable, instance: FileObject, *args, *
                 #     project.save()
                     
 
-        return result
+        return {
+            "storage_result": result,
+            "ingest_label": instance.ingest_label
+        }
     except Exception as e:
         instance.status = FileObject.Status.FAILED
         instance.save()

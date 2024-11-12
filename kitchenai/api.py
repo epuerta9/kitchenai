@@ -18,4 +18,4 @@ try:
     kitchenai_config = apps.get_app_config("kitchenai_cookbook")
     api.add_router(kitchenai_config.kitchenai_app._namespace, kitchenai_config.kitchenai_app._router)  # Add app's router here
 except:
-    logger.error("KitchenAI Cookbook app not found. Please ensure it is installed and configured correctly.")
+    pass

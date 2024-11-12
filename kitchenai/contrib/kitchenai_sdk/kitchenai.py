@@ -6,8 +6,6 @@ from django.http import StreamingHttpResponse
 from typing import Optional, Callable
 import importlib
 
-from .hooks import process_data_hook
-
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -21,7 +19,7 @@ class KitchenAIApp:
         self._router = router if router else Router()
         self._storage_tasks = {}
         self._success_hooks = {}
-        self._default_success_hook = "kitchenai.contrib.kitchenai_sdk.hooks.process_data_hook"
+        self._default_success_hook = "kitchenai.contrib.kitchenai_sdk.hooks.default_hook"
 
     def _create_decorator(self, route_type: str, method: str, label: str, streaming=False):
         def decorator(func, **route_kwargs):

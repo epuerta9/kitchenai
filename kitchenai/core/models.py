@@ -16,15 +16,6 @@ class KitchenAIManagement(TimeStamped):
         return self.name
 
 
-class KitchenAIModules(TimeStamped):
-    name = models.CharField(max_length=255, primary_key=True)
-    kitchen = models.ForeignKey(KitchenAIManagement, on_delete=models.CASCADE)
-    is_root = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.name
-
-
 class KitchenAIPlugins(TimeStamped):
     name = models.CharField(max_length=255, primary_key=True)
     kitchen = models.ForeignKey(KitchenAIManagement, on_delete=models.CASCADE)
@@ -40,6 +31,10 @@ class KitchenAIDependencies(TimeStamped):
     def __str__(self):
         return self.name
 
+
+class KitchenAIRootModule(TimeStamped):
+    name = models.CharField(max_length=255, primary_key=True)
+    kitchen = models.ForeignKey(KitchenAIManagement, on_delete=models.CASCADE)
 
 class FileObject(TimeStamped):
     """
