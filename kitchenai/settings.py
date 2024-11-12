@@ -82,7 +82,7 @@ DEFAULT_FROM_EMAIL = env.str(
 
 EMAIL_BACKEND = (
     "django.core.mail.backends.console.EmailBackend"
-    if DEBUG
+    if (DEBUG or KITCHENAI_DEBUG)
     else "anymail.backends.resend.EmailBackend"
 )
 
@@ -363,9 +363,15 @@ LOGIN_REDIRECT_URL = "home"
 
 # django-anymail
 if not (DEBUG or KITCHENAI_DEBUG):
-    ANYMAIL = {
-        "RESEND_API_KEY": env.str("RESEND_API_KEY"),
+    resend_api_key = env.str("RESEND_API_KEY", default=None)
+    if resend_api_key:
+        ANYMAIL = {
+            "RESEND_API_KEY": resend_api_key,
     }
+    else:
+        EMAIL_BACKEND = (
+            "django.core.mail.backends.console.EmailBackend"
+        )   
 
 # django-compressor
 COMPRESS_ENABLED = not (DEBUG or KITCHENAI_DEBUG)
