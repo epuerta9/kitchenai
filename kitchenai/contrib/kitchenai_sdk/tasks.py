@@ -17,7 +17,6 @@ def process_file_task_app(storage_function: Callable, instance: FileObject, *arg
     return _process_file_task(storage_function, instance, *args, **kwargs)
 
 
-
 def process_file_task_core(instance: FileObject, *args, **kwargs):
     """process file async function for core app using storage task"""
     try:
@@ -75,3 +74,24 @@ def _process_file_task(storage_function: Callable, instance: FileObject, *args, 
     finally:
         instance.status = FileObject.Status.COMPLETED
         instance.save()
+
+#DELETES
+
+def delete_file_task_app(delete_function: Callable, instance: FileObject, *args, **kwargs):
+    """
+    delete file async function for django apps
+    """
+    return delete_function(instance, *args, **kwargs)
+
+
+def delete_file_task_core(instance: FileObject, *args, **kwargs):
+    """delete file async function for core app using storage task"""
+    try:
+        kitchenai_app = get_core_kitchenai_app()
+        f = kitchenai_app.storage_delete_tasks(instance.ingest_label)
+        if f:
+            return f(instance, *args, **kwargs)
+        else:
+            logger.warning(f"No delete task found for {instance.ingest_label}")
+    except Exception as e:
+        logger.error(f"Error in run_task: {e}")
