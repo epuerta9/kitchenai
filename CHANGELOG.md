@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2024-11-14
+
+### 🚜 Refactor
+
+- *(metadata)* Refactor metadata on task, removed async streaming
+
+### ⚙️ Miscellaneous Tasks
+
+- *(build)* Easier publish to pypi
+
 ## [0.3.2] - 2024-11-12
 
 ### 🚜 Refactor
