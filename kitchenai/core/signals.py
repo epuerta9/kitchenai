@@ -3,8 +3,7 @@ from django.dispatch import receiver
 from django.apps import apps
 from kitchenai.contrib.kitchenai_sdk.tasks import process_file_task_core
 from kitchenai.contrib.kitchenai_sdk.hooks import process_file_hook_core
-from django_q.tasks import async_task, result
-from kitchenai.core.utils import get_core_kitchenai_app
+from django_q.tasks import async_task
 
 from .models import FileObject
 import logging

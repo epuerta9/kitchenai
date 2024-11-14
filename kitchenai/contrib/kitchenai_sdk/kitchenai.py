@@ -27,12 +27,12 @@ class KitchenAIApp:
             async def wrapper(*args, **kwargs):
                 if streaming:
                     #NOTE: Streaming HTTP response is only a synchronous operation
-                    async def event_generator():
-                        async for event in func(*args, **kwargs):
+                    def event_generator():
+                        for event in func(*args, **kwargs):
                             yield event
 
                     return StreamingHttpResponse(
-                        event_generator(),
+                        func(*args, **kwargs),
                         content_type="text/event-stream",
                         headers={
                             'Cache-Control': 'no-cache',

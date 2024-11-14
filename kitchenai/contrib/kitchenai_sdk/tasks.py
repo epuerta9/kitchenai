@@ -60,14 +60,8 @@ def _process_file_task(storage_function: Callable, instance: FileObject, *args, 
                     #TODO: add hook to notify other parts of the system
 
                 temp_file.seek(0)
-                result = storage_function(temp_dir, *args, extension=extension, **kwargs)
-
-                # if results["is_llama_api"]:
-                #     #update the is_llama_api object so we know for billing purposes we can see how many api calls
-                #     #TODO: lifecycle hook to this field so its cleaner.
-                #     project = Project.objects.get(pk=metadata["project_id"],projectuser__role="owner")
-                #     project.is_llama_api = results["is_llama_api"]
-                #     project.save()
+                metadata = {"file_id": instance.pk, "file_name": file.name, "source": "kitchenai_cookbook", "file_label": instance.name} 
+                result = storage_function(temp_dir, *args, extension=extension, metadata=metadata, **kwargs)
                     
 
         return {

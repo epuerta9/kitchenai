@@ -1,14 +1,11 @@
 import logging
-import os 
 from typing import Dict
 from typing import List
-from typing import TypedDict, Union
+from typing import TypedDict
 
 
 from llama_index.core import Document
 from llama_index.core import SimpleDirectoryReader
-from llama_index.core import StorageContext
-from llama_index.core import VectorStoreIndex
 from llama_index.readers.file import DocxReader
 from llama_index.readers.file import FlatReader
 from llama_index.readers.file import HTMLTagReader
@@ -22,10 +19,6 @@ from llama_parse import LlamaParse
 logger = logging.getLogger(__name__)
 import nest_asyncio; nest_asyncio.apply()
 
-from llama_index.core.node_parser import TokenTextSplitter
-from llama_index.core.extractors import (
-    TitleExtractor,
-    QuestionsAnsweredExtractor)
 from llama_index.core import Document
 
 
