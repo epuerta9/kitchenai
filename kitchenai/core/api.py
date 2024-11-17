@@ -3,7 +3,7 @@ import asyncio
 from ninja import Router, Schema, File
 from ninja.files import UploadedFile
 from .models import FileObject
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from ninja.errors import HttpError
 
 router = Router()
@@ -46,3 +46,19 @@ async def file_get(request, pk: int):
         return file_object
     except FileObject.DoesNotExist:
         raise HttpError(404, "File not found")
+
+
+
+@router.delete("/file/{pk}", response=FileObjectResponse)
+async def file_delete(request, pk: int):
+    try:
+        file_object = await FileObject.objects.adelete(pk=pk)
+        return file_object
+    except FileObject.DoesNotExist:
+        raise HttpError(404, "File not found")
+    
+@router.get("/file", response=List[FileObjectResponse])
+def files_get(request):
+    file_objects = FileObject.objects.all()
+    return file_objects
+
