@@ -75,11 +75,19 @@ class KitchenAIApp:
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
                 if streaming:
-                    #NOTE: Streaming HTTP response is only a synchronous operation
-                    async def event_generator():
-                        async for event in func(*args, **kwargs):
-                            # Flush each chunk immediately
+                    #NOTE: Streaming HTTP response is only a synchronous operation. Temporary solution
+                    # async def event_generator():
+                    #     async for event in func(*args, **kwargs):
+                    #         # Flush each chunk immediately
+                    #         yield event
+                    def event_generator():
+                        # Call the synchronous function and get the generator
+                        gen = func(*args, **kwargs)
+                        
+                        for event in gen:
+                            # Yield each chunk formatted as Server-Sent Events
                             yield event
+
 
                     return StreamingHttpResponse(
                         event_generator(),
@@ -265,5 +273,6 @@ class KitchenAIApp:
         """Setup the api"""
         # Call the query handler setup
         self._query_handler()
-        self._agent_handler()
+        #TODO: Add agent handler 
+        #self._agent_handler()
         # ... any other API setup code ...
