@@ -20,13 +20,12 @@ classifiers = [
 dependencies = [
   "boto3",
   "chromadb",
+  "cookiecutter",
   "crispy-tailwind",
   "diskcache",
-  "django-allauth-ui",
-  "django-widget-tweaks",
-  "slippers",
   "django[argon2]",
   "django-allauth[socialaccount]",
+  "django-allauth-ui",
   "django-anymail[resend]",
   "django-compressor",
   "django-extensions",
@@ -40,6 +39,7 @@ dependencies = [
   "django-tailwind-cli",
   "django-template-partials",
   "django-unique-user-email",
+  "django-widget-tweaks",
   "djp",
   "environs[django]",
   "falco-toolbox",
@@ -50,15 +50,14 @@ dependencies = [
   "llama-index",
   "llama-index-vector-stores-chroma",
   "pillow",
-  "chromadb",
   "psycopg[binary]",
   "pyyaml",
   "refreshcss",
+  "rich",
   "sentry-sdk",
+  "slippers",
   "typer",
   "whitenoise",
-  "cookiecutter", 
-  "rich"
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"

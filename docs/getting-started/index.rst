@@ -10,4 +10,3 @@ Getting Started
     installation/index
     fundamentals/index
     first-steps/index
-    

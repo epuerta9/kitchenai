@@ -1,10 +1,11 @@
+import uuid
+
 from django.db import models
 from falco_toolbox.models import TimeStamped
-import uuid
 
 def file_object_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/uuid/filename
-    return "kitchenai/{0}/{1}".format(uuid.uuid4(), filename)
+    return f"kitchenai/{uuid.uuid4()}/{filename}"
 
 class KitchenAIManagement(TimeStamped):
     name = models.CharField(max_length=255, primary_key=True, default="kitchenai_management")

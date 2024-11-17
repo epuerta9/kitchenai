@@ -1,7 +1,8 @@
 from django.contrib import admin
 
+from .models import FileObject
 from .models import KitchenAIManagement
-from .models import FileObject, KitchenAIRootModule
+from .models import KitchenAIRootModule
 
 @admin.register(KitchenAIManagement)
 class KitchenAIAdmin(admin.ModelAdmin):

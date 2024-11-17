@@ -7,4 +7,4 @@ class CoreConfig(AppConfig):
     kitchenai_app = None
 
     def ready(self):
-        import kitchenai.core.signals
+        pass

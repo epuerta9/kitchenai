@@ -1,24 +1,24 @@
-import asyncio
-
-from ninja import Router, Schema, File
-from ninja.files import UploadedFile
-from .models import FileObject
-from typing import Optional, Dict, List
+from ninja import File
+from ninja import Router
+from ninja import Schema
 from ninja.errors import HttpError
+from ninja.files import UploadedFile
+
+from .models import FileObject
 
 router = Router()
 
 # Create a Schema that represents FileObject
 class FileObjectSchema(Schema):
     name: str
-    ingest_label: Optional[str] = None
-    metadata: Optional[Dict[str,str]] = None
+    ingest_label: str | None = None
+    metadata: dict[str, str] | None = None
     # Add any other fields from your FileObject model that you want to include
 class FileObjectResponse(Schema):
     id: int
     name: str
     ingest_label: str
-    metadata: Dict[str,str]
+    metadata: dict[str,str]
     status: str
 
 @router.get("/health")
@@ -41,6 +41,7 @@ async def file_upload(request, data: FileObjectSchema,file: UploadedFile = File(
 
 @router.get("/file/{pk}", response=FileObjectResponse)
 async def file_get(request, pk: int):
+    """get a file"""
     try:
         file_object = await FileObject.objects.aget(pk=pk)
         return file_object
@@ -49,16 +50,17 @@ async def file_get(request, pk: int):
 
 
 
-@router.delete("/file/{pk}", response=FileObjectResponse)
+@router.delete("/file/{pk}")
 async def file_delete(request, pk: int):
+    """delete a file"""
     try:
-        file_object = await FileObject.objects.adelete(pk=pk)
-        return file_object
+        await FileObject.objects.filter(pk=pk).adelete()
+        return {"msg": "deleted"}
     except FileObject.DoesNotExist:
         raise HttpError(404, "File not found")
-    
-@router.get("/file", response=List[FileObjectResponse])
+
+@router.get("/file", response=list[FileObjectResponse])
 def files_get(request):
+    """get all files"""
     file_objects = FileObject.objects.all()
     return file_objects
-

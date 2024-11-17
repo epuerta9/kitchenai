@@ -1,7 +1,7 @@
+from unittest.mock import Mock
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-from ninja.files import UploadedFile
-from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client
 
@@ -21,7 +21,7 @@ def mock_llm():
         yield mock
 
 class TestAIClient:
-    
+
     @pytest.mark.asyncio
     @patch('llama_index.core.VectorStoreIndex.from_documents')
     @patch('llama_index.core.SimpleDirectoryReader')
@@ -48,7 +48,7 @@ class TestAIClient:
         # Assertions
         assert response.status_code == 200
         assert response.json() == {"msg": "ok"}
-        
+
         # Verify that the vector store was properly called
         mock_index.assert_called_once()
 
@@ -60,7 +60,7 @@ class TestAIClient:
         mock_response = Mock()
         mock_response.response = "This is a test response"
         mock_chat_engine.achat.return_value = mock_response
-        
+
         mock_index.return_value.as_chat_engine.return_value = mock_chat_engine
 
         # Make the request
@@ -74,7 +74,7 @@ class TestAIClient:
         # Assertions
         assert response.status_code == 200
         assert response.json() == {"msg": "This is a test response"}
-        
+
         # Verify that the chat engine was called with correct parameters
         mock_chat_engine.achat.assert_called_once_with(query_data["query"])
 
@@ -105,4 +105,4 @@ class TestAIClient:
         )
 
         # Assertions
-        assert response.status_code == 500 
+        assert response.status_code == 500

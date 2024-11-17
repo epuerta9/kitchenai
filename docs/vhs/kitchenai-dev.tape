@@ -66,6 +66,6 @@ Set Height 600
 
 Type "kitchenai init"
 Enter
-Sleep 1s 
+Sleep 1s
 Type "kitchenai dev --module app:kitchen" Enter
 Sleep 5s

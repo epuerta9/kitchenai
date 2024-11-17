@@ -1,10 +1,14 @@
-from ninja import Router
-import functools
-import logging
 import asyncio
-from django.http import StreamingHttpResponse
-from typing import Optional, Callable
+import functools
 import importlib
+import logging
+from collections.abc import Callable
+
+from django.http import HttpResponse
+from django.http import StreamingHttpResponse
+from ninja import Router
+
+from .api import QuerySchema
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -23,17 +27,16 @@ class KitchenAIApp:
         self._storage_delete_hooks = {}
         self._default_hook = "kitchenai.contrib.kitchenai_sdk.hooks.default_hook"
         self._default_db =  default_db
+        self._query_handlers = {}
+        self._agent_handlers = {}
 
     def _create_decorator(self, route_type: str, method: str, label: str, streaming=False):
+        """Custom decorator for creating routes"""
         def decorator(func, **route_kwargs):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
                 if streaming:
                     #NOTE: Streaming HTTP response is only a synchronous operation
-                    def event_generator():
-                        for event in func(*args, **kwargs):
-                            yield event
-
                     return StreamingHttpResponse(
                         func(*args, **kwargs),
                         content_type="text/event-stream",
@@ -66,8 +69,37 @@ class KitchenAIApp:
         return decorator
 
     # Decorators for different route types
-    def query(self, label: str, **route_kwargs):
-        return self._create_decorator('query', "POST", label)
+    def query(self, label: str, streaming=False, **route_kwargs):
+        """Query is a decorator for query handlers with the ability to add middleware"""
+        def decorator(func, **route_kwargs):
+            @functools.wraps(func)
+            async def wrapper(*args, **kwargs):
+                if streaming:
+                    #NOTE: Streaming HTTP response is only a synchronous operation
+                    async def event_generator():
+                        async for event in func(*args, **kwargs):
+                            # Flush each chunk immediately
+                            yield event
+
+                    return StreamingHttpResponse(
+                        event_generator(),
+                        content_type="text/event-stream",
+                        headers={
+                            'Cache-Control': 'no-cache',
+                            'Transfer-Encoding': 'chunked',
+                            'X-Accel-Buffering': 'no',
+                        }
+                    )
+                # Non-streaming behavior
+                elif asyncio.iscoroutinefunction(func):
+                    return await func(*args, **kwargs)
+                else:
+                    loop = asyncio.get_event_loop()
+                    return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
+            self._query_handlers[f"{self._namespace}.{label}"] = wrapper
+            return wrapper
+
+        return decorator
 
     def storage(self, label: str, storage_create_hook: str = None):
         """Storage stores the functions in a hashmap and will run them as async tasks based on ingest_label"""
@@ -82,13 +114,13 @@ class KitchenAIApp:
             else:
                 logger.debug(f"Setting default success hook for {label}")
                 self._storage_create_hooks[f"{self._namespace}.{label}"] = self._default_hook
-            
+
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
                 return func(*args, **kwargs)  # Just execute the function normally
             return wrapper
         return decorator
-    
+
     def storage_delete(self, label: str):
         """Storage stores the functions in a hashmap and will run them as async tasks based on ingest_label"""
         def decorator(func):
@@ -98,18 +130,41 @@ class KitchenAIApp:
             def wrapper(*args, **kwargs):
                 return func(*args, **kwargs)  # Just execute the function normally
             return wrapper
-        return decorator            
+        return decorator
 
-    def embedding(self, label: str, **route_kwargs):
-        return self._create_decorator('embedding', "POST", label)
+    def agent(self, label: str, streaming=False, **route_kwargs):
+        """Agent is a decorator for agent handlers with the ability to add middleware"""
+        def decorator(func, **route_kwargs):
+            @functools.wraps(func)
+            async def wrapper(*args, **kwargs):
+                if streaming:
+                    #NOTE: Streaming HTTP response is only a synchronous operation
+                    async def event_generator():
+                        async for event in func(*args, **kwargs):
+                            # Flush each chunk immediately
+                            yield event
 
-    def runnable(self, label: str, streaming=False, **route_kwargs):
-        # Allows setting streaming=True to enable streaming responses
-        return self._create_decorator('runnable', "POST", label, streaming=streaming)
+                    return StreamingHttpResponse(
+                        event_generator(),
+                        content_type="text/event-stream",
+                        headers={
+                            'Cache-Control': 'no-cache',
+                            'Transfer-Encoding': 'chunked',
+                            'X-Accel-Buffering': 'no',
+                        }
+                    )
+                # Non-streaming behavior
+                elif asyncio.iscoroutinefunction(func):
+                    return await func(*args, **kwargs)
+                else:
+                    loop = asyncio.get_event_loop()
+                    return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
+            self._agent_handlers[f"{self._namespace}.{label}"] = wrapper
 
-    def agent(self, label: str, **route_kwargs):
-        return self._create_decorator('agent', "POST", label)
-    
+            return wrapper
+
+        return decorator
+
     def storage_create_hook(self, label: str):
         """Hooks are functions that are run after a storage task is successful"""
         def decorator(func):
@@ -121,7 +176,7 @@ class KitchenAIApp:
                 return func(*args, **kwargs)  # Just execute the function normally
             return wrapper
         return decorator
-    
+
     def storage_delete_hook(self, label: str):
         """Hooks are functions that are run after a storage task is successful"""
         def decorator(func):
@@ -134,7 +189,7 @@ class KitchenAIApp:
             return wrapper
         return decorator
 
-    def storage_tasks(self, label: str) -> Optional[Callable]:
+    def storage_tasks(self, label: str) -> Callable | None:
         """Returns the function associated with a given label"""
         func_path = self._storage_tasks.get(f"{self._namespace}.{label}")
         if func_path:
@@ -143,7 +198,7 @@ class KitchenAIApp:
             return getattr(module, func_name)
         return None
 
-    def storage_delete_tasks(self, label: str) -> Optional[Callable]:
+    def storage_delete_tasks(self, label: str) -> Callable | None:
         """Returns the function associated with a given label"""
         func_path = self._storage_delete_tasks.get(f"{self._namespace}.{label}")
         if func_path:
@@ -151,11 +206,11 @@ class KitchenAIApp:
             module = importlib.import_module(module_path)
             return getattr(module, func_name)
         return None
-    
+
     def storage_tasks_list(self) -> dict:
         return self._storage_tasks
-    
-    def storage_create_hooks(self, label: str) -> Optional[Callable]:
+
+    def storage_create_hooks(self, label: str) -> Callable | None:
         """Returns the function associated with a given label"""
         func_path = self._storage_create_hooks.get(f"{self._namespace}.{label}")
         if func_path:
@@ -163,8 +218,8 @@ class KitchenAIApp:
             module = importlib.import_module(module_path)
             return getattr(module, func_name)
         return None
-    
-    def storage_delete_hooks(self, label: str) -> Optional[Callable]:
+
+    def storage_delete_hooks(self, label: str) -> Callable | None:
         """Returns the function associated with a given label"""
         func_path = self._storage_delete_hooks.get(f"{self._namespace}.{label}")
         if func_path:
@@ -172,3 +227,43 @@ class KitchenAIApp:
             module = importlib.import_module(module_path)
             return getattr(module, func_name)
         return None
+
+
+    def _query_handler(self, **route_kwargs):
+        async def query_handler(request, label: str, data: QuerySchema, **route_kwargs):
+            query_func = self._query_handlers.get(f"{self._namespace}.{label}")
+            if not query_func:
+                return HttpResponse(status=404)
+
+            return await query_func(request, data, **route_kwargs)
+
+        # Register a single route that handles all queries
+        self._router.add_api_operation(
+            path="/query/{label}",
+            methods=["POST"],
+            view_func=query_handler,
+            **route_kwargs
+        )
+
+    def _agent_handler(self, **route_kwargs):
+        async def agent_handler(request, label: str, data: QuerySchema, **route_kwargs):
+            agent_func = self._agent_handlers.get(f"{self._namespace}.{label}")
+            if not agent_func:
+                return HttpResponse(status=404)
+
+            return await agent_func(request, data, **route_kwargs)
+
+        # Register a single route that handles all queries
+        self._router.add_api_operation(
+            path="/agent/{label}",
+            methods=["POST"],
+            view_func=agent_handler,
+            **route_kwargs
+        )
+
+    def register_api(self):
+        """Setup the api"""
+        # Call the query handler setup
+        self._query_handler()
+        self._agent_handler()
+        # ... any other API setup code ...

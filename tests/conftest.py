@@ -2,9 +2,9 @@ import logging
 import os
 
 import pytest
-from django.test.utils import override_settings
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test.utils import override_settings
 
 pytest_plugins = []  # type: ignore
 
@@ -50,7 +50,7 @@ def use_test_settings():
 def setup_test_environment():
     # Setup test environment variables
     os.environ["OPENAI_API_KEY"] = "test-key"
-    
+
     # Configure Django settings
     settings.configure(
         DEBUG=True,

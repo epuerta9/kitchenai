@@ -66,6 +66,6 @@ Set Height 600
 
 Type "kitchenai cook list"
 Enter
-Sleep 1s 
+Sleep 1s
 Type "kitchenai cook select llama-index-chat" Enter
 Sleep 2s

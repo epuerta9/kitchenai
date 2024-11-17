@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 APPS_DIR = BASE_DIR / "kitchenai"
 
-KITCHENAI_DB_DIR = BASE_DIR / '.kitchenai'
+KITCHENAI_DB_DIR = BASE_DIR / ".kitchenai"
 
 KITCHENAI_DB_DIR.mkdir(exist_ok=True)
 
@@ -42,9 +42,7 @@ KITCHENAI_DEBUG = env.bool("KITCHENAI_DEBUG", default=False)
 # https://docs.djangoproject.com/en/4.0/ref/settings/
 
 
-ALLOWED_HOSTS = env.list(
-    "ALLOWED_HOSTS", default=["*"] if DEBUG or KITCHENAI_DEBUG else ["localhost"], subcast=str
-)
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"] if DEBUG or KITCHENAI_DEBUG else ["localhost"], subcast=str)
 
 ASGI_APPLICATION = "kitchenai.asgi.application"
 
@@ -173,9 +171,7 @@ LOGGING = {
         },
         "kitchenai": {
             "handlers": ["stdout"],
-            "level": env.log_level(
-                "KITCHENAI_LOG_LEVEL", default="INFO"
-            ),
+            "level": env.log_level("KITCHENAI_LOG_LEVEL", default="INFO"),
         },
     },
 }
@@ -323,7 +319,7 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-if (DEBUG or KITCHENAI_DEBUG):
+if DEBUG or KITCHENAI_DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
 
 # django.contrib.staticfiles
@@ -367,11 +363,9 @@ if not (DEBUG or KITCHENAI_DEBUG):
     if resend_api_key:
         ANYMAIL = {
             "RESEND_API_KEY": resend_api_key,
-    }
+        }
     else:
-        EMAIL_BACKEND = (
-            "django.core.mail.backends.console.EmailBackend"
-        )   
+        EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # django-compressor
 COMPRESS_ENABLED = not (DEBUG or KITCHENAI_DEBUG)
@@ -434,7 +428,7 @@ if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not (DEBUG or 
 ADMIN_URL = env.str("ADMIN_URL", default="kitchenai-admin/")
 
 
-#KITCHEN AI
+# KITCHEN AI
 
 KITCHENAI = {}
 

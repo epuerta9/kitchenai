@@ -4,11 +4,11 @@ import sys
 from importlib import import_module
 from typing import TYPE_CHECKING
 
-import yaml
-from django.conf import settings
 from django.apps import apps
+from django.conf import settings
 from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
-from kitchenai.core.models import KitchenAIRootModule, KitchenAIManagement
+from kitchenai.core.models import KitchenAIManagement
+from kitchenai.core.models import KitchenAIRootModule
 
 if TYPE_CHECKING:
     from ninja import NinjaAPI
@@ -77,9 +77,10 @@ def add_module_router(api: "NinjaAPI"):
     """
     core_app = apps.get_app_config("core")
     if core_app.kitchenai_app:
+        core_app.kitchenai_app.register_api()
         api.add_router(f"/{core_app.kitchenai_app._namespace}", core_app.kitchenai_app._router)
     else:
-        logger.error(f"No kitchenai app in core app config")
+        logger.error("No kitchenai app in core app config")
         return
 
 def add_module_to_core(module_path: str):
@@ -98,11 +99,11 @@ def add_module_to_core(module_path: str):
             #add the instance to the core app
             core_app = apps.get_app_config("core")
             core_app.kitchenai_app = instance
-            logger.info(f'{instance_name} is a valid KitchenAIApp instance.')     
+            logger.info(f'{instance_name} is a valid KitchenAIApp instance.')
         else:
             logger.error(f'{instance_name} is not a valid KitchenAIApp instance.')
         return instance
-    
+
     except (ImportError, AttributeError) as e:
         logger.warning(f"No valid KitchenAIApp instance found: {e}")
 
@@ -110,7 +111,7 @@ def get_or_create_root_module(module_path: str):
     try:
         return KitchenAIRootModule.objects.get(name=module_path)
     except KitchenAIRootModule.DoesNotExist:
-        kitchen_mgmt = KitchenAIManagement.objects.get(name="kitchenai_management") 
+        kitchen_mgmt = KitchenAIManagement.objects.get(name="kitchenai_management")
         #create a new root module
         root_module = KitchenAIRootModule(name=module_path, kitchen=kitchen_mgmt)
         root_module.save()
@@ -121,7 +122,7 @@ def get_first_root_module() -> str:
         return KitchenAIRootModule.objects.first().name
     except KitchenAIRootModule.DoesNotExist:
         raise Exception("No root module found. Please create a root module first.")
-    
+
 
 def get_core_kitchenai_app():
     project_root = os.getcwd()

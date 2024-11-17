@@ -3,7 +3,6 @@ import pathlib
 
 import yaml
 from django.core.management.base import BaseCommand
-
 from django.template import loader
 
 
@@ -32,13 +31,13 @@ class Command(BaseCommand):
             try:
                 # Load the template
                 template = loader.get_template(template_name)
-                
+
                 # Render the template with the context data
                 rendered_content = template.render(context)
 
                 # Output to standard output
                 self.stdout.write(self.style.SUCCESS(rendered_content))
-            
+
             except Exception as e:
                 self.stderr.write(self.style.ERROR(f"Error rendering template: {e}"))
         else:
@@ -58,5 +57,3 @@ class Command(BaseCommand):
             except yaml.YAMLError as e:
                 self.stdout.write(self.style.ERROR(f"Error reading YAML file: {e}"))
                 return None
-
-

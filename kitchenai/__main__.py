@@ -2,9 +2,11 @@ import sys
 
 import django
 
+
 def main() -> None:
     from pathlib import Path
     import os
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kitchenai.settings")
     current_path = Path(__file__).parent.parent.resolve()
     sys.path.append(str(current_path))

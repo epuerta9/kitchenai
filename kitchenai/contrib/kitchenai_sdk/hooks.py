@@ -1,6 +1,7 @@
 import logging
+
 from kitchenai.core.utils import get_core_kitchenai_app
-logger = logging.getLogger(__name__)    
+logger = logging.getLogger(__name__)
 
 def default_hook(task):
     logger.info(f"default_hook: {task.result}")
@@ -22,7 +23,7 @@ def process_file_hook_core(task):
 
 
 def delete_file_hook_core(task):
-    logger.info(f"delete_file_hook_core: {task.result}")    
+    logger.info(f"delete_file_hook_core: {task.result}")
     try:
         kitchenai_app = get_core_kitchenai_app()
         hook = kitchenai_app.storage_delete_hooks(task.result.get('ingest_label'))

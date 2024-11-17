@@ -1,12 +1,11 @@
-from kitchenai.core.models import FileObject
 import logging
+import os
 import tempfile
-from typing import Callable
+from collections.abc import Callable
+
+from django.core.files.storage import default_storage
 from kitchenai.core.models import FileObject
 from kitchenai.core.utils import get_core_kitchenai_app
-from django.core.files.storage import default_storage
-from django.core.mail import send_mail
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +31,7 @@ def process_file_task_core(instance: FileObject, *args, **kwargs):
 def _process_file_task(storage_function: Callable, instance: FileObject, *args, **kwargs):
     """process file task"""
     instance.status = FileObject.Status.PROCESSING
-    instance.save() 
+    instance.save()
     file = instance.file
     temp_dir = tempfile.mkdtemp()
     _, extension = os.path.splitext(file.name)
@@ -53,15 +52,15 @@ def _process_file_task(storage_function: Callable, instance: FileObject, *args, 
                 if file_size_mb > 150:
                     logger.error(f"File size {file_size_mb} MB exceeds the 150 MB limit.")
                     raise Exception("File size exceeds 150 MB limit")
-                
+
                 if file_size_mb > 30:
                     logger.warning(f"File size {file_size_mb} MB exceeds the 30 MB limit.")
                     #TODO: add hook to notify other parts of the system
 
                 temp_file.seek(0)
-                metadata = {"file_id": instance.pk, "file_name": file.name, "source": "kitchenai_cookbook", "file_label": instance.name} 
+                metadata = {"file_id": instance.pk, "file_name": file.name, "source": "kitchenai_cookbook", "file_label": instance.name}
                 result = storage_function(temp_dir, *args, extension=extension, metadata=metadata, **kwargs)
-                    
+
 
         return {
             "storage_result": result,

@@ -7,4 +7,3 @@ Cookbooks
     :hidden:
 
     quickstarts/index
-    

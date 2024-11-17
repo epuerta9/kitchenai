@@ -1,13 +1,13 @@
 import logging
+import os
 import sys
 
 import django
 import typer
-from django.conf import settings
 from cookiecutter.main import cookiecutter
-from typing_extensions import Annotated
+from django.conf import settings
 from rich.console import Console
-import os
+from typing import Annotated
 
 from .cook import app as cook_app
 
@@ -35,10 +35,10 @@ def init(
     from django.core.management import execute_from_command_line
     from kitchenai.core.models import KitchenAIManagement
     from django.conf import settings
-    
+
     cmd = ["manage", "migrate","--verbosity", f"{verbose}"]
 
-    if not verbose == 1:
+    if verbose != 1:
         with console.status("Applying migrations...", spinner="dots"):
             execute_from_command_line(cmd)
 
@@ -121,17 +121,18 @@ def run(module: Annotated[str, typer.Option(help="Python module to load.")] = os
 
 
 @app.command()
-def dev(address: str ="0.0.0.0:8000", module: Annotated[str, typer.Option(help="Python module to load.")] = "" ):
+def dev(address: str ="0.0.0.0:8000", module: Annotated[str, typer.Option(help="Python module to load.")] = "", tailwind: Annotated[bool, typer.Option(help="Tailwind servers.")] = False):
     """
     Reads the kitchen config file, reads the application file and runs the KitchenAI server
     """
     commands = {"server": "kitchenai runserver"}
     if module:
         commands["server"] = f"kitchenai runserver --module {module}"
-    if "django_tailwind_cli" in settings.INSTALLED_APPS:
-        commands["tailwind"] = "django-admin tailwind watch"
-    if "tailwind" in settings.INSTALLED_APPS:
-        commands["tailwind"] = "django-admin tailwind start"
+    if tailwind:
+        if "django_tailwind_cli" in settings.INSTALLED_APPS:
+            commands["tailwind"] = "django-admin tailwind watch"
+        if "tailwind" in settings.INSTALLED_APPS:
+            commands["tailwind"] = "django-admin tailwind start"
     if "django_q" in settings.INSTALLED_APPS:
         commands["qcluster"] = "kitchenai qcluster"
 
@@ -164,7 +165,7 @@ def setup():
     username = os.environ.get("DJANGO_SUPERUSER_USERNAME", email.split("@")[0])
 
     if password == "admin":
-        #set it 
+        #set it
         os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
     execute_from_command_line(
         ["manage", "createsuperuser", "--noinput", "--traceback", "--email", email, "--username", username]
@@ -172,7 +173,7 @@ def setup():
 
 @app.command()
 def build(
-    dir: str, 
+    dir: str,
     module: str,
     admin: Annotated[bool, typer.Option("--admin/--no-admin", help="Admin status (default is True)")] = False,
 ):
@@ -198,7 +199,7 @@ def build(
     # Check if requirements.txt and module file exist in the directory
     requirements_file = base_dir / 'requirements.txt'
     module_path = base_dir / f"{module_name}.py"
-    
+
     if not requirements_file.exists() or not module_path.exists():
         console.print("[bold red]Error:[/bold red] Both requirements.txt and the module file must exist in the specified directory.")
         raise typer.Exit(code=1)

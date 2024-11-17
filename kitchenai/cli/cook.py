@@ -1,10 +1,9 @@
-import typer
-import requests
-import json
 from pathlib import Path
+
+import requests
+import typer
 from rich.console import Console
 from rich.table import Table
-from rich.spinner import Spinner
 
 
 app = typer.Typer()
@@ -21,12 +20,12 @@ def cook_list():
     if response.status_code != 200:
         console.print("[red]Error fetching cookbook list.[/red]")
         raise typer.Exit(code=1)
-    
+
     cookbooks = response.json().get("cookbooks", [])
     if not cookbooks:
         console.print("[yellow]No cookbooks available.[/yellow]")
         return
-    
+
     # Create a table for the cookbooks
     table = Table(title="Available Starter Cookbooks")
     table.add_column("Name", style="cyan", no_wrap=True)
@@ -34,7 +33,7 @@ def cook_list():
 
     for cookbook in cookbooks:
         table.add_row(cookbook["name"], cookbook["description"])
-    
+
     # Display the table
     console.print(table)
 

@@ -41,7 +41,7 @@ We are still in alpha and welcome contributions, thoughts, suggestions. Check ou
 
 ## ⚡ Quickstart
 
-### Step 1: Export Variables 
+### Step 1: Export Variables
 
 #### Your OpenAI API Key
 
@@ -110,9 +110,9 @@ the container will be named kitchenai-app
 KitchenAI is built with a powerful stack of technologies that provide flexibility, performance, and ease of deployment—all optimized for a modern AI development workflow:
 
 - **⚡ Async Django (v5.0+)**: Leveraging the battle-tested Django framework for unparalleled reliability and flexibility. Built for async operations, allowing you to scale and extend your application effortlessly.
-  
+
 - **🌀 Django Ninja**: Streamlined, async-first API framework. With Django Ninja, async functions come as the default, enabling you to build high-performance APIs without the hassle.
-  
+
 - **⚙️ Django Q2**: A robust task broker that lets you offload long-running processes and background tasks with ease, ensuring your application remains fast and responsive.
 
 - **🔧 S6 Overlay**: The ultimate Docker process supervisor. S6 Overlay bundles KitchenAI into a compact and efficient container, managing processes gracefully to ensure everything runs smoothly, even under heavy loads.
@@ -150,7 +150,7 @@ from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageCon
 from llama_index.vector_stores.chroma import ChromaVectorStore
 
 from llama_index.llms.openai import OpenAI
-import os 
+import os
 import tempfile
 import chromadb
 
@@ -173,8 +173,8 @@ def chromadb_storage(request, file: UploadedFile = File(...)):
     """
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_file_path = os.path.join(temp_dir, file.name)
-        
-        with open(temp_file_path, "wb") as temp_file: 
+
+        with open(temp_file_path, "wb") as temp_file:
             for chunk in file.chunks():
                 temp_file.write(chunk)
 
@@ -183,7 +183,7 @@ def chromadb_storage(request, file: UploadedFile = File(...)):
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
     VectorStoreIndex.from_documents(documents, storage_context=storage_context)
-    
+
     return {"msg": "ok"}
 ```
 
@@ -324,7 +324,7 @@ Add any necessary dependency containers to fit your specific use case and requir
 
 ### Deployments
 
-Since this project is still in alpha, it is recommended at this time to deploy as a sidecar with minimal external access. 
+Since this project is still in alpha, it is recommended at this time to deploy as a sidecar with minimal external access.
 
 
 # Roadmap
@@ -333,7 +333,7 @@ The following is our roadmap list of features.
 
 * Client SDK
 * Django Q2 worker integration
-* Signals framework for kitchenai functions 
+* Signals framework for kitchenai functions
 * Custom App plugins - Testing, other native integrations
 
 ---
@@ -365,4 +365,3 @@ This command sets up your virtual environment, installs dependencies, runs migra
 This project draws inspiration from the [Falco Project](https://github.com/Tobi-De/falco), and incorporates best practices and tools from across the Python ecosystem.
 
 > 💡 **Pro Tip**: Run `just` to see all available commands and streamline your development workflow!
-
