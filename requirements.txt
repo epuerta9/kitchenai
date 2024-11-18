@@ -522,7 +522,7 @@ pydantic==2.9.2
     #   llama-cloud
     #   llama-index-core
     #   openai
-pydantic-core==2.23.4
+pydantic-core==2.27.0
     # via pydantic
 pygments==2.18.0
     # via rich
