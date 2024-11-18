@@ -9,7 +9,7 @@ from kitchenai.contrib.kitchenai_sdk.hooks import delete_file_hook_core
 from kitchenai.contrib.kitchenai_sdk.hooks import process_file_hook_core
 from kitchenai.contrib.kitchenai_sdk.tasks import delete_file_task_core
 from kitchenai.contrib.kitchenai_sdk.tasks import process_file_task_core
-
+import posthog
 from .models import FileObject
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,8 @@ def file_object_created(sender, instance, created, **kwargs):
     if created:
         #Ninja api should have all bolted on routes and a storage tasks
         logger.info(f"<kitchenai_core>: FileObject created: {instance.pk}")
+        posthog.capture("file_object", "kitchenai_file_object_created")
+
         core_app = apps.get_app_config("core")
         if core_app.kitchenai_app:
             f = core_app.kitchenai_app.storage_tasks(instance.ingest_label)
@@ -40,6 +42,7 @@ def file_object_created(sender, instance, created, **kwargs):
 def file_object_deleted(sender, instance, **kwargs):
     """delete the file from vector db"""
     logger.info(f"<kitchenai_core>: FileObject created: {instance.pk}")
+    posthog.capture("file_object", "kitchenai_file_object_deleted")
     core_app = apps.get_app_config("core")
     if core_app.kitchenai_app:
         f = core_app.kitchenai_app.storage_delete_tasks(instance.ingest_label)

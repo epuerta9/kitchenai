@@ -33,6 +33,7 @@
 # - llama-index
 # - llama-index-vector-stores-chroma
 # - pillow
+# - posthog
 # - psycopg[binary]
 # - pyyaml
 # - refreshcss
@@ -491,7 +492,9 @@ pillow==11.0.0
 pluggy==1.5.0
     # via djp
 posthog==3.7.0
-    # via chromadb
+    # via
+    #   hatch.envs.default
+    #   chromadb
 propcache==0.2.0
     # via yarl
 protobuf==4.25.5

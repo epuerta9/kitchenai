@@ -9,6 +9,7 @@ from django.http import StreamingHttpResponse
 from ninja import Router
 
 from .api import QuerySchema
+import posthog
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -239,6 +240,8 @@ class KitchenAIApp:
 
     def _query_handler(self, **route_kwargs):
         async def query_handler(request, label: str, data: QuerySchema, **route_kwargs):
+            posthog.capture("kitchenai_sdk", "query_handler")
+
             query_func = self._query_handlers.get(f"{self._namespace}.{label}")
             if not query_func:
                 return HttpResponse(status=404)
@@ -255,6 +258,7 @@ class KitchenAIApp:
 
     def _agent_handler(self, **route_kwargs):
         async def agent_handler(request, label: str, data: QuerySchema, **route_kwargs):
+            posthog.capture("kitchenai_sdk", "agent_handler")
             agent_func = self._agent_handlers.get(f"{self._namespace}.{label}")
             if not agent_func:
                 return HttpResponse(status=404)

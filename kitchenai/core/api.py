@@ -5,7 +5,6 @@ from ninja.errors import HttpError
 from ninja.files import UploadedFile
 
 from .models import FileObject
-
 router = Router()
 
 # Create a Schema that represents FileObject
@@ -53,7 +52,7 @@ async def file_get(request, pk: int):
 @router.delete("/file/{pk}")
 async def file_delete(request, pk: int):
     """delete a file"""
-    try:
+    try:    
         await FileObject.objects.filter(pk=pk).adelete()
         return {"msg": "deleted"}
     except FileObject.DoesNotExist:

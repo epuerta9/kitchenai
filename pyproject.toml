@@ -58,6 +58,7 @@ dependencies = [
   "slippers",
   "typer",
   "whitenoise",
+  "posthog"
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"

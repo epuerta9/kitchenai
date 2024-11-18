@@ -35,6 +35,9 @@ def init(
     from django.core.management import execute_from_command_line
     from kitchenai.core.models import KitchenAIManagement
     from django.conf import settings
+    import posthog
+
+    posthog.capture("init", "kitchenai_init")
 
     cmd = ["manage", "migrate","--verbosity", f"{verbose}"]
 
@@ -126,6 +129,10 @@ def dev(address: str ="0.0.0.0:8000", module: Annotated[str, typer.Option(help="
     Reads the kitchen config file, reads the application file and runs the KitchenAI server
     """
     commands = {"server": "kitchenai runserver"}
+    import posthog
+
+    posthog.capture("init", "kitchenai_dev")
+
     if module:
         commands["server"] = f"kitchenai runserver --module {module}"
     if tailwind:
