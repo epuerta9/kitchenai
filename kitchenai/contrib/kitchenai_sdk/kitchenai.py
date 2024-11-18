@@ -8,8 +8,9 @@ from django.http import HttpResponse
 from django.http import StreamingHttpResponse
 from ninja import Router
 
-from .api import QuerySchema
+from .api import QuerySchema, EmbedSchema
 import posthog
+
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -30,6 +31,8 @@ class KitchenAIApp:
         self._default_db =  default_db
         self._query_handlers = {}
         self._agent_handlers = {}
+        self._embed_tasks= {}
+        self._embed_delete_tasks = {}
 
     def _create_decorator(self, route_type: str, method: str, label: str, streaming=False):
         """Custom decorator for creating routes"""
@@ -109,6 +112,19 @@ class KitchenAIApp:
             return wrapper
 
         return decorator
+    
+
+    def embed(self, label: str, **route_kwargs):
+        """Embed is a decorator for embed handlers"""
+        def decorator(func):
+            # Store the function immediately when the decorator is applied
+            func_path = f"{func.__module__}.{func.__name__}"
+            self._embed_tasks[f"{self._namespace}.{label}"] = func_path
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)  # Just execute the function normally
+            return wrapper
+        return decorator
 
     def storage(self, label: str, storage_create_hook: str = None):
         """Storage stores the functions in a hashmap and will run them as async tasks based on ingest_label"""
@@ -135,6 +151,17 @@ class KitchenAIApp:
         def decorator(func):
             func_path = f"{func.__module__}.{func.__name__}"
             self._storage_delete_tasks[f"{self._namespace}.{label}"] = func_path
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)  # Just execute the function normally
+            return wrapper
+        return decorator
+    
+    def embed_delete(self, label: str):
+        """Embed delete stores the functions in a hashmap and will run them as async tasks based on ingest_label"""
+        def decorator(func):
+            func_path = f"{func.__module__}.{func.__name__}"
+            self._embed_delete_tasks[f"{self._namespace}.{label}"] = func_path
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
                 return func(*args, **kwargs)  # Just execute the function normally
@@ -253,8 +280,10 @@ class KitchenAIApp:
             path="/query/{label}",
             methods=["POST"],
             view_func=query_handler,
+            tags=list(self._query_handlers.keys()),
             **route_kwargs
         )
+
 
     def _agent_handler(self, **route_kwargs):
         async def agent_handler(request, label: str, data: QuerySchema, **route_kwargs):
@@ -270,6 +299,7 @@ class KitchenAIApp:
             path="/agent/{label}",
             methods=["POST"],
             view_func=agent_handler,
+            tags=list(self._agent_handlers.keys()),
             **route_kwargs
         )
 

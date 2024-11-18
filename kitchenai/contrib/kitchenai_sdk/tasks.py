@@ -4,8 +4,9 @@ import tempfile
 from collections.abc import Callable
 
 from django.core.files.storage import default_storage
-from kitchenai.core.models import FileObject
+from kitchenai.core.models import FileObject, EmbedObject
 from kitchenai.core.utils import get_core_kitchenai_app
+import importlib
 
 logger = logging.getLogger(__name__)
 
@@ -94,3 +95,58 @@ def delete_file_task_core(instance: FileObject, *args, **kwargs):
             logger.warning(f"No delete task found for {instance.ingest_label}")
     except Exception as e:
         logger.error(f"Error in run_task: {e}")
+
+def _embed_task(embed_function: Callable, instance: EmbedObject, *args, **kwargs):
+    """embed task"""
+    instance.status = EmbedObject.Status.PROCESSING
+    instance.save()
+    metadata = {"object_id": instance.pk, "text": instance.text, "source": "kitchenai_cookbook", "object_label": instance.ingest_label}
+
+    metadata.update(instance.metadata)
+    
+    try:
+        result = embed_function(instance, metadata=metadata, **kwargs)
+
+        return {
+            "embed_result": result,
+            "ingest_label": instance.ingest_label
+        }
+    except Exception as e:
+        instance.status = EmbedObject.Status.FAILED
+        instance.save()
+        raise e
+    finally:
+        instance.status = EmbedObject.Status.COMPLETED
+        instance.save()
+
+
+def embed_task_core(instance: EmbedObject, *args, **kwargs):
+    """process file async function for core app using storage task"""
+    try:
+        kitchenai_app = get_core_kitchenai_app()
+        f = kitchenai_app._embed_tasks.get(f"{kitchenai_app._namespace}.{instance.ingest_label}")
+        if f:
+            module_path, func_name = f.rsplit(".", 1)
+            module = importlib.import_module(module_path)
+            func = getattr(module, func_name)
+            return _embed_task(func, instance, **kwargs)
+        else:
+            logger.warning(f"No embed task found for {instance.ingest_label}")
+    except Exception as e:
+        logger.error(f"Error in run_task: {e}")
+
+def delete_embed_task_core(instance: EmbedObject, *args, **kwargs):
+    """delete embed task for core app"""
+    try:
+        kitchenai_app = get_core_kitchenai_app()
+        f = kitchenai_app._embed_delete_tasks.get(f"{kitchenai_app._namespace}.{instance.ingest_label}")
+        if f:
+            module_path, func_name = f.rsplit(".", 1)
+            module = importlib.import_module(module_path)
+            func = getattr(module, func_name)
+            return func(instance, *args, **kwargs)
+        else:
+            logger.warning(f"No delete embed task found for {instance.ingest_label}")
+    except Exception as e:
+        logger.error(f"Error in run_task: {e}")
+
