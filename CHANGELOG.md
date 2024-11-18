@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2024-11-18
+
+### 🚀 Features
+
+- *(api)* Default file CRUD
+- *(telemetry)* Added posthog anonymous telemetry usage data
+- *(embed)* Embed crud endpoints with background workers
+
+### 🚜 Refactor
+
+- *(api)* Stable endpoints, query, agents
+- *(api)* Removed agent handler. just query and storage
+
 ## [0.4.0] - 2024-11-14
 
 ### 🚜 Refactor
