@@ -94,7 +94,9 @@ Building AI applications often requires juggling complex frameworks and backend 
 ## 🔧 **Under the Hood**  
 
 - **Django Ninja**: Async-first API framework for high-performance endpoints.  
-- **Django Q2**: Background workers for long-running tasks.  
+- **Django Q2**: Background workers for long-running tasks. 
+- **Plugin Framework**: Django DJP integration
+- **AI Ecosystem**: Integrations to AI ecosystem and tools 
 - **S6 Overlay**: Optimized container orchestration.  
 
 KitchenAI is **built for developers**, offering flexibility and scalability while letting you focus on AI.

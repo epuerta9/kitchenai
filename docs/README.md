@@ -12,10 +12,12 @@
 
 
 ## **What is KitchenAI?**  
-KitchenAI bridges the gap between **AI developers** and **application developers**, making it easy to:  
+KitchenAI bridges the gap between **AI developers**, **application developers**, and **Infrastructure developers** making it easy to:  
 
-- For **AI Developers**: Focus on your techniques like RAG or embeddings—KitchenAI handles scalable, production-ready APIs.  
-- For **App Developers**: Seamlessly integrate AI with open-source APIs and robust backends built on Django and background workers.  
+- For **AI Developers**: Focus on your techniques like RAG or embeddings—KitchenAI handles scalable, production-ready features through ecosystem building blocks.  
+- For **App Developers**: Seamlessly integrate AI with open-source APIs and robust backends built on Django.
+
+- For **Infrastructure Developers**: Integrate seamlessly with AI tooling, customize Django backends, and leverage built-in support for observability platforms like Sentry and OpenTelemetry, ensuring scalable and production-ready deployments with tools like Docker and Kubernetes.  
 
 **Say goodbye to boilerplate!**  
 
@@ -26,7 +28,7 @@ KitchenAI bridges the gap between **AI developers** and **application developers
 Building AI applications often requires juggling complex frameworks and backend systems. KitchenAI eliminates that complexity by:  
 
 - Turning AI functions into APIs automatically.  
-- Offering a **production-ready server** using **proven technologies** like Django, Ninja, and background workers.  
+- Offering a **production-ready server** using **proven technologies** like Django, Django Ninja, an extensible plugin framework, background workers, and AI third party integrations.  
 - Enabling extensibility while maintaining simplicity.  
 
 🔗 Learn more at [docs.kitchenai.dev](https://docs.kitchenai.dev/develop/).  
@@ -43,7 +45,7 @@ Building AI applications often requires juggling complex frameworks and backend 
 
 2. **Start a Project**  
    ```bash
-   kitchenai cook list && kitchenai cook select llama-index-chat
+   kitchenai cook list && kitchenai cook select llama-index-starter
    ```
 
 3. **Run the Server**  
@@ -72,7 +74,9 @@ Building AI applications often requires juggling complex frameworks and backend 
 ## 🔧 **Under the Hood**  
 
 - **Django Ninja**: Async-first API framework for high-performance endpoints.  
-- **Django Q2**: Background workers for long-running tasks.  
+- **Django Q2**: Background workers for long-running tasks. 
+- **Plugin Framework**: Django DJP integration
+- **AI Ecosystem**: Integrations to AI ecosystem and tools 
 - **S6 Overlay**: Optimized container orchestration.  
 
 KitchenAI is **built for developers**, offering flexibility and scalability while letting you focus on AI.
