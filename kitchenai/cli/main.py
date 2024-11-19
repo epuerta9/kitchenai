@@ -149,12 +149,19 @@ def dev(address: str ="0.0.0.0:8000", module: Annotated[str, typer.Option(help="
     _run_with_honcho(commands)
 
 @app.command()
-def manage() -> None:
-    """Run Django's manage command."""
+def manage(args: list[str] = typer.Argument(None, help="Arguments for Django's manage.py")) -> None:
+    """
+    Run Django's manage command with additional arguments.
+    """
     from django.core.management import execute_from_command_line
 
-    # execute_from_command_line(argv[1:])
-    execute_from_command_line(["manage"])
+    # Build the argument list for Django
+    if args is None:
+        sys.argv = ["manage"]
+    else:
+        sys.argv = ["manage"] + args
+
+    execute_from_command_line(sys.argv)
 
 @app.command()
 def setup():
