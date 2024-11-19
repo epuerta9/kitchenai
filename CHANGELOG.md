@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2024-11-19
+
+### 🚀 Features
+
+- *(admin)* Access to django manage command from cli
+
+### 📚 Documentation
+
+- *(updated)* Updated all docs
+
 ## [0.6.0] - 2024-11-18
 
 ### 🚀 Features
