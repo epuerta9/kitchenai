@@ -166,7 +166,26 @@ def embed(instance, metadata: dict = {}):
 
 ### 📂 Input Parameters
 
-- **`instance`**: An `Embed Object` that contains the data to embed.  
+- **`instance`**: An `Embed Object` that contains the data to embed. 
+```
+    class EmbedObject(TimeStamped):
+    """
+    This is a model for any embed object that is created
+    """
+    class Status(models.TextChoices):
+        PENDING = "pending"
+        PROCESSING = "processing"
+        COMPLETED = "completed"
+        FAILED = "failed"
+
+    text = models.CharField(max_length=255)
+    ingest_label = models.CharField(max_length=255)
+    status = models.CharField(max_length=255, default=Status.PENDING)
+    metadata = models.JSONField(default=dict)
+
+    def __str__(self):
+        return self.text
+```
 - **`metadata`**: Metadata to associate with the embedding.  
 
 ### Example Usage
@@ -187,6 +206,11 @@ def embed_data(instance, metadata: dict = {}):
 > 📘 More details about embed functions can be found [here](../../develop/ai-developer/README.md).
 
 ---
+
+
+## The API
+
+You can directly interact with the generated endpoints by going to `http://localhost:8000/api/docs`
 
 ## 🚀 Wrapping Up
 

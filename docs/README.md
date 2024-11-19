@@ -1,7 +1,5 @@
 # 🍽️ KitchenAI  
 
-![kitchenai-logo](./_static/images/logo.png)
-
 **Instantly turn AI code into production-ready APIs.**  
 
 [![Falco](https://img.shields.io/badge/built%20with-falco-success)](https://github.com/Tobi-De/falco)  

@@ -1,10 +1,12 @@
+
+
+# 🍽️ KitchenAI  
+
 <p align="center">
   <img src="docs/_static/images/logo.png" alt="KitchenAI" width="100" height="100">
 </p>
 
-# 🍽️ KitchenAI  
-
-**Instantly turn AI code into production-ready APIs.**  
+**Instantly turn AI code into a production-ready backend.**  
 
 [![Falco](https://img.shields.io/badge/built%20with-falco-success)](https://github.com/Tobi-De/falco)  
 [![Hatch Project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)  
@@ -12,18 +14,23 @@
 
 ---
 
-[Documentation](https://docs.kitchenai.dev)
 
-![kitchenai-list](docs/_static/images/kitchenai-list.gif)
 
 
 ## **What is KitchenAI?**  
-KitchenAI bridges the gap between **AI developers** and **application developers**, making it easy to:  
+KitchenAI bridges the gap between **AI developers**, **application developers**, and **Infrastructure developers** making it easy to:  
 
-- For **AI Developers**: Focus on your techniques like RAG or embeddings—KitchenAI handles scalable, production-ready APIs.  
-- For **App Developers**: Seamlessly integrate AI with open-source APIs and robust backends built on Django and background workers.  
+- For **AI Developers**: Focus on your techniques like RAG or embeddings—KitchenAI handles scalable, production-ready features through ecosystem building blocks.  
+- For **App Developers**: Seamlessly integrate AI with open-source APIs and robust backends built on Django.
+
+- For **Infrastructure Developers**: Integrate seamlessly with AI tooling, customize Django backends, and leverage built-in support for observability platforms like Sentry and OpenTelemetry, ensuring scalable and production-ready deployments with tools like Docker and Kubernetes.  
 
 **Say goodbye to boilerplate!**  
+
+
+[Documentation](https://docs.kitchenai.dev)
+
+![kitchenai-list](docs/_static/images/kitchenai-list.gif)
 
 ---
 
@@ -52,7 +59,7 @@ Building AI applications often requires juggling complex frameworks and backend 
    ```bash
    kitchenai cook list && kitchenai cook select llama-index-chat
    ```
-![kitchenai-list](docs/_static/images/kitchenai-list.gif)
+   ![kitchenai-list](docs/_static/images/kitchenai-list.gif)
 
 3. **Run the Server**  
    ```bash

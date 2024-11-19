@@ -44,11 +44,7 @@ app = KitchenAIApp(router=router)
 The **Django Admin Interface** comes pre-configured for core KitchenAI objects and plugins.
 
 ### 🔑 Steps to Access:
-1. Run the admin server:
-   ```bash
-   kitchenai manage
-   ```
-2. Navigate to: `http://localhost:8000/kitchenai-admin`
+1. Navigate to: `http://localhost:8000/kitchenai-admin`
 
 ### ✨ Create a Superuser:
 ```bash
@@ -73,9 +69,9 @@ kitchenai manage
 
 ## 🧩 **Plugins: Extend with Ease**
 
-KitchenAI supports **Django DJP plugins** to extend its functionality.
+KitchenAI supports **Django DJP plugins** [](https://djp.readthedocs.io/en/latest/) to extend its functionality.
 
-### ✨ How to Add a Plugin
+### ✨ How to Add a DJP enabled Plugin
 1. Install your plugin:
    ```bash
    pip install <your_plugin>
