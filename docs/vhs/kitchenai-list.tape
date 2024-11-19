@@ -60,12 +60,12 @@ Output kitchenai-list.gif
 Require echo
 
 Set Shell "bash"
-Set FontSize 32
+Set FontSize 16
 Set Width 1200
 Set Height 600
 
 Type "kitchenai cook list"
 Enter
 Sleep 1s
-Type "kitchenai cook select llama-index-chat" Enter
+Type "kitchenai cook select llama-index-starter" Enter
 Sleep 2s

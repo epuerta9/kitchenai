@@ -9,7 +9,6 @@
    cookbooks/index
    deploy/index
    cloud/index
-   knowledge-base/index
    changelog
 
 -----

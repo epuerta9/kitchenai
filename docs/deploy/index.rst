@@ -8,6 +8,6 @@ Deploy
 .. toctree::
     :hidden:
 
-    concepts/index
-    local/index
-    sidecar/index
+   ..  concepts/index
+   ..  local/index
+   ..  sidecar/index
