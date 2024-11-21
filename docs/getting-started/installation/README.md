@@ -3,6 +3,12 @@
 ### 💡 **Pro Tip**: Always start with a virtual environment!  
 Creating a virtual environment isolates your dependencies, ensuring a smooth setup for KitchenAI.
 
+> ⚠️ **IMPORTANT: KitchenAI is currently in Alpha!**  
+> You must set `KITCHENAI_DEBUG=True` as an environment variable before installing:
+> ```bash
+> export KITCHENAI_DEBUG=True  # On Windows use: set KITCHENAI_DEBUG=True
+> ```
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`

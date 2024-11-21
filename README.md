@@ -57,9 +57,10 @@ Building AI applications often requires juggling complex frameworks and backend 
 
 2. **Start a Project**  
    ```bash
-   kitchenai cook list && kitchenai cook select llama-index-chat
+   kitchenai cook list && kitchenai cook select llama-index-chat && pip install -r requirements.txt
    ```
    ![kitchenai-list](docs/_static/images/kitchenai-list.gif)
+
 
 3. **Run the Server**  
    ```bash

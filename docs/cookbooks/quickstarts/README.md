@@ -20,6 +20,7 @@ KitchenAI uses OpenAI as the default LLM provider. Set your key in the environme
 
 ```bash
 export OPENAI_API_KEY=<your-key>
+export KITCHENAI_DEBUG=True
 ```  
 
 > 🌟 _You can swap OpenAI for other providers as needed!_  
@@ -31,7 +32,7 @@ export OPENAI_API_KEY=<your-key>
 Set up a virtual environment and install KitchenAI:  
 
 ```bash
-python -m venv venv && source venv/bin/activate && pip install kitchenai
+python -m venv venv && source venv/bin/activate &&  pip install kitchenai
 ```  
 
 ---
@@ -41,7 +42,7 @@ python -m venv venv && source venv/bin/activate && pip install kitchenai
 List and select a starter project, such as the **llama-index starter**:  
 
 ```bash
-kitchenai cook list && kitchenai cook select llama-index-starter
+kitchenai cook list && kitchenai cook select llama-index-starter && pip install -r requirements.txt
 ```  
 
 📸 _List available projects:_  
@@ -77,3 +78,9 @@ kitchenai build . app:kitchenai
 ![](../../_static/images/kitchenai-build.gif)  
 
 Your container will be named **`kitchenai-app`**.  
+
+---
+
+## 📝 **Next Steps**  
+
+- [Deploy Your App](../../deploy/README.md)  

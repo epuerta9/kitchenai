@@ -24,6 +24,50 @@ kitchenai build . app:kitchen
 
 ---
 
+## 🐋 **Docker Compose**
+
+KitchenAI provides a simple Docker Compose configuration for orchestrating your containers. Here's the basic `docker-compose.yml` file:
+
+
+```
+version: '3.8'
+services:
+
+
+  #for local development we don't need the image directly.Uncomment if you want to use the image you built and choose local as env
+  kitchenai:
+    image: kitchenai-app:latest
+    container_name: kitchenai-app
+    ports:
+    - "8000:8000"
+    network_mode: host
+    env_file:
+      - .env
+    volumes:
+      - chroma_db:/app/chroma_db
+      - sqlite:/app/.kitchenai
+
+
+
+volumes:
+  chroma_db:
+    driver: local
+  sqlite:
+    driver: local
+
+
+```
+
+
+## 📝 **Environment Variables**
+
+KitchenAI uses a `.env` file to manage configuration. Here's a sample `.env` file with common settings:
+```
+KITCHENAI_DEBUG=True
+OPENAI_API_KEY=<api key>
+```
+
+
 ## 🗄️ **Databases**  
 
 ### **Default: Sqlite**  
