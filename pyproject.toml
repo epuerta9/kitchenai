@@ -58,7 +58,10 @@ dependencies = [
   "slippers",
   "typer",
   "whitenoise",
-  "posthog"
+  "posthog",
+  "nbformat",
+  "nbconvert",
+  "llama-index-llms-groq"
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"

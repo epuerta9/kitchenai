@@ -146,33 +146,79 @@ if DEBUG or KITCHENAI_DEBUG:
 
 LANGUAGE_CODE = "en-us"
 
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "formatters": {
+#         "plain_console": {
+#             "format": "%(levelname)s %(message)s",
+#         },
+#         "verbose": {
+#             "format": "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+#         },
+#     },
+#     "handlers": {
+#         "stdout": {
+#             "class": "logging.StreamHandler",
+#             "stream": sys.stdout,
+#             # "formatter": "verbose",
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["stdout"],
+#             "level": env.log_level("DJANGO_LOG_LEVEL", default="INFO"),
+#         },
+#         "kitchenai": {
+#             "handlers": ["stdout"],
+#             "level": env.log_level("KITCHENAI_LOG_LEVEL", default="INFO"),
+#         },
+#     },
+# }
+
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "plain_console": {
-            "format": "%(levelname)s %(message)s",
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
         },
-        "verbose": {
-            "format": "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
-        },
-    },
-    "handlers": {
-        "stdout": {
-            "class": "logging.StreamHandler",
-            "stream": sys.stdout,
-            "formatter": "verbose",
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
         },
     },
-    "loggers": {
-        "django": {
-            "handlers": ["stdout"],
-            "level": env.log_level("DJANGO_LOG_LEVEL", default="INFO"),
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',  # Set to INFO or WARNING to suppress DEBUG logs
+            'propagate': True,
+        },
+        'urllib3.connectionpool': {
+            'handlers': ['console'],
+            'level': 'WARNING',  # Suppress DEBUG logs from urllib3
+            'propagate': False,
+        },
+        'chromadb': {
+            'handlers': ['console'],
+            'level': 'WARNING',  # Suppress DEBUG logs from chromadb
+            'propagate': False,
         },
         "kitchenai": {
-            "handlers": ["stdout"],
+            "handlers": ["console"],
             "level": env.log_level("KITCHENAI_LOG_LEVEL", default="INFO"),
         },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',  # Set the root logger level
     },
 }
 
