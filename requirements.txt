@@ -27,6 +27,7 @@
 # - environs[django]
 # - falco-toolbox
 # - falco-ui
+# - faststream[nats]
 # - gunicorn
 # - heroicons[django]
 # - honcho
@@ -43,6 +44,7 @@
 # - rich
 # - sentry-sdk
 # - slippers
+# - starlette
 # - typer
 # - whitenoise
 #
@@ -59,6 +61,8 @@ annotated-types==0.7.0
     # via pydantic
 anyio==4.6.2.post1
     # via
+    #   fast-depends
+    #   faststream
     #   httpx
     #   openai
     #   starlette
@@ -255,10 +259,14 @@ falco-toolbox==0.4.0
     # via hatch.envs.default
 falco-ui==0.2.0
     # via hatch.envs.default
+fast-depends==2.4.12
+    # via faststream
 fastapi==0.115.2
     # via chromadb
 fastjsonschema==2.20.0
     # via nbformat
+faststream==0.5.30
+    # via hatch.envs.default
 filelock==3.16.1
     # via
     #   huggingface-hub
@@ -441,6 +449,8 @@ multidict==6.1.0
     #   yarl
 mypy-extensions==1.0.0
     # via typing-inspect
+nats-py==2.9.0
+    # via faststream
 nbclient==0.10.0
     # via nbconvert
 nbconvert==7.16.4
@@ -578,6 +588,7 @@ pydantic==2.9.2
     # via
     #   chromadb
     #   django-ninja
+    #   fast-depends
     #   fastapi
     #   llama-cloud
     #   llama-index-core
@@ -706,7 +717,9 @@ sqlalchemy==2.0.36
 sqlparse==0.5.1
     # via django
 starlette==0.40.0
-    # via fastapi
+    # via
+    #   hatch.envs.default
+    #   fastapi
 striprtf==0.0.26
     # via llama-index-readers-file
 svix==1.40.0
@@ -768,6 +781,7 @@ typing-extensions==4.12.2
     #   chromadb
     #   dj-database-url
     #   fastapi
+    #   faststream
     #   huggingface-hub
     #   llama-index-core
     #   llama-index-legacy
