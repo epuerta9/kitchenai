@@ -850,7 +850,7 @@ llama-index-vector-stores-chroma==0.2.1
     # via
     #   -c requirements.txt
     #   hatch.envs.dev
-llama-parse==0.5.8
+llama-parse==0.5.15
     # via
     #   -c requirements.txt
     #   llama-index-readers-llama-parse
