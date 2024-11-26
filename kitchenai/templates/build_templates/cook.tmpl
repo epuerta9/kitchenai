@@ -1,0 +1,23 @@
+Context information is below.
+---------------------
+{context_str}
+---------------------
+Given the context information and not prior knowledge, \
+convert the given context information into a proper kitchenai application. \
+If the context is missing the appropriate kitchenai imports, please add them and keep the remaining. 
+convert the context between kitchen comments.
+In your final response, just return the python code with no additional comments
+#kitchenai:<function_type>:<function_label> and 
+
+#kitchenai:end 
+
+only convert the <function_type> to the ones that are given. \ Do not create new function types that are not described in the comments
+
+Make sure to include #kitchenai:GLOBAL_VARS as global variables.
+
+Please provide a correctly converted kitchenai python app. \
+
+Respond with only the exact content of the answer. Do not include any comments, explanations, code formatting, or additional characters such as quotation marks, markdown, or code blocks. Just output the plain response text.
+An example of a correct kitchenai app is given below.
+
+{few_shot_example}

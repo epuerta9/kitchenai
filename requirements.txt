@@ -27,11 +27,15 @@
 # - environs[django]
 # - falco-toolbox
 # - falco-ui
+# - faststream[nats]
 # - gunicorn
 # - heroicons[django]
 # - honcho
 # - llama-index
+# - llama-index-llms-groq
 # - llama-index-vector-stores-chroma
+# - nbconvert
+# - nbformat
 # - pillow
 # - posthog
 # - psycopg[binary]
@@ -40,6 +44,7 @@
 # - rich
 # - sentry-sdk
 # - slippers
+# - starlette
 # - typer
 # - whitenoise
 #
@@ -56,6 +61,8 @@ annotated-types==0.7.0
     # via pydantic
 anyio==4.6.2.post1
     # via
+    #   fast-depends
+    #   faststream
     #   httpx
     #   openai
     #   starlette
@@ -74,15 +81,21 @@ asgiref==3.8.1
 attrs==24.2.0
     # via
     #   aiohttp
+    #   jsonschema
+    #   referencing
     #   svix
 backoff==2.2.1
     # via posthog
 bcrypt==4.2.0
     # via chromadb
 beautifulsoup4==4.12.3
-    # via llama-index-readers-file
+    # via
+    #   llama-index-readers-file
+    #   nbconvert
 binaryornot==0.4.4
     # via cookiecutter
+bleach==6.2.0
+    # via nbconvert
 boto3==1.35.41
     # via
     #   hatch.envs.default
@@ -137,6 +150,8 @@ dataclasses-json==0.6.7
     # via
     #   llama-index-core
     #   llama-index-legacy
+defusedxml==0.7.1
+    # via nbconvert
 deprecated==1.2.14
     # via
     #   llama-index-core
@@ -244,10 +259,18 @@ falco-toolbox==0.4.0
     # via hatch.envs.default
 falco-ui==0.2.0
     # via hatch.envs.default
+fast-depends==2.4.12
+    # via faststream
 fastapi==0.115.2
     # via chromadb
+fastjsonschema==2.20.0
+    # via nbformat
+faststream==0.5.30
+    # via hatch.envs.default
 filelock==3.16.1
-    # via huggingface-hub
+    # via
+    #   huggingface-hub
+    #   transformers
 flatbuffers==24.3.25
     # via onnxruntime
 frozenlist==1.5.0
@@ -293,7 +316,9 @@ httpx==0.27.2
     #   openai
     #   svix
 huggingface-hub==0.25.2
-    # via tokenizers
+    # via
+    #   tokenizers
+    #   transformers
 humanfriendly==10.0
     # via coloredlogs
 idna==3.10
@@ -307,7 +332,9 @@ importlib-metadata==8.4.0
 importlib-resources==6.4.5
     # via chromadb
 jinja2==3.1.4
-    # via cookiecutter
+    # via
+    #   cookiecutter
+    #   nbconvert
 jiter==0.6.1
     # via openai
 jmespath==1.0.1
@@ -316,6 +343,20 @@ jmespath==1.0.1
     #   botocore
 joblib==1.4.2
     # via nltk
+jsonschema==4.23.0
+    # via nbformat
+jsonschema-specifications==2024.10.1
+    # via jsonschema
+jupyter-client==8.6.3
+    # via nbclient
+jupyter-core==5.7.2
+    # via
+    #   jupyter-client
+    #   nbclient
+    #   nbconvert
+    #   nbformat
+jupyterlab-pygments==0.3.0
+    # via nbconvert
 kubernetes==31.0.0
     # via chromadb
 llama-cloud==0.1.2
@@ -335,7 +376,9 @@ llama-index-core==0.11.18
     #   llama-index-cli
     #   llama-index-embeddings-openai
     #   llama-index-indices-managed-llama-cloud
+    #   llama-index-llms-groq
     #   llama-index-llms-openai
+    #   llama-index-llms-openai-like
     #   llama-index-multi-modal-llms-openai
     #   llama-index-program-openai
     #   llama-index-question-gen-openai
@@ -351,14 +394,19 @@ llama-index-indices-managed-llama-cloud==0.4.0
     # via llama-index
 llama-index-legacy==0.9.48.post3
     # via llama-index
+llama-index-llms-groq==0.2.0
+    # via hatch.envs.default
 llama-index-llms-openai==0.2.15
     # via
     #   llama-index
     #   llama-index-agent-openai
     #   llama-index-cli
+    #   llama-index-llms-openai-like
     #   llama-index-multi-modal-llms-openai
     #   llama-index-program-openai
     #   llama-index-question-gen-openai
+llama-index-llms-openai-like==0.2.0
+    # via llama-index-llms-groq
 llama-index-multi-modal-llms-openai==0.2.2
     # via llama-index
 llama-index-program-openai==0.2.0
@@ -378,13 +426,17 @@ llama-parse==0.5.8
 markdown-it-py==3.0.0
     # via rich
 markupsafe==3.0.2
-    # via jinja2
+    # via
+    #   jinja2
+    #   nbconvert
 marshmallow==3.23.0
     # via
     #   dataclasses-json
     #   environs
 mdurl==0.1.2
     # via markdown-it-py
+mistune==3.0.2
+    # via nbconvert
 mmh3==5.0.1
     # via chromadb
 monotonic==1.6
@@ -397,6 +449,17 @@ multidict==6.1.0
     #   yarl
 mypy-extensions==1.0.0
     # via typing-inspect
+nats-py==2.9.0
+    # via faststream
+nbclient==0.10.0
+    # via nbconvert
+nbconvert==7.16.4
+    # via hatch.envs.default
+nbformat==5.10.4
+    # via
+    #   hatch.envs.default
+    #   nbclient
+    #   nbconvert
 nest-asyncio==1.6.0
     # via
     #   llama-index-core
@@ -418,6 +481,7 @@ numpy==1.26.4
     #   llama-index-legacy
     #   onnxruntime
     #   pandas
+    #   transformers
 oauthlib==3.2.2
     # via
     #   kubernetes
@@ -478,17 +542,23 @@ packaging==24.1
     #   gunicorn
     #   huggingface-hub
     #   marshmallow
+    #   nbconvert
     #   onnxruntime
+    #   transformers
 pandas==2.2.3
     # via
     #   llama-index-legacy
     #   llama-index-readers-file
+pandocfilters==1.5.1
+    # via nbconvert
 parso==0.8.4
     # via falco-app
 pillow==11.0.0
     # via
     #   hatch.envs.default
     #   llama-index-core
+platformdirs==4.3.6
+    # via jupyter-core
 pluggy==1.5.0
     # via djp
 posthog==3.7.0
@@ -518,6 +588,7 @@ pydantic==2.9.2
     # via
     #   chromadb
     #   django-ninja
+    #   fast-depends
     #   fastapi
     #   llama-cloud
     #   llama-index-core
@@ -525,7 +596,9 @@ pydantic==2.9.2
 pydantic-core==2.23.4
     # via pydantic
 pygments==2.18.0
-    # via rich
+    # via
+    #   nbconvert
+    #   rich
 pyjwt==2.9.0
     # via django-allauth
 pypdf==4.3.1
@@ -538,6 +611,7 @@ python-dateutil==2.9.0.post0
     # via
     #   arrow
     #   botocore
+    #   jupyter-client
     #   kubernetes
     #   pandas
     #   posthog
@@ -559,15 +633,23 @@ pyyaml==6.0.2
     #   kubernetes
     #   llama-index-core
     #   slippers
+    #   transformers
     #   uvicorn
+pyzmq==26.2.0
+    # via jupyter-client
 rcssmin==1.1.2
     # via django-compressor
+referencing==0.35.1
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
 refreshcss==0.5.1
     # via hatch.envs.default
 regex==2024.9.11
     # via
     #   nltk
     #   tiktoken
+    #   transformers
 requests==2.32.3
     # via
     #   cookiecutter
@@ -580,6 +662,7 @@ requests==2.32.3
     #   posthog
     #   requests-oauthlib
     #   tiktoken
+    #   transformers
 requests-oauthlib==2.0.0
     # via
     #   django-allauth
@@ -593,10 +676,16 @@ rich==13.9.2
     #   typer
 rjsmin==1.2.2
     # via django-compressor
+rpds-py==0.21.0
+    # via
+    #   jsonschema
+    #   referencing
 rsa==4.9
     # via google-auth
 s3transfer==0.10.3
     # via boto3
+safetensors==0.4.5
+    # via transformers
 sentry-sdk==2.16.0
     # via hatch.envs.default
 setuptools==75.2.0
@@ -628,7 +717,9 @@ sqlalchemy==2.0.36
 sqlparse==0.5.1
     # via django
 starlette==0.40.0
-    # via fastapi
+    # via
+    #   hatch.envs.default
+    #   fastapi
 striprtf==0.0.26
     # via llama-index-readers-file
 svix==1.40.0
@@ -646,8 +737,14 @@ tiktoken==0.8.0
     # via
     #   llama-index-core
     #   llama-index-legacy
+tinycss2==1.4.0
+    # via nbconvert
 tokenizers==0.20.1
-    # via chromadb
+    # via
+    #   chromadb
+    #   transformers
+tornado==6.4.2
+    # via jupyter-client
 tqdm==4.66.5
     # via
     #   chromadb
@@ -655,6 +752,16 @@ tqdm==4.66.5
     #   llama-index-core
     #   nltk
     #   openai
+    #   transformers
+traitlets==5.14.3
+    # via
+    #   jupyter-client
+    #   jupyter-core
+    #   nbclient
+    #   nbconvert
+    #   nbformat
+transformers==4.46.3
+    # via llama-index-llms-openai-like
 typeguard==2.13.3
     # via slippers
 typer==0.12.5
@@ -674,6 +781,7 @@ typing-extensions==4.12.2
     #   chromadb
     #   dj-database-url
     #   fastapi
+    #   faststream
     #   huggingface-hub
     #   llama-index-core
     #   llama-index-legacy
@@ -707,6 +815,10 @@ uvloop==0.21.0
     # via uvicorn
 watchfiles==0.24.0
     # via uvicorn
+webencodings==0.5.1
+    # via
+    #   bleach
+    #   tinycss2
 websocket-client==1.8.0
     # via kubernetes
 websockets==13.1

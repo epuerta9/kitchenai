@@ -38,6 +38,59 @@ def cook_list():
     console.print(table)
 
 
+@app.command("notebook")
+def cook_notebook():
+    """convert a notebook into an app.py module"""
+    import nbformat
+    from nbconvert import PythonExporter
+    from llama_index.llms.groq import Groq
+    import django 
+    from llama_index.core import PromptTemplate
+    from django.template import loader
+
+
+    django.setup()
+
+    import os
+    # Load the notebook
+    notebook_path = "playground.ipynb"
+    with open(notebook_path, "r", encoding="utf-8") as f:
+        notebook = nbformat.read(f, as_version=4)
+
+    # Export to Python script
+    exporter = PythonExporter()
+    (script, resources) = exporter.from_notebook_node(notebook)
+
+    with console.status(f"[cyan]Cooking your notebook...[/cyan]", spinner="dots"):
+
+
+        api_key = os.environ.get("GROQ_API_KEY")
+        if not api_key:
+            raise("error GROQ_API_KEY NEEDED")
+        llm = Groq(model="llama3-70b-8192", api_key=api_key)
+        kitchenai_few_shot = loader.get_template('build_templates/app.tmpl')
+        prompt = loader.get_template('build_templates/cook.tmpl')
+
+        few_shot_rendered = kitchenai_few_shot.render()
+
+        prompt_rendered = prompt.render()
+
+        cook_prompt_template = PromptTemplate(
+            prompt_rendered,
+        )
+
+        prompt_with_context = cook_prompt_template.format(context_str=script, few_shot_example=few_shot_rendered)
+
+        response = llm.complete(prompt_with_context)
+
+        # Save as .py file
+        with open("app.py", "w", encoding="utf-8") as f:
+            f.write(response.text)
+
+    # Display the table
+    console.print("[cyan]cooked into an app.py![/cyan]")
+
+
 @app.command("select")
 def cook_select(name: str):
     """Download a specific starter cookbook."""

@@ -134,7 +134,7 @@ def dev(address: str ="0.0.0.0:8000", module: Annotated[str, typer.Option(help="
     posthog.capture("init", "kitchenai_dev")
 
     if module:
-        commands["server"] = f"kitchenai runserver --module {module}"
+        commands["server"] = f"kitchenai runserver --module {module} "
     if tailwind:
         if "django_tailwind_cli" in settings.INSTALLED_APPS:
             commands["tailwind"] = "django-admin tailwind watch"
@@ -353,7 +353,7 @@ def _run_dev_uvicorn(argv: list) -> None:
     gunicorn_args = [
         "kitchenai.asgi:application",  # Replace WSGI with ASGI app
         "--bind",
-        "0.0.0.0:8000",
+        "0.0.0.0:8001",
         # "unix:/run/kitchenai_demo.gunicorn.sock",  # Use this if you're using a socket file
         "--max-requests",
         "1000",

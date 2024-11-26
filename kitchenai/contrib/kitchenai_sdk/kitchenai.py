@@ -11,6 +11,7 @@ from ninja import Router
 from .api import QuerySchema, EmbedSchema
 import posthog
 
+from kitchenai.broker import broker
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -73,7 +74,7 @@ class KitchenAIApp:
         return decorator
 
     # Decorators for different route types
-    def query(self, label: str, streaming=False, **route_kwargs):
+    def query(self, label: str, streaming=False, llama_stack_emit="", **route_kwargs):
         """Query is a decorator for query handlers with the ability to add middleware"""
         def decorator(func, **route_kwargs):
             @functools.wraps(func)
@@ -93,7 +94,7 @@ class KitchenAIApp:
                             yield event
 
 
-                    return StreamingHttpResponse(
+                    result = StreamingHttpResponse(
                         event_generator(),
                         content_type="text/event-stream",
                         headers={
@@ -104,10 +105,27 @@ class KitchenAIApp:
                     )
                 # Non-streaming behavior
                 elif asyncio.iscoroutinefunction(func):
-                    return await func(*args, **kwargs)
+                    result =  await func(*args, **kwargs)
                 else:
                     loop = asyncio.get_event_loop()
-                    return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
+                    result = await loop.run_in_executor(None, lambda: func(*args, **kwargs))
+                
+
+                if llama_stack_emit:
+                    print("emitting event to llama_stack")
+
+                    data = {
+                        "messages": [
+                                {
+                                "content": args[1].query, 
+                                "role": "user"
+                                }
+                             ], 
+                        "model_id": "meta-llama/Llama-3.2-3B-Instruct", 
+                        "stream": False
+                    }
+                    await broker.publish(data, llama_stack_emit)
+                return result
             self._query_handlers[f"{self._namespace}.{label}"] = wrapper
             return wrapper
 
