@@ -746,7 +746,7 @@ jupyterlab-server==2.27.3
     #   notebook
 jupyterlab-widgets==3.0.13
     # via ipywidgets
-keyring==25.4.1
+keyring==25.5.0
     # via hatch
 kubernetes==31.0.0
     # via
