@@ -24,6 +24,7 @@
 # - django-widget-tweaks
 # - django[argon2]
 # - djp
+# - dynamic-pip
 # - environs[django]
 # - falco-toolbox
 # - falco-ui
@@ -251,6 +252,8 @@ djp==0.3.1
     # via hatch.envs.default
 durationpy==0.9
     # via kubernetes
+dynamic-pip==1.1.2
+    # via hatch.envs.default
 environs==11.0.0
     # via hatch.envs.default
 falco-app==0.3.0
@@ -321,6 +324,8 @@ huggingface-hub==0.25.2
     #   transformers
 humanfriendly==10.0
     # via coloredlogs
+icmplib==3.0.3
+    # via dynamic-pip
 idna==3.10
     # via
     #   anyio

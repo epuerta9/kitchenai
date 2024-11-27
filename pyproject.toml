@@ -63,7 +63,8 @@ dependencies = [
   "nbconvert",
   "llama-index-llms-groq",
   "faststream[nats]", 
-  "starlette"
+  "starlette",
+  "dynamic-pip"
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"
@@ -115,7 +116,8 @@ dependencies = [
   "git-cliff",
   "bump-my-version",
   "hatch-pip-compile",
-]
+  "jupyterlab",
+  ]
 lock-filename = "requirements-dev.txt"
 
 [tool.hatch.envs.docs]

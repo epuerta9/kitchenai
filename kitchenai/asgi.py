@@ -27,6 +27,6 @@ app = Starlette(
     routes=(
         Mount("/", django_asgi),  # redirect all requests to Django
     ),
-    lifespan=broker_lifespan
+    # lifespan=broker_lifespan
 )
 application = app
