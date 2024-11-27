@@ -213,7 +213,7 @@ LOGGING = {
         },
         "kitchenai": {
             "handlers": ["console"],
-            "level": env.log_level("KITCHENAI_LOG_LEVEL", default="INFO"),
+            "level": env.log_level("KITCHENAI_LOG_LEVEL", default="DEBUG"),
         },
     },
     'root': {
@@ -245,9 +245,12 @@ MIDDLEWARE = [
     # should be last
     "django.middleware.cache.FetchFromCacheMiddleware",
 ]
-if DEBUG:
+
+if DEBUG or KITCHENAI_DEBUG:
     MIDDLEWARE.remove("django.middleware.cache.UpdateCacheMiddleware")
     MIDDLEWARE.remove("django.middleware.cache.FetchFromCacheMiddleware")
+
+if DEBUG:
     MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
 
     MIDDLEWARE.insert(

@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load partials %}
+{% block content %}
+    <section class="flex justify-between">
+        <h1 class="text-lg font-bold">Kitchen ai modules</h1>
+        <a href="{% url 'core:kitchenaimodule_create' %}"
+           class="cursor-pointer py-2 px-4 bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 focus:ring-offset-blue-200 text-white text-center text-base font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg">
+            New Kitchenaimodule
+        </a>
+    </section>
+    {% partialdef table inline=True %}
+    <div id="table">
+        <div class="flex flex-col">
+            <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="py-2 inline-block min-w-full sm:px-6 lg:px-8">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="border text-gray-700 uppercase bg-gray-100 text-sm">
+                                {% with th_class="text-sm font-medium text-gray-900 border-r px-6 py-4 text-left" %}
+                                    <tr>
+                                        <th scope="col" class="{{ th_class }}">created at</th>
+                                        <th scope="col" class="{{ th_class }}">updated at</th>
+                                        <th scope="col" class="{{ th_class }}">name</th>
+                                        <th scope="col" class="{{ th_class }}">kitchen</th>
+                                        <th scope="col" class="{{ th_class }}">jupyter path</th>
+                                        <th scope="col" class="{{ th_class }}">file</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                {% endwith %}
+                            </thead>
+                            <tbody>
+                                {% with td_class="px-6 py-4 whitespace-nowrap text-sm font-medium border-r text-gray-900" %}
+                                    {% for kitchenaimodule in kitchenaimodules_page %}
+                                        <tr class="border hover:bg-neutral-100">
+                                            <td class="{{ td_class }}">
+                                                <a class="font-bold hover:underline"
+                                                   href="{% url 'core:kitchenaimodule_detail' kitchenaimodule.pk %}">{{ kitchenaimodule.created_at }}</a>
+                                            </td>
+                                            <td class="{{ td_class }}">{{ kitchenaimodule.updated_at }}</td>
+                                            <td class="{{ td_class }}">{{ kitchenaimodule.name }}</td>
+                                            <td class="{{ td_class }}">{{ kitchenaimodule.kitchen }}</td>
+                                            <td class="{{ td_class }}">{{ kitchenaimodule.jupyter_path }}</td>
+                                            <td class="{{ td_class }}">
+                                                {% if kitchenaimodule.file %}<a class="hover:underline" href="{{ kitchenaimodule.file.url }}">file</a>{% endif %}
+                                            </td>
+                                            <td class="{{ td_class }} flex gap-8">
+                                                <a class="hover:text-blue-500"
+                                                   href="{% url 'core:kitchenaimodule_detail' kitchenaimodule.pk %}">
+                                                    {% heroicon_outline "eye" size="18" %}
+                                                </a>
+                                                <a class="hover:text-blue-500"
+                                                   href="{% url 'core:kitchenaimodule_update' kitchenaimodule.pk %}">
+                                                    {% heroicon_outline "pencil-square" size="18" %}
+                                                </a>
+                                                <a class="cursor-pointer text-red-600 hover:text-red-500"
+                                                   hx-target="closest tr"
+                                                   hx-swap="outerHTML"
+                                                   hx-confirm="Are you sure you?"
+                                                   hx-delete="{% url 'core:kitchenaimodule_delete' kitchenaimodule.pk %}">
+                                                    {% heroicon_outline "trash" size="18" %}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endwith %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if kitchenaimodules_page.paginator.num_pages > 1 %}
+            <div class="flex justify-end py-4">
+                <ul class="flex list-reset border border-grey-light rounded"
+                    hx-target="#table"
+                    hx-swap="outerHTML"
+                    hx-push-url="true">
+                    {% with page_class="cursor-pointer block px-3 py-2 hover:text-white hover:bg-blue-500 border-r border-grey-light" %}
+                        {% if kitchenaimodules_page.has_previous %}
+                            <li>
+                                <a class="{{ page_class }}" hx-get="?page=1">First</a>
+                            </li>
+                            <li>
+                                <a class="{{ page_class }}"
+                                   hx-get="?page={{ kitchenaimodules_page.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        {% for num in kitchenaimodules_page.paginator.page_range %}
+                            {% if kitchenaimodules_page.number == num %}
+                                <li>
+                                    <a class="{{ page_class }}"  hx-get="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% elif num > kitchenaimodules_page.number|add:'-3' and num < kitchenaimodules_page.number|add:'3' %}
+                                <li>
+                                    <a class="{{ page_class }}" hx-get="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if kitchenaimodules_page.has_next %}
+                            <li>
+                                <a class="{{ page_class }}"
+                                   hx-get="?page={{ kitchenaimodules_page.next_page_number }}">Next</a>
+                            </li>
+                            <li>
+                                <a class="cursor-pointer block px-3 py-2 hover:text-white hover:bg-blue-500"
+                                   hx-get="?page={{ kitchenaimodules_page.paginator.num_pages }}">Last</a>
+                            </li>
+                        {% endif %}
+                    {% endwith %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+{% endpartialdef %}
+
+
+
+
+<div class="overflow-x-auto">
+    <table class="table">
+      <!-- head -->
+      <thead>
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Job</th>
+          <th>Favorite Color</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- row 1 -->
+        <tr>
+          <th>1</th>
+          <td>Cy Ganderton</td>
+          <td>Quality Control Specialist</td>
+          <td>Blue</td>
+        </tr>
+        <!-- row 2 -->
+        <tr>
+          <th>2</th>
+          <td>Hart Hagerty</td>
+          <td>Desktop Support Technician</td>
+          <td>Purple</td>
+        </tr>
+        <!-- row 3 -->
+        <tr>
+          <th>3</th>
+          <td>Brice Swyre</td>
+          <td>Tax Accountant</td>
+          <td>Red</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+{% endblock content %}

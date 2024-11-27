@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+    <section class="flex justify-between">
+        <h1 class="text-lg font-bold">Kitchen ai module - {{ kitchenaimodule }}</h1>
+        <a href="{% url 'core:kitchenaimodule_list' %}"
+           class="text-blue-600 hover:underline hover:text-blue-500">All Kitchen ai modules</a>
+    </section>
+    <ul class="py-5">
+        <li>
+            <span class="font-bold">created at:</span> {{ kitchenaimodule.created_at }}
+        </li>
+        <li>
+            <span class="font-bold">updated at:</span> {{ kitchenaimodule.updated_at }}
+        </li>
+        <li>
+            <span class="font-bold">name:</span> {{ kitchenaimodule.name }}
+        </li>
+        <li>
+            <span class="font-bold">kitchen:</span> {{ kitchenaimodule.kitchen }}
+        </li>
+        <li>
+            <span class="font-bold">jupyter path:</span> {{ kitchenaimodule.jupyter_path }}
+        </li>
+        <li>
+            <span class="font-bold">file:</span> {{ kitchenaimodule.file.url }}
+        </li>
+    </ul>
+    <a class="py-2 px-4 bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 focus:ring-offset-blue-200 text-white text-center text-base font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg"
+       href="{% url 'core:kitchenaimodule_update' kitchenaimodule.pk %}">Edit</a>
+{% endblock content %}

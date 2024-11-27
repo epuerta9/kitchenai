@@ -26,7 +26,7 @@ class KitchenAIManagement(TimeStamped):
 
 
 class KitchenAIPlugins(TimeStamped):
-    name = models.CharField(max_length=255, primary_key=True)
+    name = models.CharField(max_length=255, unique=True)
     kitchen = models.ForeignKey(KitchenAIManagement, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -34,7 +34,7 @@ class KitchenAIPlugins(TimeStamped):
 
 
 class KitchenAIDependencies(TimeStamped):
-    name = models.CharField(max_length=255, primary_key=True)
+    name = models.CharField(max_length=255, unique=True)
     kitchen = models.ForeignKey(KitchenAIManagement, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -42,11 +42,11 @@ class KitchenAIDependencies(TimeStamped):
 
 
 class KitchenAIRootModule(TimeStamped):
-    name = models.CharField(max_length=255, primary_key=True)
+    name = models.CharField(max_length=255, unique=True)
     kitchen = models.ForeignKey(KitchenAIManagement, on_delete=models.CASCADE)
 
 class KitchenAIModule(TimeStamped):
-    name = models.CharField(max_length=255, primary_key=True)
+    name = models.CharField(max_length=255)
     kitchen = models.ForeignKey(KitchenAIManagement, on_delete=models.CASCADE)
     jupyter_path = models.CharField(max_length=255, default="")
     file = models.FileField(upload_to=module_directory_path)
