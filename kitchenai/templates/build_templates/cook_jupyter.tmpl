@@ -1,0 +1,29 @@
+
+{% for impt in  code_imports %}
+
+{{ impt.code| safe }}
+
+{% endfor %}
+
+
+{% for setup in code_setups  %}
+
+#kitchenai:GLOBAL_VAR
+
+{{ setup.code| safe }}
+
+#kitchenai:end
+
+{% endfor %}
+
+
+{% for func in code_functions  %}
+
+#kitchenai:{{func.type}}.{{func.label}}
+
+{{func.raw_code| safe}}
+
+#kitchenai:end
+
+
+{% endfor %}

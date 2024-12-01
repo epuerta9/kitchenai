@@ -44,12 +44,10 @@ def import_cookbook(module_path):
 
 
 
-def setup(api: "NinjaAPI", module: str = "") -> "KitchenAIApp":
+def setup(api: "NinjaAPI", module: str = "", project_root: str = os.getcwd()) -> "KitchenAIApp":
     # # Load configuration from the database
     config = {}
     # Determine the user's project root directory (assumes the command is run from the user's project root)
-    project_root = os.getcwd()
-
     # Add the user's project root directory to the Python path
     if project_root not in sys.path:
         sys.path.insert(0, project_root)
@@ -90,7 +88,8 @@ def add_module_to_core(module_path: str):
     #importing main app
     try:
         module_path, instance_name = module_path.split(':')
-        print(f"module_path in add_module_to_core: {module_path}")
+
+        print(f"module_path in add_module_to_core: {module_path}, instance name: {instance_name}")
         module = import_module(module_path)
         instance = getattr(module, instance_name)
 
@@ -106,6 +105,12 @@ def add_module_to_core(module_path: str):
 
     except (ImportError, AttributeError) as e:
         logger.warning(f"No valid KitchenAIApp instance found: {e}")
+
+    except ValueError as e:
+        logger.error(f"Invalid module path format. Expected 'module:instance' {e}")
+
+    except Exception as e:
+        logger.error(f"error adding module to core: {e}")
 
 def get_or_create_root_module(module_path: str):
     try:

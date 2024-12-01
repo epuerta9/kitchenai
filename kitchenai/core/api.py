@@ -10,7 +10,7 @@ from llama_index.core import PromptTemplate
 from django.template import loader
 import requests
 from urllib.request import urlopen
-from .models import FileObject, EmbedObject
+from .models import FileObject, EmbedObject, KitchenAIManagement
 router = Router()
 
 # Create a Schema that represents FileObject
@@ -123,108 +123,20 @@ async def embed_delete(request, pk: int):
     except EmbedObject.DoesNotExist:
         raise HttpError(404, "Embed not found")
 
+
+class UploadModuleInput(Schema):
+    module: str
+    project_path: str
+
+
 @router.post("/module/upload")
-def upload_notebook(request):
+def upload_notebook(request, input: UploadModuleInput):
+    """WIP and NOT SAFE TO USE"""
+    from kitchenai.core.utils import setup 
+    from kitchenai.api import api
 
-    base_url = "http://localhost:8888/api/contents"
-    directory = "/notebook.ipynb"
-    headers = {'Authorization': 'Token b6b795c663906f688727081ad75c3cae97d398bb156c0297'}
-
-    response = requests.get(f"{base_url}{directory}", headers=headers)
-
-    if response.status_code == 200:
-        print(response.json())
-        # notebooks = response.json()['content']
-        # for notebook in notebooks:
-        #     print(notebook['name'])
-    else:
-        print("Error:", response.status_code)
-
-    print(response.json())
-
-    # notebook = nbformat.reads(response.json(), as_version=4)
-    # print(notebook.cells[0])
-    # notebook_path = "playground.ipynb"
-    # with open(notebook_path, "r", encoding="utf-8") as f:
-    #     notebook = nbformat.read(f, as_version=4)
-
-    # # Export to Python script
-    # exporter = PythonExporter()
-    # (script, resources) = exporter.from_notebook_node(notebook)
-
-
-
-    # # api_key = os.environ.get("GROQ_API_KEY")
-    # # if not api_key:
-    # #     raise("error GROQ_API_KEY NEEDED")
-    # # llm = Groq(model="llama3-70b-8192", api_key=api_key)
-    # kitchenai_few_shot = loader.get_template('build_templates/app.tmpl')
-    # prompt = loader.get_template('build_templates/cook.tmpl')
-
-    # few_shot_rendered = kitchenai_few_shot.render()
-
-    # prompt_rendered = prompt.render()
-
-    # cook_prompt_template = PromptTemplate(
-    #     prompt_rendered,
-    # )
-
-    # prompt_with_context = cook_prompt_template.format(context_str=script, few_shot_example=few_shot_rendered)
-
-    # response = llm.complete(prompt_with_context)
-
-    # Save as .py file
-    # with open("app.py", "w", encoding="utf-8") as f:
-    #     f.write(response.text)
-    # with open("app-generate.py", "w", encoding="utf-8") as f:
-    #     f.write(response.text)
-
-    # print(prompt_with_context)
-    return {"prompt" : "ok"}
-
-@router.post("/pip/upload")
-def upload_pip(request):
-
-    url = "https://jakevdp.github.io/downloads/notebooks/XKCD_plots.ipynb"
-    response = urlopen(url).read().decode()
-    response[0:60] + " ..."
-
-    notebook = nbformat.reads(response, as_version=4)
-    print(notebook.cells[0])
-    # notebook_path = "playground.ipynb"
-    # with open(notebook_path, "r", encoding="utf-8") as f:
-    #     notebook = nbformat.read(f, as_version=4)
-
-    # Export to Python script
-    exporter = PythonExporter()
-    (script, resources) = exporter.from_notebook_node(notebook)
-
-
-
-    # api_key = os.environ.get("GROQ_API_KEY")
-    # if not api_key:
-    #     raise("error GROQ_API_KEY NEEDED")
-    # llm = Groq(model="llama3-70b-8192", api_key=api_key)
-    kitchenai_few_shot = loader.get_template('build_templates/app.tmpl')
-    prompt = loader.get_template('build_templates/cook.tmpl')
-
-    few_shot_rendered = kitchenai_few_shot.render()
-
-    prompt_rendered = prompt.render()
-
-    cook_prompt_template = PromptTemplate(
-        prompt_rendered,
-    )
-
-    prompt_with_context = cook_prompt_template.format(context_str=script, few_shot_example=few_shot_rendered)
-
-    # response = llm.complete(prompt_with_context)
-
-    # Save as .py file
-    # with open("app.py", "w", encoding="utf-8") as f:
-    #     f.write(response.text)
-    # with open("app-generate.py", "w", encoding="utf-8") as f:
-    #     f.write(response.text)
-
-    # print(prompt_with_context)
-    return {"prompt" : prompt_with_context}
+    try:
+        setup(api, module=input.module, project_root=input.project_path)
+    except Exception as e:
+        return {"error": e}
+    return {"msg" : "ok"}
