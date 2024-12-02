@@ -6,6 +6,10 @@ from .models import (
     KitchenAIManagement,
     KitchenAIModule,
     KitchenAIRootModule,
+    CodeFunction,
+    CodeImport,
+    CodeSetup,
+    Notebook
 )
 
 
@@ -26,6 +30,24 @@ class EmbedObjectAdmin(admin.ModelAdmin):
 
 @admin.register(KitchenAIRootModule)
 class KitchenAIRootModuleAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(CodeFunction)
+class CodeFunctionAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(CodeImport)
+class CodeImportAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(CodeSetup)
+class CodeSetupAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Notebook)
+class NotebookAdmin(admin.ModelAdmin):
     pass
 
 

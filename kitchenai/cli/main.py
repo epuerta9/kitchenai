@@ -92,7 +92,9 @@ def qcluster() -> None:
 
 
 @app.command()
-def runserver(module: Annotated[str, typer.Option(help="Python module to load.")] = "") -> None:
+def runserver(
+    module: Annotated[str, typer.Option(help="Python module to load.")] = "",
+    ) -> None:
     """Run Django runserver."""
     #NOTE: doing this to reset the sys.argv for gunicorn command.
     sys.argv = [sys.argv[0]]
@@ -124,17 +126,40 @@ def run(module: Annotated[str, typer.Option(help="Python module to load.")] = os
 
 
 @app.command()
-def dev(address: str ="0.0.0.0:8000", module: Annotated[str, typer.Option(help="Python module to load.")] = "", tailwind: Annotated[bool, typer.Option(help="Tailwind servers.")] = False):
+def dev(
+    address: str ="0.0.0.0:8000", 
+    module: Annotated[str, typer.Option(help="Python module to load.")] = "", 
+    tailwind: Annotated[bool, typer.Option(help="Tailwind servers.")] = False,
+    jupyter: Annotated[bool, typer.Option(help="Jupyter Notebook servers.")] = False,
+
+    ):
     """
     Reads the kitchen config file, reads the application file and runs the KitchenAI server
     """
-    commands = {"server": "kitchenai runserver"}
     import posthog
+    import django
+    import uuid
+
+    django.setup()
+    commands = {"server": "kitchenai runserver"}
 
     posthog.capture("init", "kitchenai_dev")
 
     if module:
         commands["server"] = f"kitchenai runserver --module {module} "
+
+    if jupyter:
+        #user is running jupyter alongside kitchenai
+        from kitchenai.core.models import KitchenAIManagement
+        mgmt = KitchenAIManagement.objects.filter(name="kitchenai_management").first()
+        notebook_id = uuid.uuid4()
+        mgmt.jupyter_token = notebook_id
+        mgmt.save()
+        
+        commands["jupyter"] = f"jupyter lab --NotebookApp.token='{notebook_id}'"
+
+
+
     if tailwind:
         if "django_tailwind_cli" in settings.INSTALLED_APPS:
             commands["tailwind"] = "django-admin tailwind watch"

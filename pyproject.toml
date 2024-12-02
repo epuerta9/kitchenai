@@ -64,7 +64,10 @@ dependencies = [
   "llama-index-llms-groq",
   "faststream[nats]", 
   "starlette",
-  "dynamic-pip"
+  "dynamic-pip", 
+  "jupyterlab",
+  "nest_asyncio"
+
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"
