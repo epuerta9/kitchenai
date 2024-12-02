@@ -7,7 +7,8 @@ import asyncio
 import nest_asyncio
 from llama_index.llms.groq import Groq
 
-
+from contextlib import redirect_stdout, redirect_stderr
+import io
 
 # Setup Django and nest_asyncio
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kitchenai.settings")
@@ -148,11 +149,11 @@ class Cook(Magics):
         else:
             result = asyncio.run(process_code())
 
-        #syntax highlighting show get_ipython as error but runs fine in jupyter notebook context
-        ipython = get_ipython()
-        exec(cell, ipython.user_global_ns)
+        print(f"kitchenai_result: {result}")
 
-        return result
+        ipython = get_ipython()
+        ipython.run_cell(cell)
+
 
 
     @cell_magic
@@ -203,10 +204,11 @@ class Cook(Magics):
         else:
             result = asyncio.run(process_import())
 
-        ipython = get_ipython()
-        exec(cell, ipython.user_global_ns)
+        print(f"kitchenai_result: {result}")
 
-        return result
+        ipython = get_ipython()
+        ipython.run_cell(cell)
+
     
 
 
@@ -260,10 +262,10 @@ class Cook(Magics):
             result = asyncio.run(process_setup())
 
         # Execute the code in the current namespace
-        ipython = get_ipython()
-        exec(cell, ipython.user_global_ns)
+        print(f"kitchenai_result: {result}")
 
-        return result
+        ipython = get_ipython()
+        ipython.run_cell(cell)
 
 
     @line_magic
@@ -331,20 +333,4 @@ class Cook(Magics):
         else:
             result = asyncio.run(process_setup())
 
-
-    @line_magic
-    def kitchenai_load_module(self, line):
-        import requests
-        import os
-        print(os.getcwd())
-
-        project_path = os.getcwd()
-        headers = {
-            "Content-Type" : "application/json"
-        }
-        result = requests.post("http://localhost:8001/api/core/module/upload", json={
-            "module" : "app:kitchen",
-            "project_path" : project_path
-        }, headers=headers)
-
-        return result
+        print(f"kitchenai_result: {result}")
