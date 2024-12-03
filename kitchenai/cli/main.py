@@ -27,9 +27,6 @@ def add(module: str = typer.Argument("app.kitchen:kitchen")):
 @app.command()
 def init(
     verbose: Annotated[int, typer.Option(help="verbosity level. default 0")] = 0,
-    email: Annotated[str, typer.Option(help="superuser email")] = os.environ.get("DJANGO_SUPERUSER_EMAIL", "admin@localhost"),
-    password: Annotated[str, typer.Option(help="superuser password")] = os.environ.get("DJANGO_SUPERUSER_PASSWORD", "admin"),
-    admin: Annotated[bool, typer.Option(help="make admin")] = True,
     ):
     django.setup()
     from django.core.management import execute_from_command_line
@@ -47,29 +44,13 @@ def init(
 
         with console.status("Setting up periodic tasks", spinner="dots"):
             execute_from_command_line(["manage", "setup_periodic_tasks"])
-        if not admin:
-            with console.status("Creating superuser...", spinner="dots"):
-                execute_from_command_line(["manage", "setup_periodic_tasks"])
 
-                username = os.environ.get("DJANGO_SUPERUSER_USERNAME", email.split("@")[0])
-
-                if password == "admin":
-                    os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
-
-                execute_from_command_line(
-                    ["manage", "createsuperuser", "--noinput", "--traceback", "--email", email, "--username", username]
-                )
+        with console.status("Collecting static assets", spinner="dots"):
+            execute_from_command_line(["manage", "collectstatic"])
     else:
         execute_from_command_line(cmd)
         execute_from_command_line(["manage", "setup_periodic_tasks"])
-        username = os.environ.get("DJANGO_SUPERUSER_USERNAME", email.split("@")[0])
-
-        if password == "admin":
-            os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
-        if not admin:
-            execute_from_command_line(
-                ["manage", "createsuperuser", "--noinput", "--traceback", "--email", email, "--username", username]
-            )
+        execute_from_command_line(["manage", "collectstatic"])
 
 
     KitchenAIManagement.objects.all().delete()
