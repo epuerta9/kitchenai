@@ -105,7 +105,7 @@ def _embed_task(embed_function: Callable, instance: EmbedObject, *args, **kwargs
     metadata.update(instance.metadata)
     
     try:
-        result = embed_function(instance, metadata=metadata, **kwargs)
+        result = embed_function(instance.text, metadata=metadata, **kwargs)
 
         return {
             "embed_result": result,

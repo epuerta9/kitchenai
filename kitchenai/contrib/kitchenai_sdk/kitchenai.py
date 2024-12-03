@@ -325,6 +325,5 @@ class KitchenAIApp:
         """Setup the api"""
         # Call the query handler setup
         self._query_handler()
-        #TODO: Add agent handler 
-        #self._agent_handler()
+        self._agent_handler()
         # ... any other API setup code ...

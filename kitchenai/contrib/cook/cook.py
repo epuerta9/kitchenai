@@ -5,7 +5,7 @@ import django
 import hashlib
 import asyncio
 import nest_asyncio
-from llama_index.llms.groq import Groq
+from llama_index.llms.openai import OpenAI
 
 from contextlib import redirect_stdout, redirect_stderr
 import io
@@ -290,10 +290,7 @@ class Cook(Magics):
                 "code_functions" : code_functions
             }
 
-            api_key = os.environ.get("GROQ_API_KEY")
-            if not api_key:
-                raise("error GROQ_API_KEY NEEDED")
-            llm = Groq(model="llama3-70b-8192", api_key=api_key)
+            llm = OpenAI(model="gpt-4")
             kitchenai_few_shot = loader.get_template('build_templates/app.tmpl')
             prompt = loader.get_template('build_templates/cook.tmpl')
 
