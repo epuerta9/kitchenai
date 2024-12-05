@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.http import StreamingHttpResponse
 from ninja import Router
 
-from .api import QuerySchema, EmbedSchema
+from .api import QuerySchema, EmbedSchema, QueryResponseSchema, AgentResponseSchema
 import posthog
 
 from kitchenai.broker import broker
@@ -299,6 +299,7 @@ class KitchenAIApp:
             methods=["POST"],
             view_func=query_handler,
             tags=list(self._query_handlers.keys()),
+            response=QueryResponseSchema,
             **route_kwargs
         )
 
@@ -318,6 +319,7 @@ class KitchenAIApp:
             methods=["POST"],
             view_func=agent_handler,
             tags=list(self._agent_handlers.keys()),
+            response=AgentResponseSchema,
             **route_kwargs
         )
 

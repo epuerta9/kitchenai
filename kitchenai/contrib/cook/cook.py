@@ -310,8 +310,6 @@ class Cook(Magics):
 
             prompt_with_context = cook_prompt_template.format(context_str=kitchenai_module_rendered, few_shot_example=few_shot_rendered)
 
-            print(prompt_with_context)
-
             response = llm.complete(prompt_with_context)
 
             # Save as .py file

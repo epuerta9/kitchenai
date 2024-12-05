@@ -33,6 +33,7 @@
 # - heroicons[django]
 # - honcho
 # - jupyterlab
+# - kitchenai-python-sdk
 # - llama-index
 # - llama-index-llms-groq
 # - llama-index-vector-stores-chroma
@@ -427,6 +428,8 @@ jupyterlab-pygments==0.3.0
     # via nbconvert
 jupyterlab-server==2.27.3
     # via jupyterlab
+kitchenai-python-sdk==1.0.0
+    # via hatch.envs.default
 kubernetes==31.0.0
     # via chromadb
 llama-cloud==0.1.2
@@ -693,6 +696,7 @@ pydantic==2.9.2
     #   django-ninja
     #   fast-depends
     #   fastapi
+    #   kitchenai-python-sdk
     #   llama-cloud
     #   llama-index-core
     #   openai
@@ -716,6 +720,7 @@ python-dateutil==2.9.0.post0
     #   arrow
     #   botocore
     #   jupyter-client
+    #   kitchenai-python-sdk
     #   kubernetes
     #   pandas
     #   posthog
@@ -928,6 +933,7 @@ typing-extensions==4.12.2
     #   faststream
     #   huggingface-hub
     #   ipython
+    #   kitchenai-python-sdk
     #   llama-index-core
     #   llama-index-legacy
     #   openai
@@ -953,6 +959,7 @@ urllib3==2.2.3
     # via
     #   botocore
     #   django-anymail
+    #   kitchenai-python-sdk
     #   kubernetes
     #   requests
     #   sentry-sdk

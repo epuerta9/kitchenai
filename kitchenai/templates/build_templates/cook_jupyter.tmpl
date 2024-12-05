@@ -30,6 +30,7 @@
 {% elif func.type|contains:"query" %}
 #use the function definition: def {{ func.label }}(request, data: QuerySchema):
 
+
 {% elif func.type|contains:"agent" %}
 #use the function definition: def {{ func.label }}(request, data: QuerySchema):
 

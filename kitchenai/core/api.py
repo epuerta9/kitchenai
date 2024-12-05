@@ -129,14 +129,4 @@ class UploadModuleInput(Schema):
     project_path: str
 
 
-@router.post("/module/upload")
-def upload_notebook(request, input: UploadModuleInput):
-    """WIP and NOT SAFE TO USE"""
-    from kitchenai.core.utils import setup 
-    from kitchenai.api import api
 
-    try:
-        setup(api, module=input.module, project_root=input.project_path)
-    except Exception as e:
-        return {"error": e}
-    return {"msg" : "ok"}

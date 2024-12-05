@@ -10,6 +10,7 @@ from rich.console import Console
 from typing import Annotated
 
 from .cook import app as cook_app
+from .client import app as client_app
 
 console = Console()
 
@@ -17,6 +18,8 @@ logger = logging.getLogger(__name__)
 
 app = typer.Typer()
 app.add_typer(cook_app, name="cook")
+app.add_typer(client_app, name="client")
+
 
 @app.command()
 def add(module: str = typer.Argument("app.kitchen:kitchen")):

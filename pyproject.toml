@@ -66,7 +66,8 @@ dependencies = [
   "starlette",
   "dynamic-pip", 
   "jupyterlab",
-  "nest_asyncio"
+  "nest_asyncio",
+  "kitchenai_python_sdk"
 
 ]
 
