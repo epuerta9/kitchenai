@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2024-12-05
+
+### 🚀 Features
+
+- *(cli)* Jupyter to kitchenai module conversion
+- *(jupyter)* Base endpoints for jupyter notebook integration magic commands
+
+### 🚜 Refactor
+
+- *(cli)* Removed cooked notebook from hackathon; cleaned up init command; added collectstatic to init
+- *(sdk)* Removed django ninja router. defined a set of simple routes
+
+### 📚 Documentation
+
+- *(readme)* Updated readme
+- *(readme)* Chore updated readme
+- *(deploy)* Added docker compose example
+- *(readme)* Fix
+
 ## [0.7.0] - 2024-11-19
 
 ### 🚀 Features
