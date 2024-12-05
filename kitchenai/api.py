@@ -6,7 +6,7 @@ from ninja import NinjaAPI
 
 logger = logging.getLogger(__name__)
 
-api = NinjaAPI()
+api = NinjaAPI(version="0.8.0")
 
 
 # Ensure `ready()` is called for all apps
