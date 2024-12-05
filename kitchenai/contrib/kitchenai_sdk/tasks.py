@@ -76,7 +76,6 @@ def _process_file_task(storage_function: Callable, instance: FileObject, *args, 
         instance.save()
 
 #DELETES
-
 def delete_file_task_app(delete_function: Callable, instance: FileObject, *args, **kwargs):
     """
     delete file async function for django apps

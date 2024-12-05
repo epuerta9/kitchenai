@@ -35,44 +35,6 @@ class KitchenAIApp:
         self._embed_tasks= {}
         self._embed_delete_tasks = {}
 
-    def _create_decorator(self, route_type: str, method: str, label: str, streaming=False):
-        """Custom decorator for creating routes"""
-        def decorator(func, **route_kwargs):
-            @functools.wraps(func)
-            async def wrapper(*args, **kwargs):
-                if streaming:
-                    #NOTE: Streaming HTTP response is only a synchronous operation
-                    return StreamingHttpResponse(
-                        func(*args, **kwargs),
-                        content_type="text/event-stream",
-                        headers={
-                            'Cache-Control': 'no-cache',
-                            'Transfer-Encoding': 'chunked',
-                            'X-Accel-Buffering': 'no',
-                        }
-                    )
-                # Non-streaming behavior
-                elif asyncio.iscoroutinefunction(func):
-                    return await func(*args, **kwargs)
-                else:
-                    loop = asyncio.get_event_loop()
-                    return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
-
-
-            # Define the path for the route using the namespace and label
-            route_path = f"/{route_type}/{label}"
-
-            # Register the route using add_api_operation
-            self._router.add_api_operation(
-                path=route_path,
-                methods=[method],
-                view_func=wrapper,
-                **route_kwargs
-            )
-            logger.debug(f"Registered route: {route_path} with streaming: {streaming}")
-            return wrapper
-        return decorator
-
     # Decorators for different route types
     def query(self, label: str, streaming=False, llama_stack_emit="", **route_kwargs):
         """Query is a decorator for query handlers with the ability to add middleware"""
@@ -109,22 +71,6 @@ class KitchenAIApp:
                 else:
                     loop = asyncio.get_event_loop()
                     result = await loop.run_in_executor(None, lambda: func(*args, **kwargs))
-                
-
-                if llama_stack_emit:
-                    print("emitting event to llama_stack")
-
-                    data = {
-                        "messages": [
-                                {
-                                "content": args[1].query, 
-                                "role": "user"
-                                }
-                             ], 
-                        "model_id": "meta-llama/Llama-3.2-3B-Instruct", 
-                        "stream": False
-                    }
-                    await broker.publish(data, llama_stack_emit)
                 return result
             self._query_handlers[f"{self._namespace}.{label}"] = wrapper
             return wrapper
@@ -283,49 +229,3 @@ class KitchenAIApp:
         return None
 
 
-    def _query_handler(self, **route_kwargs):
-        async def query_handler(request, label: str, data: QuerySchema, **route_kwargs):
-            posthog.capture("kitchenai_sdk", "query_handler")
-
-            query_func = self._query_handlers.get(f"{self._namespace}.{label}")
-            if not query_func:
-                return HttpResponse(status=404)
-
-            return await query_func(request, data, **route_kwargs)
-
-        # Register a single route that handles all queries
-        self._router.add_api_operation(
-            path="/query/{label}",
-            methods=["POST"],
-            view_func=query_handler,
-            tags=list(self._query_handlers.keys()),
-            response=QueryResponseSchema,
-            **route_kwargs
-        )
-
-
-    def _agent_handler(self, **route_kwargs):
-        async def agent_handler(request, label: str, data: QuerySchema, **route_kwargs):
-            posthog.capture("kitchenai_sdk", "agent_handler")
-            agent_func = self._agent_handlers.get(f"{self._namespace}.{label}")
-            if not agent_func:
-                return HttpResponse(status=404)
-
-            return await agent_func(request, data, **route_kwargs)
-
-        # Register a single route that handles all queries
-        self._router.add_api_operation(
-            path="/agent/{label}",
-            methods=["POST"],
-            view_func=agent_handler,
-            tags=list(self._agent_handlers.keys()),
-            response=AgentResponseSchema,
-            **route_kwargs
-        )
-
-    def register_api(self):
-        """Setup the api"""
-        # Call the query handler setup
-        self._query_handler()
-        self._agent_handler()
-        # ... any other API setup code ...

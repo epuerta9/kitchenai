@@ -66,7 +66,6 @@ def setup(api: "NinjaAPI", module: str = "", project_root: str = os.getcwd()) ->
         return
 
     add_module_to_core(config["app"])
-    add_module_router(api)
 
 
 def add_module_router(api: "NinjaAPI"):
