@@ -53,7 +53,7 @@ def cook_select(name: str):
         console.print("[red]Cookbook not found.[/red]")
         raise typer.Exit(code=1)
 
-    files_to_download = ["app.py", "requirements.txt"]
+    files_to_download = ["notebook.ipynb", "app.py", "README.md", "requirements.txt"]
     dest_path = Path.cwd()
 
     # Show spinner while downloading the files
