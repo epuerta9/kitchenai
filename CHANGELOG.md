@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.1] - 2024-12-06
+
+### ⚙️ Miscellaneous Tasks
+
+- *(build)* Refined kitchenai build
+
 ## [0.9.0] - 2024-12-06
 
 ### 🚀 Features
