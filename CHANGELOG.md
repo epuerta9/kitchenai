@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.5] - 2024-12-06
+
+### 🐛 Bug Fixes
+
+- *(log)* Stopped duplicate logging
+
 ## [0.9.4] - 2024-12-06
 
 ### 🐛 Bug Fixes
