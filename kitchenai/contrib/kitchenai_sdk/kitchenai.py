@@ -3,13 +3,9 @@ import functools
 import importlib
 import logging
 from collections.abc import Callable
-
-from django.http import HttpResponse
 from django.http import StreamingHttpResponse
 from ninja import Router
 
-from .api import QuerySchema, EmbedSchema, QueryResponseSchema, AgentResponseSchema
-import posthog
 
 from kitchenai.broker import broker
 
@@ -228,4 +224,15 @@ class KitchenAIApp:
             return getattr(module, func_name)
         return None
 
-
+    def to_dict(self):
+        return {
+            "namespace": self._namespace,
+            "query_handlers": list(self._query_handlers.keys()),
+            "agent_handlers": list(self._agent_handlers.keys()),
+            "embed_tasks": list(self._embed_tasks.keys()),
+            "embed_delete_tasks": list(self._embed_delete_tasks.keys()),
+            "storage_tasks": list(self._storage_tasks.keys()),
+            "storage_delete_tasks": list(self._storage_delete_tasks.keys()),
+            "storage_create_hooks": list(self._storage_create_hooks.keys()),
+            "storage_delete_hooks": list(self._storage_delete_hooks.keys()),
+        }       

@@ -428,7 +428,7 @@ jupyterlab-pygments==0.3.0
     # via nbconvert
 jupyterlab-server==2.27.3
     # via jupyterlab
-kitchenai-python-sdk==1.0.0
+kitchenai-python-sdk==1.1.0
     # via hatch.envs.default
 kubernetes==31.0.0
     # via chromadb

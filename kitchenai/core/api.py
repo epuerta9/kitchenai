@@ -10,6 +10,7 @@ from django.http import HttpResponse
 import posthog
 import logging
 from django.apps import apps
+from typing import List
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -155,7 +156,7 @@ async def agent(request, label: str, data: QuerySchema):
             logger.error(f"Agent function not found for {label}")
             return HttpResponse(status=404)
 
-        return await agent_func(request, data)
+        return await agent_func(data)
     except Exception as e:      
         logger.error(f"Error in agent: {e}")
         return HttpError(500, "agent function not found")
@@ -170,15 +171,35 @@ async def query(request, label: str, data: QuerySchema):
             logger.error("No kitchenai app in core app config")
             return HttpResponse(status=404)
         
-        print(f"core_app.kitchenai_app._query_handlers: {core_app.kitchenai_app._query_handlers}")
         query_func = core_app.kitchenai_app._query_handlers.get(f"{core_app.kitchenai_app._namespace}.{label}")
         if not query_func:
             logger.error(f"Query function not found for {label}")
             return HttpResponse(status=404)
         
-        return await query_func(request, data)
+        return await query_func(data)
     except Exception as e:
         logger.error(f"Error in query: {e}")
         return HttpError(500, "query function not found")
 
+class KitchenAIAppSchema(Schema):
+    namespace: str
+    query_handlers: List[str]
+    agent_handlers: List[str]
+    embed_tasks: List[str]
+    embed_delete_tasks: List[str]
+    storage_tasks: List[str]
+    storage_delete_tasks: List[str]
+    storage_create_hooks: List[str]
+    storage_delete_hooks: List[str]
+
+
+@router.get("/labels", response=KitchenAIAppSchema)
+async def labels(request):
+    """Lists all the custom kitchenai labels"""
+    core_app = apps.get_app_config("core")
+    if not core_app.kitchenai_app:
+        logger.error("No kitchenai app in core app config")
+        return HttpResponse(status=404)
+        
+    return core_app.kitchenai_app.to_dict()
 

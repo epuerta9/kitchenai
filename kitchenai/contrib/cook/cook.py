@@ -270,6 +270,10 @@ class Cook(Magics):
 
     @line_magic
     def kitchenai_create_module(self, line):
+        """
+        Create a kitchenai app.py file from the registered code.
+        """
+        verbose = line.strip() == "verbose"
 
         async def process_setup():
             # Check if a CodeSetup entry with this hash exists
@@ -289,7 +293,7 @@ class Cook(Magics):
                 "code_imports": code_imports,
                 "code_functions" : code_functions
             }
-
+            
             llm = OpenAI(model="gpt-4")
             kitchenai_few_shot = loader.get_template('build_templates/app.tmpl')
             prompt = loader.get_template('build_templates/cook.tmpl')
@@ -309,8 +313,16 @@ class Cook(Magics):
             )
 
             prompt_with_context = cook_prompt_template.format(context_str=kitchenai_module_rendered, few_shot_example=few_shot_rendered)
+            
+            if verbose:
+                print(f"kitchenai_prompt_with_context: {prompt_with_context}")
+                print("--------------------------------")
 
             response = llm.complete(prompt_with_context)
+
+            if verbose: 
+                print(f"kitchenai_response: {response.text}")
+                print("--------------------------------")
 
             # Save as .py file
             with open("app.py", "w", encoding="utf-8") as f:
