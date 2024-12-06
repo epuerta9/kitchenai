@@ -5,34 +5,35 @@ FROM epuerta18/kitchenai:latest
 ENV PYSETUP_PATH="/opt/pysetup" \
     VENV_PATH="/opt/pysetup/.venv" \
     PYTHONPATH="/app" \
-    PATH="$VENV_PATH/bin:$PATH"
-
-
-# Install additional dependencies into the existing virtual environment
-WORKDIR /tmp
-
-ENV KITCHENAI_MODULE={{ module }}
-
-COPY requirements.txt requirements.txt
-
-RUN python -m ensurepip && \
-    python -m pip install -r requirements.txt
+    PATH="$VENV_PATH/bin:$PATH" \
+    KITCHENAI_MODULE="{{ module }}"
 
 # Set the working directory
 WORKDIR /app
 
-# Run migrations and setup tasks using the existing manage.py script
-{% if admin %}
+# Copy the user-provided requirements.txt
+COPY requirements.txt /app/requirements.txt
 
+# Extract already installed packages from the base image
+RUN python -m pip freeze > /app/base_requirements.txt
+
+# Deduplicate requirements: Exclude packages already in base image
+RUN grep -vFf /app/base_requirements.txt /app/requirements.txt > /app/user_requirements_filtered.txt
+
+# Install only filtered user dependencies into the virtual environment
+RUN python -m ensurepip && \
+    python -m pip install -r /app/user_requirements_filtered.txt
+
+# Copy the user-provided application code
+COPY app.py /app/app.py
+
+# Handle KitchenAI initialization with optional admin flag
 RUN . $VENV_PATH/bin/activate && \
-        python kitchenai init
-{% else %}
-RUN . $VENV_PATH/bin/activate && \
-        python kitchenai init --admin
-{% endif %}
-
-COPY app.py .
-
+    {% if admin %}
+    python kitchenai init
+    {% else %}
+    python kitchenai init --admin
+    {% endif %}
 
 # Expose the application port
 EXPOSE 8000
