@@ -56,6 +56,6 @@ COPY kitchenai /app/kitchenai
 COPY manage.py /app/manage.py
 RUN rm -r /app/kitchenai/static/
 
-EXPOSE 8000
+EXPOSE 8001
 ENTRYPOINT ["/init"]
 # HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://0.0.0.0:8000/health

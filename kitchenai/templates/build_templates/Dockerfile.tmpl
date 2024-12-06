@@ -25,12 +25,7 @@ COPY app.py /app/app.py
 
 # Handle KitchenAI initialization with optional admin flag
 RUN . $VENV_PATH/bin/activate && \
-    {% if admin %}
-    python kitchenai init
-    {% else %}
-    python kitchenai init --admin
-    {% endif %}
-
+python kitchenai init {% if not admin %}--admin{% endif %}
 # Expose the application port
 EXPOSE 8001
 
