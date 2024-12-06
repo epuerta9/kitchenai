@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] - 2024-12-06
+
+### 🚀 Features
+
+- *(cli)* Tested lightweight cli client
+
 ## [0.8.0] - 2024-12-05
 
 ### 🚀 Features
