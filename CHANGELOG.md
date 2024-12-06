@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.3] - 2024-12-06
+
+### ⚙️ Miscellaneous Tasks
+
+- *(dockerfile)* Building base image
+
 ## [0.9.1] - 2024-12-06
 
 ### ⚙️ Miscellaneous Tasks
