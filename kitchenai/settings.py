@@ -455,8 +455,9 @@ Q_CLUSTER = {
 }
 
 # sentry
-if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not (DEBUG or KITCHENAI_DEBUG):
-    sentry_sdk.init(
+if env.bool("KITCHENAI_SENTRY", default=False):
+    if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not (DEBUG or KITCHENAI_DEBUG):
+        sentry_sdk.init(
         dsn=SENTRY_DSN.geturl(),
         environment=env.str(
             "SENTRY_ENV",
@@ -479,6 +480,8 @@ ADMIN_URL = env.str("ADMIN_URL", default="kitchenai-admin/")
 
 
 # KITCHEN AI
+KITCHENAI_LLM_PROVIDER = env.str("KITCHENAI_LLM_PROVIDER", default="openai")
+KITCHENAI_LLM_MODEL = env.str("KITCHENAI_LLM_MODEL", default="gpt-4")
 
 KITCHENAI = {}
 

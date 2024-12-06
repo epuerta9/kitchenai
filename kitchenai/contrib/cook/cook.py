@@ -6,9 +6,8 @@ import hashlib
 import asyncio
 import nest_asyncio
 from llama_index.llms.openai import OpenAI
+from llama_index.llms.ollama import Ollama
 
-from contextlib import redirect_stdout, redirect_stderr
-import io
 
 # Setup Django and nest_asyncio
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kitchenai.settings")
@@ -18,6 +17,7 @@ nest_asyncio.apply()
 from kitchenai.core.models import CodeFunction,Notebook, CodeImport, CodeSetup
 from llama_index.core import PromptTemplate
 from django.template import loader
+from django.conf import settings
 
 
 @magics_class
@@ -26,6 +26,8 @@ class Cook(Magics):
     def __init__(self, shell):
         super().__init__(shell)  # Initialize the base class
         self.project_name = ""  # Define the class attribute here
+        self.llm_provider = settings.KITCHENAI_LLM_PROVIDER
+        self.llm_model = settings.KITCHENAI_LLM_MODEL
 
 
     async def get_notebook(self):
@@ -209,6 +211,18 @@ class Cook(Magics):
         ipython = get_ipython()
         ipython.run_cell(cell)
 
+    @line_magic
+    def kitchenai_llm_model(self, line):
+        """
+        Set the LLM model for the Cook magic commands.
+        Usage: %kitchenai_llm_model openai
+        """
+        config = line.strip().split(" ")
+        if config and config[0] not in ["openai", "ollama"]:
+            return f"Invalid LLM model '{line.strip()}'. Must be one of: {', '.join(['openai', 'ollama'])}"
+
+        self.llm_provider = config[0] if config else settings.KITCHENAI_LLM_MODEL
+        self.llm_model = config[1] if config else settings.KITCHENAI_LLM_PROVIDER
     
 
 
@@ -293,8 +307,11 @@ class Cook(Magics):
                 "code_imports": code_imports,
                 "code_functions" : code_functions
             }
-            
-            llm = OpenAI(model="gpt-4")
+            if self.llm_provider == "openai":
+                llm = OpenAI(model=self.llm_model)
+            else:
+                llm = Ollama(model=self.llm_model)
+
             kitchenai_few_shot = loader.get_template('build_templates/app.tmpl')
             prompt = loader.get_template('build_templates/cook.tmpl')
 

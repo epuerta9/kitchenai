@@ -36,6 +36,7 @@
 # - kitchenai-python-sdk
 # - llama-index
 # - llama-index-llms-groq
+# - llama-index-llms-ollama
 # - llama-index-vector-stores-chroma
 # - nbconvert
 # - nbformat
@@ -341,6 +342,7 @@ httpx==0.27.2
     #   llama-cloud
     #   llama-index-core
     #   llama-index-legacy
+    #   ollama
     #   openai
     #   svix
 huggingface-hub==0.25.2
@@ -450,6 +452,7 @@ llama-index-core==0.11.18
     #   llama-index-embeddings-openai
     #   llama-index-indices-managed-llama-cloud
     #   llama-index-llms-groq
+    #   llama-index-llms-ollama
     #   llama-index-llms-openai
     #   llama-index-llms-openai-like
     #   llama-index-multi-modal-llms-openai
@@ -468,6 +471,8 @@ llama-index-indices-managed-llama-cloud==0.4.0
 llama-index-legacy==0.9.48.post3
     # via llama-index
 llama-index-llms-groq==0.2.0
+    # via hatch.envs.default
+llama-index-llms-ollama==0.3.6
     # via hatch.envs.default
 llama-index-llms-openai==0.2.15
     # via
@@ -570,6 +575,8 @@ oauthlib==3.2.2
     # via
     #   kubernetes
     #   requests-oauthlib
+ollama==0.4.2
+    # via llama-index-llms-ollama
 onnxruntime==1.19.2
     # via chromadb
 openai==1.51.2
@@ -699,6 +706,7 @@ pydantic==2.9.2
     #   kitchenai-python-sdk
     #   llama-cloud
     #   llama-index-core
+    #   ollama
     #   openai
 pydantic-core==2.23.4
     # via pydantic

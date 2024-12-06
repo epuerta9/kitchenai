@@ -67,7 +67,8 @@ dependencies = [
   "dynamic-pip", 
   "jupyterlab",
   "nest_asyncio",
-  "kitchenai_python_sdk"
+  "kitchenai_python_sdk",
+  "llama-index-llms-ollama"
 
 ]
 
