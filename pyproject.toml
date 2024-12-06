@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "kitchenai"
-version = "0.9.3"
+version = "0.9.4"
 description = ""
 readme = "README.md"
 authors = [ { name = "epuerta", email = "esteban_puerta@rhinosearch.io" } ]
@@ -163,7 +163,7 @@ tests = [ "tests", "*/kitchenai/tests" ]
 exclude_lines = [ "no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:" ]
 
 [tool.bumpversion]
-current_version = "0.9.3"
+current_version = "0.9.4"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = [
   "{major}.{minor}.{patch}",
