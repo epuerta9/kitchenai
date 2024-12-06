@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0] - 2024-12-06
+
+### 🚀 Features
+
+- *(signals)* Added signals to before and after query for integrations
+- *(cook)* Kitchenai create module now supports ollama for total local development
+
 ## [0.10.0] - 2024-12-06
 
 ### 🚀 Features
