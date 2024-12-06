@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.4] - 2024-12-06
+
+### 🐛 Bug Fixes
+
+- *(build)* Fixed port to 8001
+
 ## [0.9.3] - 2024-12-06
 
 ### ⚙️ Miscellaneous Tasks
