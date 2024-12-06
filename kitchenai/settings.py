@@ -214,6 +214,7 @@ LOGGING = {
         "kitchenai": {
             "handlers": ["console"],
             "level": env.log_level("KITCHENAI_LOG_LEVEL", default="DEBUG"),
+            "propagate": False,  # Prevent propagation to the root logger
         },
     },
     'root': {
