@@ -64,7 +64,7 @@ Building AI applications often requires juggling complex frameworks and backend 
 
 3. **Run the Server**  
    ```bash
-   kitchenai init && kitchenai dev --module app:kitchen
+   kitchenai init --collect-static && kitchenai dev --module app:kitchen
    ```
 
    ![kitchenai-dev](docs/_static/images/kitchenai-dev.gif)

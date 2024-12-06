@@ -14,14 +14,10 @@ WORKDIR /app
 # Copy the user-provided requirements.txt
 COPY requirements.txt /app/requirements.txt
 
-# Extract already installed packages from the base image
-RUN python -m pip freeze > /app/base_requirements.txt
-
-# Deduplicate requirements: Exclude packages already in base image
-RUN grep -vFf /app/base_requirements.txt /app/requirements.txt > /app/user_requirements_filtered.txt
-
 # Install only filtered user dependencies into the virtual environment
 RUN python -m ensurepip && \
+    python -m pip freeze > /app/base_requirements.txt && \
+    grep -vFf /app/base_requirements.txt /app/requirements.txt > /app/user_requirements_filtered.txt && \
     python -m pip install -r /app/user_requirements_filtered.txt
 
 # Copy the user-provided application code
@@ -36,7 +32,7 @@ RUN . $VENV_PATH/bin/activate && \
     {% endif %}
 
 # Expose the application port
-EXPOSE 8000
+EXPOSE 8001
 
 # Use the init system defined in the base image
 ENTRYPOINT ["/init"]

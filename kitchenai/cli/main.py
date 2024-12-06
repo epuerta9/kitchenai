@@ -30,6 +30,7 @@ def add(module: str = typer.Argument("app.kitchen:kitchen")):
 @app.command()
 def init(
     verbose: Annotated[int, typer.Option(help="verbosity level. default 0")] = 0,
+    collect_static: Annotated[bool, typer.Option("--collect-static/--no-collect-static", help="Collect static assets.")] = False,
     ):
     django.setup()
     from django.core.management import execute_from_command_line
@@ -48,12 +49,14 @@ def init(
         with console.status("Setting up periodic tasks", spinner="dots"):
             execute_from_command_line(["manage", "setup_periodic_tasks"])
 
-        with console.status("Collecting static assets", spinner="dots"):
-            execute_from_command_line(["manage", "collectstatic"])
+        if collect_static:
+            with console.status("Collecting static assets", spinner="dots"):
+                execute_from_command_line(["manage", "collectstatic", "--no-input"])
     else:
         execute_from_command_line(cmd)
         execute_from_command_line(["manage", "setup_periodic_tasks"])
-        execute_from_command_line(["manage", "collectstatic"])
+        if collect_static:
+            execute_from_command_line(["manage", "collectstatic", "--no-input"])
 
 
     KitchenAIManagement.objects.all().delete()
