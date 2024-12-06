@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0] - 2024-12-06
+
+### 📚 Documentation
+
+- *(update)* Using client and new features
+
 ## [0.11.0] - 2024-12-06
 
 ### 🚀 Features
