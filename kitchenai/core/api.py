@@ -11,6 +11,7 @@ import posthog
 import logging
 from django.apps import apps
 from typing import List
+from .signals import query_output_signal, query_input_signal
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -176,7 +177,13 @@ async def query(request, label: str, data: QuerySchema):
             logger.error(f"Query function not found for {label}")
             return HttpResponse(status=404)
         
-        return await query_func(data)
+        #Signal the start of the query
+        query_input_signal.send(sender="query_input", data=data)
+        result = await query_func(data)
+        #Signal the end of the query
+        query_output_signal.send(sender="query_output", result=result)
+    
+        return result
     except Exception as e:
         logger.error(f"Error in query: {e}")
         return HttpError(500, "query function not found")
