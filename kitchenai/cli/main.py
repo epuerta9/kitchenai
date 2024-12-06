@@ -333,7 +333,7 @@ def _run_uvicorn(argv: list) -> None:
     gunicorn_args = [
         "kitchenai.asgi:application",  # Replace WSGI with ASGI app
         "--bind",
-        "0.0.0.0:8000",
+        "0.0.0.0:8001",
         # "unix:/run/kitchenai_demo.gunicorn.sock",  # Use this if you're using a socket file
         "--max-requests",
         "1000",
