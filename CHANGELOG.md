@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0] - 2024-12-06
+
+### 🚀 Features
+
+- *(cook)* Every cookbook will now pull down notebook, app.py, README, and requirements
+
 ## [0.9.5] - 2024-12-06
 
 ### 🐛 Bug Fixes
