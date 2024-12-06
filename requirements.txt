@@ -35,7 +35,6 @@
 # - jupyterlab
 # - kitchenai-python-sdk
 # - llama-index
-# - llama-index-llms-groq
 # - llama-index-llms-ollama
 # - llama-index-vector-stores-chroma
 # - nbconvert
@@ -54,9 +53,9 @@
 # - whitenoise
 #
 
-aiohappyeyeballs==2.4.3
+aiohappyeyeballs==2.4.4
     # via aiohttp
-aiohttp==3.10.10
+aiohttp==3.11.10
     # via
     #   llama-index-core
     #   llama-index-legacy
@@ -150,6 +149,7 @@ click==8.1.7
     # via
     #   cookiecutter
     #   django-typer
+    #   llama-parse
     #   nltk
     #   typer
     #   typer-slim
@@ -294,9 +294,9 @@ fastjsonschema==2.20.0
 faststream==0.5.30
     # via hatch.envs.default
 filelock==3.16.1
-    # via
-    #   huggingface-hub
-    #   transformers
+    # via huggingface-hub
+filetype==1.2.0
+    # via llama-index-core
 flatbuffers==24.3.25
     # via onnxruntime
 fqdn==1.5.1
@@ -346,9 +346,7 @@ httpx==0.27.2
     #   openai
     #   svix
 huggingface-hub==0.25.2
-    # via
-    #   tokenizers
-    #   transformers
+    # via tokenizers
 humanfriendly==10.0
     # via coloredlogs
 icmplib==3.0.3
@@ -379,7 +377,7 @@ jinja2==3.1.4
     #   jupyterlab
     #   jupyterlab-server
     #   nbconvert
-jiter==0.6.1
+jiter==0.8.0
     # via openai
 jmespath==1.0.1
     # via
@@ -434,9 +432,9 @@ kitchenai-python-sdk==1.1.0
     # via hatch.envs.default
 kubernetes==31.0.0
     # via chromadb
-llama-cloud==0.1.2
+llama-cloud==0.1.6
     # via llama-index-indices-managed-llama-cloud
-llama-index==0.11.18
+llama-index==0.11.23
     # via hatch.envs.default
 llama-index-agent-openai==0.3.4
     # via
@@ -444,17 +442,15 @@ llama-index-agent-openai==0.3.4
     #   llama-index-program-openai
 llama-index-cli==0.3.1
     # via llama-index
-llama-index-core==0.11.18
+llama-index-core==0.11.23
     # via
     #   llama-index
     #   llama-index-agent-openai
     #   llama-index-cli
     #   llama-index-embeddings-openai
     #   llama-index-indices-managed-llama-cloud
-    #   llama-index-llms-groq
     #   llama-index-llms-ollama
     #   llama-index-llms-openai
-    #   llama-index-llms-openai-like
     #   llama-index-multi-modal-llms-openai
     #   llama-index-program-openai
     #   llama-index-question-gen-openai
@@ -466,26 +462,21 @@ llama-index-embeddings-openai==0.2.5
     # via
     #   llama-index
     #   llama-index-cli
-llama-index-indices-managed-llama-cloud==0.4.0
+llama-index-indices-managed-llama-cloud==0.6.0
     # via llama-index
-llama-index-legacy==0.9.48.post3
+llama-index-legacy==0.9.48.post4
     # via llama-index
-llama-index-llms-groq==0.2.0
-    # via hatch.envs.default
 llama-index-llms-ollama==0.3.6
     # via hatch.envs.default
-llama-index-llms-openai==0.2.15
+llama-index-llms-openai==0.2.16
     # via
     #   llama-index
     #   llama-index-agent-openai
     #   llama-index-cli
-    #   llama-index-llms-openai-like
     #   llama-index-multi-modal-llms-openai
     #   llama-index-program-openai
     #   llama-index-question-gen-openai
-llama-index-llms-openai-like==0.2.0
-    # via llama-index-llms-groq
-llama-index-multi-modal-llms-openai==0.2.2
+llama-index-multi-modal-llms-openai==0.2.3
     # via llama-index
 llama-index-program-openai==0.2.0
     # via
@@ -493,13 +484,13 @@ llama-index-program-openai==0.2.0
     #   llama-index-question-gen-openai
 llama-index-question-gen-openai==0.2.0
     # via llama-index
-llama-index-readers-file==0.2.2
+llama-index-readers-file==0.3.0
     # via llama-index
 llama-index-readers-llama-parse==0.3.0
     # via llama-index
-llama-index-vector-stores-chroma==0.2.1
+llama-index-vector-stores-chroma==0.2.2
     # via hatch.envs.default
-llama-parse==0.5.8
+llama-parse==0.5.17
     # via llama-index-readers-llama-parse
 markdown-it-py==3.0.0
     # via rich
@@ -551,7 +542,7 @@ nest-asyncio==1.6.0
     #   ipykernel
     #   llama-index-core
     #   llama-index-legacy
-networkx==3.4.1
+networkx==3.4.2
     # via
     #   llama-index-core
     #   llama-index-legacy
@@ -570,16 +561,15 @@ numpy==1.26.4
     #   llama-index-legacy
     #   onnxruntime
     #   pandas
-    #   transformers
 oauthlib==3.2.2
     # via
     #   kubernetes
     #   requests-oauthlib
-ollama==0.4.2
+ollama==0.4.3
     # via llama-index-llms-ollama
 onnxruntime==1.19.2
     # via chromadb
-openai==1.51.2
+openai==1.57.0
     # via
     #   llama-index-agent-openai
     #   llama-index-embeddings-openai
@@ -641,7 +631,6 @@ packaging==24.1
     #   marshmallow
     #   nbconvert
     #   onnxruntime
-    #   transformers
 pandas==2.2.3
     # via
     #   llama-index-legacy
@@ -670,8 +659,10 @@ prometheus-client==0.21.0
     # via jupyter-server
 prompt-toolkit==3.0.48
     # via ipython
-propcache==0.2.0
-    # via yarl
+propcache==0.2.1
+    # via
+    #   aiohttp
+    #   yarl
 protobuf==4.25.5
     # via
     #   googleapis-common-protos
@@ -706,6 +697,7 @@ pydantic==2.9.2
     #   kitchenai-python-sdk
     #   llama-cloud
     #   llama-index-core
+    #   llama-parse
     #   ollama
     #   openai
 pydantic-core==2.23.4
@@ -717,7 +709,7 @@ pygments==2.18.0
     #   rich
 pyjwt==2.9.0
     # via django-allauth
-pypdf==4.3.1
+pypdf==5.1.0
     # via llama-index-readers-file
 pypika==0.48.9
     # via chromadb
@@ -753,7 +745,6 @@ pyyaml==6.0.2
     #   kubernetes
     #   llama-index-core
     #   slippers
-    #   transformers
     #   uvicorn
 pyzmq==26.2.0
     # via
@@ -769,11 +760,10 @@ referencing==0.35.1
     #   jupyter-events
 refreshcss==0.5.1
     # via hatch.envs.default
-regex==2024.9.11
+regex==2024.11.6
     # via
     #   nltk
     #   tiktoken
-    #   transformers
 requests==2.32.3
     # via
     #   cookiecutter
@@ -787,7 +777,6 @@ requests==2.32.3
     #   posthog
     #   requests-oauthlib
     #   tiktoken
-    #   transformers
 requests-oauthlib==2.0.0
     # via
     #   django-allauth
@@ -817,8 +806,6 @@ rsa==4.9
     # via google-auth
 s3transfer==0.10.3
     # via boto3
-safetensors==0.4.5
-    # via transformers
 send2trash==1.8.3
     # via jupyter-server
 sentry-sdk==2.16.0
@@ -885,9 +872,7 @@ tiktoken==0.8.0
 tinycss2==1.4.0
     # via nbconvert
 tokenizers==0.20.1
-    # via
-    #   chromadb
-    #   transformers
+    # via chromadb
 tornado==6.4.2
     # via
     #   ipykernel
@@ -902,7 +887,6 @@ tqdm==4.66.5
     #   llama-index-core
     #   nltk
     #   openai
-    #   transformers
 traitlets==5.14.3
     # via
     #   comm
@@ -917,8 +901,6 @@ traitlets==5.14.3
     #   nbclient
     #   nbconvert
     #   nbformat
-transformers==4.46.3
-    # via llama-index-llms-openai-like
 typeguard==2.13.3
     # via slippers
 typer==0.12.5
@@ -998,7 +980,7 @@ wrapt==1.16.0
     #   deprecated
     #   llama-index-core
     #   opentelemetry-instrumentation
-yarl==1.15.3
+yarl==1.18.3
     # via aiohttp
 zipp==3.20.2
     # via importlib-metadata

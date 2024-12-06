@@ -39,7 +39,7 @@ services:
     image: kitchenai-app:latest
     container_name: kitchenai-app
     ports:
-    - "8000:8000"
+    - "8001:8001"
     network_mode: host
     env_file:
       - .env
@@ -54,7 +54,6 @@ volumes:
     driver: local
   sqlite:
     driver: local
-
 
 ```
 

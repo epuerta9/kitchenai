@@ -1,5 +1,187 @@
 # KitchenAI Fundamentals ⚡
 
+## Jupyter Notebook Magic Commands for KitchenAI
+
+The following documentation provides a comprehensive guide to the custom Jupyter Notebook magic commands available for quickly iterating and creating **KitchenAI modules**. These commands streamline the development process by integrating with Django models and utilizing AI-powered tools to generate modular, production-ready code.
+
+---
+
+> 💡 *Note: These commands are only available in Jupyter notebooks.*
+
+## Getting Started
+
+To help you get started quickly, we provide example notebooks in our community repository. Check out our [LlamaIndex starter notebook](https://github.com/epuerta9/kitchenai-community/blob/main/src/kitchenai_community/llama_index_starter/notebook.ipynb) for a complete example of using KitchenAI with LlamaIndex.
+
+This example demonstrates:
+- Setting up a project
+- Registering functions with different types and labels
+- Importing required libraries
+- Configuring the environment
+- Generating a complete module
+
+### **Setup and Environment**
+    - load the extension `%load_ext kitchenai.contrib.cook`
+    - set the project `%kitchenai_set_project MyProject`
+
+---
+
+### **Available Commands**
+
+#### **1. Line Magic Commands**
+These commands are executed with a single `%` prefix.
+
+##### **`%kitchenai_set_project <project_name>`**
+Sets the active project for registering and generating KitchenAI modules.
+
+- **Usage:**
+  ```python
+  %kitchenai_set_project MyProject
+  ```
+- **Output:**  
+  - Creates a new project (if it doesn't exist).
+  - Sets the current project context.
+
+---
+
+##### **`%kitchenai_get_project`**
+Retrieves details about the currently set project.
+
+- **Usage:**
+  ```python
+  %kitchenai_get_project
+  ```
+- **Output:**  
+  - Returns the project's metadata or an error if the project does not exist.
+
+---
+
+##### **`%kitchenai_llm_model <provider> <model>`** 
+Optional: Sets the LLM provider and model used for generating modules. 
+Sets the LLM provider and model used for generating modules. 
+
+> 💡 *Note: The default provider is `openai` and the default model is `gpt-4`. Leave this blank to use the default.*
+
+> 💡 *Note: The `provider` can be either `openai` or `ollama`.*
+
+- **Usage:**
+  ```python
+  %kitchenai_llm_model openai gpt-3.5-turbo
+  ```
+  or 
+  ```python
+  %kitchenai_llm_model ollama llama3
+  ```
+- **Output:**  
+  Updates the LLM configuration for subsequent commands.
+
+---
+
+##### **`%kitchenai_create_module [verbose]`**
+Generates a `app.py` module using registered functions, imports, and setups in the current project.
+
+> 💡 *Note: The `verbose` flag is optional. If not provided, the output will be more concise.*
+
+> 💡 *Note: This should be the last command in your notebook.*
+
+- **Usage:**
+  ```python
+  %kitchenai_create_module verbose
+  ```
+- **Output:**  
+  - Creates an `app.py` file using templates and AI-generated code.  
+  - Prints the prompt and AI-generated response if `verbose` is specified.
+
+---
+
+#### **2. Cell Magic Commands**
+These commands are executed with a `%%` prefix and apply to the content in the cell.
+
+##### **`%%kitchenai_register <type> <label>`**
+Registers a function under a specific type (e.g., `storage`, `query`) and label for the current project.
+
+- **Usage:**
+  ```python
+  %%kitchenai_register query my-function
+  def my_function(data):
+      return data * 2
+  ```
+- **Output:**  
+  - Saves the function code and metadata to the database.
+  - Updates existing entries if the function code changes.
+
+
+Available types: `storage`, `query`, `embedding`, and `agent`.
+---
+
+##### **`%%kitchenai_import <label>`**
+Registers an import block for the current project.
+
+- **Usage:**
+  ```python
+  %%kitchenai_import utilities
+  import numpy as np
+  import pandas as pd
+  ```
+  or
+  ```python
+  %%kitchenai_import utilities
+    from llama_index.core import VectorStoreIndex, StorageContext
+    from llama_index.vector_stores.chroma import ChromaVectorStore
+    from llama_index.llms.openai import OpenAI
+    import os 
+    import chromadb
+    from llama_index.llms.openai import OpenAI
+    from llama_index.core.node_parser import TokenTextSplitter
+    from llama_index.core.extractors import (
+        TitleExtractor,
+        QuestionsAnsweredExtractor)
+
+    from llama_index.core import Document
+    from kitchenai.contrib.kitchenai_sdk.storage.llama_parser import Parser 
+    ```
+- **Output:**  
+  - Saves the import block with the specified label.
+  - Updates existing entries if the code changes.
+
+---
+
+##### **`%%kitchenai_setup <label>`**
+Registers a setup block (e.g., initialization or configuration code) for the current project.
+
+- **Usage:**
+  ```python
+  %%kitchenai_setup vector_db
+    chroma_client = chromadb.PersistentClient(path="chroma_db")
+    chroma_collection = chroma_client.get_or_create_collection("quickstart")
+
+
+
+    llm = OpenAI(model="gpt-4")
+  ```
+- **Output:**  
+  - Saves the setup code with the specified label.
+  - Updates existing entries if the code changes.
+
+---
+
+### **Behind the Scenes**
+
+#### **Magic Commands Workflow**
+
+1. **Project Management:**  
+   Use `%kitchenai_set_project` to set the project context. All subsequent commands will operate within this context.
+
+2. **Code Registration:**  
+   Use cell magic commands (`%%kitchenai_register`, `%%kitchenai_import`, `%%kitchenai_setup`) to register functions, imports, and setups to the current project. These commands check for changes using a SHA-256 hash.
+
+3. **Module Generation:**  
+   Use `%kitchenai_create_module` to compile all registered code into a `app.py` file. This leverages predefined templates and an LLM for code generation. Making it easy to generate a production-ready module.
+
+---
+
+
+This powerful set of commands allows for rapid prototyping, testing, and deployment of KitchenAI modules directly within Jupyter notebooks!
+
 ## 🚀 Types of Functions
 
 KitchenAI functions are the backbone of the framework. They form the building blocks of your AI-powered applications. Each function type comes with unique characteristics and serves specific use cases. Out of the box, you get support for the following:
@@ -7,10 +189,10 @@ KitchenAI functions are the backbone of the framework. They form the building bl
 - **📦 Storage Functions**  
 - **🔍 Query Functions**  
 - **🌐 Embed Functions**  
+- **🤖 Agent Functions**  
 
-> 💡 *More function types are coming soon!*
 
-These three types of functions provide the core functionality needed to build an AI application—**store**, **query**, and **embed** data seamlessly.
+These four types of functions provide the core functionality needed to build an AI application—**store**, **query**, **embedding**, and **agent** data seamlessly.
 
 ---
 
@@ -40,14 +222,22 @@ def chroma_storage_2(dir: str, metadata: dict = {}, *args, **kwargs):
 
 ```python
 @kitchen.query("simple-query")
-def query(request, data: QuerySchema):
+def query(data: QuerySchema):
     """Query the vector store for similar files"""
 ```
 
 ```python
 @kitchen.query("simple-query-2")
-def query_2(request, data: QuerySchema):
+def query_2(data: QuerySchema):
     """Query the vector store with a different technique"""
+```
+
+### Example: Embed Functions with Different Labels
+
+```python
+@kitchen.embed("simple-embed")
+def simple_embed(instance: EmbedSchema, metadata: dict = {}, **kwargs):
+    return {"ok": instance.text}
 ```
 
 Labels make it easy to manage and organize multiple endpoints tailored to your needs.
@@ -152,39 +342,42 @@ def query_files(request, data: QuerySchema):
 
 ---
 
-## 🌐 Embed Functions
+## 🤖 Agent Functions
+
+**Agent functions** allow you to create custom agents to handle complex workflows.
+They have the same signature as query functions, but they are designed to handle more complex workflows.
+
+
+### 🔧 Function Signature
+
+```python
+@kitchen.agent("simple-agent")
+def simple_agent(data: QuerySchema):
+    """Run a simple agent"""
+```
+
+---
+
+## 🌐 Embedding Functions
 
 **Embed functions** allow you to process non-file data, embedding it into a vector database for AI-driven use cases.
 
 ### 🔧 Function Signature
 
 ```python
-@kitchen.embed("embed")
-def embed(instance, metadata: dict = {}):
-    """Embed the data"""
+@kitchen.embed("simple-embed")
+def simple_embed(instance: EmbedSchema, metadata: dict = {}, **kwargs):
+    return {"ok": instance.text}
 ```
 
 ### 📂 Input Parameters
 
-- **`instance`**: An `Embed Object` that contains the data to embed. 
+- **`instance`**: An `Embed Schema` that contains the data to embed. 
 ```
-    class EmbedObject(TimeStamped):
-    """
-    This is a model for any embed object that is created
-    """
-    class Status(models.TextChoices):
-        PENDING = "pending"
-        PROCESSING = "processing"
-        COMPLETED = "completed"
-        FAILED = "failed"
+    class EmbedSchema(Schema):
+        text: str
+        metadata: dict[str, str] | None = None
 
-    text = models.CharField(max_length=255)
-    ingest_label = models.CharField(max_length=255)
-    status = models.CharField(max_length=255, default=Status.PENDING)
-    metadata = models.JSONField(default=dict)
-
-    def __str__(self):
-        return self.text
 ```
 - **`metadata`**: Metadata to associate with the embedding.  
 
@@ -192,14 +385,14 @@ def embed(instance, metadata: dict = {}):
 
 ```python
 @kitchen.embed("embed")
-def embed_data(instance, metadata: dict = {}):
+def embed_data(instance: EmbedSchema, metadata: dict = {}):
     """
     Embed non-file data into a vector database
     """
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
-
-    VectorStoreIndex.from_documents([instance], storage_context=storage_context)
+    documents = [Document(text=instance.text, metadata=instance.metadata)]
+    VectorStoreIndex.from_documents(documents, storage_context=storage_context)
     return "ok"
 ```
 
@@ -210,8 +403,8 @@ def embed_data(instance, metadata: dict = {}):
 
 ## The API
 
-You can directly interact with the generated endpoints by going to `http://localhost:8000/api/docs`
+You can directly interact with the generated endpoints by going to `http://localhost:8001/api/docs`
 
 ## 🚀 Wrapping Up
 
-With **Storage**, **Query**, and **Embed** functions, KitchenAI provides a powerful and flexible framework for building AI-powered applications. Get started today and let KitchenAI handle the heavy lifting, so you can focus on your AI workflows! 💡
+With **Storage**, **Query**, **Agent**, and **Embedding** functions, KitchenAI provides a powerful and flexible framework for building AI-powered applications. Get started today and let KitchenAI handle the heavy lifting, so you can focus on your AI workflows! 💡

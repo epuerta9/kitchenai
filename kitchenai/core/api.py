@@ -178,11 +178,11 @@ async def query(request, label: str, data: QuerySchema):
             return HttpResponse(status=404)
         
         #Signal the start of the query
-        query_input_signal.send(sender="query_input", data=data)
+        #query_input_signal.send(sender="query_input", data=data)
+        print(f"Querying {label} with {data}")
         result = await query_func(data)
         #Signal the end of the query
-        query_output_signal.send(sender="query_output", result=result)
-    
+        #query_output_signal.send(sender="query_output", result=result)
         return result
     except Exception as e:
         logger.error(f"Error in query: {e}")

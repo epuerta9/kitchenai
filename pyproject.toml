@@ -47,8 +47,6 @@ dependencies = [
   "gunicorn",
   "heroicons[django]",
   "honcho",
-  "llama-index",
-  "llama-index-vector-stores-chroma",
   "pillow",
   "psycopg[binary]",
   "pyyaml",
@@ -61,15 +59,15 @@ dependencies = [
   "posthog",
   "nbformat",
   "nbconvert",
-  "llama-index-llms-groq",
   "faststream[nats]", 
   "starlette",
   "dynamic-pip", 
   "jupyterlab",
   "nest_asyncio",
   "kitchenai_python_sdk",
-  "llama-index-llms-ollama"
-
+  "llama-index-llms-ollama",
+  "llama-index",
+  "llama-index-vector-stores-chroma",
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"

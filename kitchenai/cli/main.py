@@ -114,7 +114,7 @@ def run(module: Annotated[str, typer.Option(help="Python module to load.")] = os
 
 @app.command()
 def dev(
-    address: str ="0.0.0.0:8000", 
+    address: str ="0.0.0.0:8001", 
     module: Annotated[str, typer.Option(help="Python module to load.")] = "", 
     tailwind: Annotated[bool, typer.Option(help="Tailwind servers.")] = False,
     jupyter: Annotated[bool, typer.Option(help="Jupyter Notebook servers.")] = False,

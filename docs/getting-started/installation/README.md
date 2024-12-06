@@ -82,7 +82,7 @@ For development purposes, you can run the KitchenAI setup to create a default su
 kitchenai setup
 ```
 
-admin endpoint can be found at `http://localhost:8000/kitchenai-admin/`.
+admin endpoint can be found at `http://localhost:8001/kitchenai-admin/`.
 
 This will create a default superuser with the email `admin@example.com` and the password `password`.
 

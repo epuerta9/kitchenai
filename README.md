@@ -6,7 +6,7 @@
   <img src="docs/_static/images/logo.png" alt="KitchenAI" width="100" height="100">
 </p>
 
-**Instantly turn AI code into a production-ready backend.**  
+**Instantly turn AI Jupyter Notebooks into production-ready APIs.**  
 
 [![Falco](https://img.shields.io/badge/built%20with-falco-success)](https://github.com/Tobi-De/falco)  
 [![Hatch Project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)  
@@ -18,12 +18,18 @@
 
 
 ## **What is KitchenAI?**  
-KitchenAI bridges the gap between **AI developers**, **application developers**, and **Infrastructure developers** making it easy to:  
+KitchenAI bridges the gap between **AI developers**, **Application developers**, and **Infrastructure developers** making it easy to:
 
-- For **AI Developers**: Focus on your techniques like RAG or embeddings—KitchenAI handles scalable, production-ready features through ecosystem building blocks.  
-- For **App Developers**: Seamlessly integrate AI with open-source APIs and robust backends built on Django.
+- Author multiple AI techniques 
+- Quickly test and iterate
+- Easily build and share
 
-- For **Infrastructure Developers**: Integrate seamlessly with AI tooling, customize Django backends, and leverage built-in support for observability platforms like Sentry and OpenTelemetry, ensuring scalable and production-ready deployments with tools like Docker and Kubernetes.  
+![kitchenai-dev](docs/_static/images/kitchenai-highlevel1.png)
+
+- For **AI Developers**: Focus on your techniques like RAG or embeddings—KitchenAI handles scalable, in the notebook you already feel comfortable in. KitchenAI will convert your notebook into a production-ready application.  
+- For **App Developers**: Seamlessly integrate AI with a set of API's you can build an application on top of. Quickly test to see which AI technique best fits your application.  
+
+- For **Infrastructure Developers**: Integrate with AI tooling, customize Django backends, build plugins, and leverage built-in support for observability platforms like Sentry and OpenTelemetry. KitchenAI is extensible to modify for more advanced use cases. 
 
 **Say goodbye to boilerplate!**  
 
@@ -36,11 +42,9 @@ KitchenAI bridges the gap between **AI developers**, **application developers**,
 
 ## 🚀 **Why KitchenAI?**  
 
-Building AI applications often requires juggling complex frameworks and backend systems. KitchenAI eliminates that complexity by:  
+Integrating AI into applications is getting more complicated, making it tough to test, tweak, and improve your code quickly. KitchenAI is here to fix that by meeting AI developers and data scientists where they already work. It makes the journey from Jupyter notebooks to a fully functional AI backend seamless—getting you up and running in just minutes.
 
-- Turning AI functions into APIs automatically.  
-- Offering a **production-ready server** using **proven technologies** like Django, Django Ninja, an extensible plugin framework, background workers, and AI third party integrations.  
-- Enabling extensibility while maintaining simplicity.  
+With KitchenAI, you can bridge the gap between experimenting and going live, helping teams work faster and stay productive. The goal is simple: give you a set of tools that cuts the time it takes to turn AI ideas into production-ready solutions in half, so you can focus on what really matters—delivering results. 
 
 🔗 Learn more at [docs.kitchenai.dev](https://docs.kitchenai.dev/develop/).  
 
@@ -64,17 +68,27 @@ Building AI applications often requires juggling complex frameworks and backend 
 
 3. **Run the Server**  
    ```bash
-   kitchenai init --collect-static && kitchenai dev --module app:kitchen
+   kitchenai init && kitchenai dev --module app:kitchen
+   ```
+   Alternatively, you can run the server with jupyter notebook:
+   ```bash
+   kitchenai dev --module app:kitchen --jupyter
    ```
 
-   ![kitchenai-dev](docs/_static/images/kitchenai-dev.gif)
+4. **Test the API**  
+   ```bash
+   kitchenai client labels
+   ```
+   ```bash
+   kitchenai client health
+   ```
+   ```bash
+   kitchenai client labels
+   ```
+   ![kitchenai-client](docs/_static/images/kitchenai-dev-client.gif)
 
-   An entire API server is spun up in seconds.
 
-   ![openapi](docs/_static/images/openapi.png)
-
-
-4. **Build Docker Container**  
+5. **Build Docker Container**  
    ```bash
    kitchenai build . app:kitchenai
    ```  
@@ -105,6 +119,8 @@ KitchenAI is **built for developers**, offering flexibility and scalability whil
 ---
 
 ## Developer Experience
+
+![kitchenai-dev](docs/_static/images/kitchenai-highlevel3.png)
 
 ![Developer Flow](docs/_static/images/developer-flow.png)
 

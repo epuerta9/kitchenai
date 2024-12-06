@@ -16,9 +16,9 @@ app = KitchenAIApp()
 
 ---
 
-## 🔄 **BYOR: Bring Your Own Routes**
+## 🔄 **BYOR: Bring Your Own Routes (COMING SOON)**
 
-KitchenAI uses **Django Ninja** for its API framework, allowing you to seamlessly integrate your own custom endpoints.
+KitchenAI uses **Django Ninja** for its API framework, allowing you to seamlessly integrate your own custom endpoints. We are working on a guide to add additonal hooks to the router.
 
 ### ✨ Example: Adding a Custom Route
 ```python
@@ -37,6 +37,12 @@ app = KitchenAIApp(router=router)
 - Full flexibility to build your own API.
 - Integrates with Django’s routing and middleware system.
 
+🔮 **COMING SOON: Enhanced Route Customization**
+- Support for route versioning
+- Middleware hooks
+- Custom error handling
+- Rate limiting and throttling
+
 ---
 
 ## 🛠️ **Django Admin: Manage Your Data Easily**
@@ -44,11 +50,44 @@ app = KitchenAIApp(router=router)
 The **Django Admin Interface** comes pre-configured for core KitchenAI objects and plugins.
 
 ### 🔑 Steps to Access:
-1. Navigate to: `http://localhost:8000/kitchenai-admin`
+1. Navigate to: `http://localhost:8001/kitchenai-admin`
 
-### ✨ Create a Superuser:
+### ✨ Create a Superuser the same way you would for Django:
 ```bash
 kitchenai manage createsuperuser
+```
+
+The default admin for local development can be created by running  
+```bash
+kitchenai setup
+```
+
+This will create a superuser with the username `admin@localhost` and the password `admin`.
+
+---
+
+## 📡 Signals
+
+KitchenAI uses Django Signals to hook into certain actions making it easy to build applications that react to changes. 
+
+### Query Signals
+
+Query endpoints trigger two signals:
+- `query_input_signal`
+- `query_output_signal`
+
+They can be listened to with the following decorators:
+
+```python
+@receiver(query_input_signal)
+def my_signal_handler(sender, **kwargs):
+    print(f"Signal received from {sender}. Additional data: {kwargs}")
+```
+
+```python
+@receiver(query_output_signal)
+def my_signal_handler(sender, **kwargs):
+    print(f"Signal received from {sender}. Additional data: {kwargs}")
 ```
 
 ---
