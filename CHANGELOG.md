@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.1] - 2024-12-07
+
+### Bug
+
+- *(deps)* Removed llama-index-llms-ollama as a native dependency because it messes with llama-index-vectorstores-chroma version.
+
 ## [0.12.0] - 2024-12-06
 
 ### 📚 Documentation
