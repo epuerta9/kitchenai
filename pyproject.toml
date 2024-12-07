@@ -19,7 +19,6 @@ classifiers = [
 
 dependencies = [
   "boto3",
-  "chromadb",
   "cookiecutter",
   "crispy-tailwind",
   "diskcache",
@@ -65,8 +64,8 @@ dependencies = [
   "jupyterlab",
   "nest_asyncio",
   "kitchenai_python_sdk",
-  "llama-index-llms-ollama",
   "llama-index",
+  "chromadb",
   "llama-index-vector-stores-chroma",
 ]
 

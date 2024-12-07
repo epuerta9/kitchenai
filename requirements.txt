@@ -35,7 +35,6 @@
 # - jupyterlab
 # - kitchenai-python-sdk
 # - llama-index
-# - llama-index-llms-ollama
 # - llama-index-vector-stores-chroma
 # - nbconvert
 # - nbformat
@@ -101,7 +100,7 @@ babel==2.16.0
     # via jupyterlab-server
 backoff==2.2.1
     # via posthog
-bcrypt==4.2.0
+bcrypt==4.2.1
     # via chromadb
 beautifulsoup4==4.12.3
     # via
@@ -141,7 +140,7 @@ charset-normalizer==3.4.0
     # via requests
 chroma-hnswlib==0.7.6
     # via chromadb
-chromadb==0.5.15
+chromadb==0.5.23
     # via
     #   hatch.envs.default
     #   llama-index-vector-stores-chroma
@@ -287,7 +286,7 @@ falco-ui==0.2.0
     # via hatch.envs.default
 fast-depends==2.4.12
     # via faststream
-fastapi==0.115.2
+fastapi==0.115.6
     # via chromadb
 fastjsonschema==2.20.0
     # via nbformat
@@ -310,13 +309,13 @@ fsspec==2024.9.0
     #   huggingface-hub
     #   llama-index-core
     #   llama-index-legacy
-google-auth==2.35.0
+google-auth==2.36.0
     # via kubernetes
-googleapis-common-protos==1.65.0
+googleapis-common-protos==1.66.0
     # via opentelemetry-exporter-otlp-proto-grpc
 greenlet==3.1.1
     # via sqlalchemy
-grpcio==1.67.0
+grpcio==1.68.1
     # via
     #   chromadb
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -332,7 +331,7 @@ honcho==2.0.0
     # via hatch.envs.default
 httpcore==1.0.6
     # via httpx
-httptools==0.6.2
+httptools==0.6.4
     # via uvicorn
 httpx==0.27.2
     # via
@@ -342,10 +341,9 @@ httpx==0.27.2
     #   llama-cloud
     #   llama-index-core
     #   llama-index-legacy
-    #   ollama
     #   openai
     #   svix
-huggingface-hub==0.25.2
+huggingface-hub==0.26.5
     # via tokenizers
 humanfriendly==10.0
     # via coloredlogs
@@ -358,7 +356,7 @@ idna==3.10
     #   jsonschema
     #   requests
     #   yarl
-importlib-metadata==8.4.0
+importlib-metadata==8.5.0
     # via opentelemetry-api
 importlib-resources==6.4.5
     # via chromadb
@@ -449,7 +447,6 @@ llama-index-core==0.11.23
     #   llama-index-cli
     #   llama-index-embeddings-openai
     #   llama-index-indices-managed-llama-cloud
-    #   llama-index-llms-ollama
     #   llama-index-llms-openai
     #   llama-index-multi-modal-llms-openai
     #   llama-index-program-openai
@@ -466,8 +463,6 @@ llama-index-indices-managed-llama-cloud==0.6.0
     # via llama-index
 llama-index-legacy==0.9.48.post4
     # via llama-index
-llama-index-llms-ollama==0.3.6
-    # via hatch.envs.default
 llama-index-llms-openai==0.2.16
     # via
     #   llama-index
@@ -488,7 +483,7 @@ llama-index-readers-file==0.3.0
     # via llama-index
 llama-index-readers-llama-parse==0.3.0
     # via llama-index
-llama-index-vector-stores-chroma==0.2.2
+llama-index-vector-stores-chroma==0.3.0
     # via hatch.envs.default
 llama-parse==0.5.17
     # via llama-index-readers-llama-parse
@@ -565,9 +560,7 @@ oauthlib==3.2.2
     # via
     #   kubernetes
     #   requests-oauthlib
-ollama==0.4.3
-    # via llama-index-llms-ollama
-onnxruntime==1.19.2
+onnxruntime==1.20.1
     # via chromadb
 openai==1.57.0
     # via
@@ -575,7 +568,7 @@ openai==1.57.0
     #   llama-index-embeddings-openai
     #   llama-index-legacy
     #   llama-index-llms-openai
-opentelemetry-api==1.27.0
+opentelemetry-api==1.28.2
     # via
     #   chromadb
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -584,36 +577,37 @@ opentelemetry-api==1.27.0
     #   opentelemetry-instrumentation-fastapi
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-opentelemetry-exporter-otlp-proto-common==1.27.0
+opentelemetry-exporter-otlp-proto-common==1.28.2
     # via opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-exporter-otlp-proto-grpc==1.27.0
+opentelemetry-exporter-otlp-proto-grpc==1.28.2
     # via chromadb
-opentelemetry-instrumentation==0.48b0
+opentelemetry-instrumentation==0.49b2
     # via
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
-opentelemetry-instrumentation-asgi==0.48b0
+opentelemetry-instrumentation-asgi==0.49b2
     # via opentelemetry-instrumentation-fastapi
-opentelemetry-instrumentation-fastapi==0.48b0
+opentelemetry-instrumentation-fastapi==0.49b2
     # via chromadb
-opentelemetry-proto==1.27.0
+opentelemetry-proto==1.28.2
     # via
     #   opentelemetry-exporter-otlp-proto-common
     #   opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-sdk==1.27.0
+opentelemetry-sdk==1.28.2
     # via
     #   chromadb
     #   opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-semantic-conventions==0.48b0
+opentelemetry-semantic-conventions==0.49b2
     # via
+    #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.48b0
+opentelemetry-util-http==0.49b2
     # via
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
-orjson==3.10.7
+orjson==3.10.12
     # via chromadb
 overrides==7.7.0
     # via
@@ -631,6 +625,7 @@ packaging==24.1
     #   marshmallow
     #   nbconvert
     #   onnxruntime
+    #   opentelemetry-instrumentation
 pandas==2.2.3
     # via
     #   llama-index-legacy
@@ -663,7 +658,7 @@ propcache==0.2.1
     # via
     #   aiohttp
     #   yarl
-protobuf==4.25.5
+protobuf==5.29.1
     # via
     #   googleapis-common-protos
     #   onnxruntime
@@ -698,7 +693,6 @@ pydantic==2.9.2
     #   llama-cloud
     #   llama-index-core
     #   llama-parse
-    #   ollama
     #   openai
 pydantic-core==2.23.4
     # via pydantic
@@ -811,9 +805,7 @@ send2trash==1.8.3
 sentry-sdk==2.16.0
     # via hatch.envs.default
 setuptools==75.2.0
-    # via
-    #   jupyterlab
-    #   opentelemetry-instrumentation
+    # via jupyterlab
 shellingham==1.5.4
     # via
     #   django-typer
@@ -871,7 +863,7 @@ tiktoken==0.8.0
     #   llama-index-legacy
 tinycss2==1.4.0
     # via nbconvert
-tokenizers==0.20.1
+tokenizers==0.20.3
     # via chromadb
 tornado==6.4.2
     # via
@@ -953,11 +945,11 @@ urllib3==2.2.3
     #   kubernetes
     #   requests
     #   sentry-sdk
-uvicorn==0.32.0
+uvicorn==0.32.1
     # via chromadb
 uvloop==0.21.0
     # via uvicorn
-watchfiles==0.24.0
+watchfiles==1.0.0
     # via uvicorn
 wcwidth==0.2.13
     # via prompt-toolkit
@@ -971,7 +963,7 @@ websocket-client==1.8.0
     # via
     #   jupyter-server
     #   kubernetes
-websockets==13.1
+websockets==14.1
     # via uvicorn
 whitenoise==6.7.0
     # via hatch.envs.default
@@ -982,5 +974,5 @@ wrapt==1.16.0
     #   opentelemetry-instrumentation
 yarl==1.18.3
     # via aiohttp
-zipp==3.20.2
+zipp==3.21.0
     # via importlib-metadata

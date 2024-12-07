@@ -59,6 +59,8 @@ Retrieves details about the currently set project.
 Optional: Sets the LLM provider and model used for generating modules. 
 Sets the LLM provider and model used for generating modules. 
 
+To use ollama, you need to have ollama installed and running. You can install the client library with with `pip install llama-index-llms-ollama`.
+
 > 💡 *Note: The default provider is `openai` and the default model is `gpt-4`. Leave this blank to use the default.*
 
 > 💡 *Note: The `provider` can be either `openai` or `ollama`.*
