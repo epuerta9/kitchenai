@@ -32,7 +32,16 @@ KitchenAI bridges the gap between **AI developers**, **Application developers**,
 - For **Infrastructure Developers**: Integrate with AI tooling, customize Django backends, build plugins, and leverage built-in support for observability platforms like Sentry and OpenTelemetry. KitchenAI is extensible to modify for more advanced use cases. 
 
 **Say goodbye to boilerplate!**  
+## 🚀 **Go from notebook to production in minutes.**
+Example notebook: [kitchenai-community/llama_index_starter](https://github.com/epuerta9/kitchenai-community/blob/main/src/kitchenai_community/llama_index_starter/notebook.ipynb)
 
+By annotating your notebook with KitchenAI annotations, you can go from this:
+
+![kitchenai-dev](docs/_static/images/jupyter-notebook.png)
+
+To interacting with the API using the built in client:
+
+![kitchenai-dev](docs/_static/images/cli-query.png)
 
 [Documentation](https://docs.kitchenai.dev)
 
@@ -45,6 +54,16 @@ KitchenAI bridges the gap between **AI developers**, **Application developers**,
 Integrating AI into applications is getting more complicated, making it tough to test, tweak, and improve your code quickly. KitchenAI is here to fix that by meeting AI developers and data scientists where they already work. It makes the journey from Jupyter notebooks to a fully functional AI backend seamless—getting you up and running in just minutes.
 
 With KitchenAI, you can bridge the gap between experimenting and going live, helping teams work faster and stay productive. The goal is simple: give you a set of tools that cuts the time it takes to turn AI ideas into production-ready solutions in half, so you can focus on what really matters—delivering results. 
+
+
+**The ultimate tool in your AI development kit. Improve your LLMOps.**
+
+![kitchenai-dev](../docs/_static/images/workflow.png)
+
+
+Close the feedback loop between AI developers and App developers.
+
+![kitchenai-dev](docs/_static/videos/kitchenai-demo.webm)
 
 🔗 Learn more at [docs.kitchenai.dev](https://docs.kitchenai.dev/develop/).  
 
@@ -76,9 +95,6 @@ With KitchenAI, you can bridge the gap between experimenting and going live, hel
    ```
 
 4. **Test the API**  
-   ```bash
-   kitchenai client labels
-   ```
    ```bash
    kitchenai client health
    ```

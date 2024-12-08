@@ -50,6 +50,13 @@ The **KitchenAI Client SDK** ensures a consistent and simple interface for inter
 - 🐹 **Go SDK**  
 - 🦀 **Rust SDK**  
 
+Python SDK:
+ ```bash
+ pip install kitchenai_python_sdk
+ ```
+
+[KitchenAI Python SDK](https://github.com/epuerta9/kitchenai-python-sdk)
+
 No matter what framework or AI technique you’re using, KitchenAI's SDKs will enable:
 - Unified interaction with the LLM backend.  
 - Easy-to-use APIs tailored for your preferred language.  

@@ -14,19 +14,30 @@
 ## **What is KitchenAI?**  
 KitchenAI bridges the gap between **AI developers**, **Application developers**, and **Infrastructure developers** making it easy to:
 
-- Author multiple AI techniques 
+- Author multiple AI techniques
 - Quickly test and iterate
 - Easily build and share
 
 ![kitchenai-dev](../docs/_static/images/kitchenai-highlevel1.png)
 
-- For **AI Developers**: Focus on your techniques like RAG or embeddings—KitchenAI handles scalable, in the notebook you already feel comfortable in. KitchenAI will convert your notebook into a production-ready application.  
+- For **AI Developers**: Focus on your techniques like RAG or embeddings—KitchenAI handles the server piece. You can continue to work in the notebook you already feel comfortable in without worrying about the underlying infrastructure. KitchenAI will convert your notebook into a production-ready application. 
+
 - For **App Developers**: Seamlessly integrate AI with a set of API's you can build an application on top of. Quickly test to see which AI technique best fits your application.  
 
 - For **Infrastructure Developers**: Integrate with AI tooling, customize Django backends, build plugins, and leverage built-in support for observability platforms like Sentry and OpenTelemetry. KitchenAI is extensible to modify for more advanced use cases. 
 
 **Say goodbye to boilerplate!**  
 
+## 🚀 **Go from notebook to production in minutes.**
+Example notebook: [kitchenai-community/llama_index_starter](https://github.com/epuerta9/kitchenai-community/blob/main/src/kitchenai_community/llama_index_starter/notebook.ipynb)
+
+By annotating your notebook with KitchenAI annotations, you can go from this:
+
+![kitchenai-dev](../docs/_static/images/jupyter-notebook.png)
+
+To interacting with the API using the built in client:
+
+![kitchenai-dev](../docs/_static/images/cli-query.png)
 ---
 
 ## 🚀 **Why KitchenAI?**  
@@ -35,7 +46,12 @@ Integrating AI into applications is getting more complicated, making it tough to
 
 With KitchenAI, you can bridge the gap between experimenting and going live, helping teams work faster and stay productive. The goal is simple: give you a set of tools that cuts the time it takes to turn AI ideas into production-ready solutions in half, so you can focus on what really matters—delivering results. 
 
-**The ultimate tool in your AI development kit.**
+**The ultimate tool in your AI development kit. Improve your LLMOps.**
+
+![kitchenai-dev](../docs/_static/images/workflow.png)
+
+
+Close the feedback loop between AI developers and App developers.
 
 🔗 Learn more at [docs.kitchenai.dev](https://docs.kitchenai.dev/develop/).  
 
@@ -64,9 +80,7 @@ With KitchenAI, you can bridge the gap between experimenting and going live, hel
    ```
 
 4. **Test the API**  
-   ```bash
-   kitchenai client labels
-   ```
+
    ```bash
    kitchenai client health
    ```
