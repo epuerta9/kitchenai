@@ -45,7 +45,6 @@ To interacting with the API using the built in client:
 
 [Documentation](https://docs.kitchenai.dev)
 
-![kitchenai-list](docs/_static/images/kitchenai-list.gif)
 
 ---
 
@@ -58,12 +57,10 @@ With KitchenAI, you can bridge the gap between experimenting and going live, hel
 
 **The ultimate tool in your AI development kit. Improve your LLMOps.**
 
-![kitchenai-dev](../docs/_static/images/workflow.png)
 
 
 Close the feedback loop between AI developers and App developers.
 
-![kitchenai-dev](docs/_static/videos/kitchenai-demo.webm)
 
 🔗 Learn more at [docs.kitchenai.dev](https://docs.kitchenai.dev/develop/).  
 
@@ -136,9 +133,8 @@ KitchenAI is **built for developers**, offering flexibility and scalability whil
 
 ## Developer Experience
 
-![kitchenai-dev](docs/_static/images/kitchenai-highlevel3.png)
 
-![Developer Flow](docs/_static/images/developer-flow.png)
+![Developer Flow](docs/_static/images/workflow.png)
 
 
 
