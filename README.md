@@ -15,6 +15,7 @@
 ---
 
 
+**[Documentation](https://docs.kitchenai.dev)**
 
 
 ## **What is KitchenAI?**  
@@ -43,7 +44,6 @@ To interacting with the API using the built in client:
 
 ![kitchenai-dev](docs/_static/images/cli-query.png)
 
-[Documentation](https://docs.kitchenai.dev)
 
 
 ---
