@@ -519,7 +519,7 @@ mypy-extensions==1.0.0
     # via typing-inspect
 nats-py==2.9.0
     # via faststream
-nbclient==0.10.0
+nbclient==0.10.1
     # via nbconvert
 nbconvert==7.16.4
     # via
