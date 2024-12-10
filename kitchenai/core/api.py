@@ -12,7 +12,8 @@ import logging
 from django.apps import apps
 from typing import List
 from .signals import query_output_signal, query_input_signal
-
+from django.http import StreamingHttpResponse
+from typing import AsyncGenerator
 logger = logging.getLogger(__name__)
 router = Router()
 
@@ -187,6 +188,33 @@ async def query(request, label: str, data: QuerySchema):
     except Exception as e:
         logger.error(f"Error in query: {e}")
         return HttpError(500, "query function not found")
+
+import asyncio
+import datetime
+@router.get("/stream/{label}")
+async def stream(request, label: str):
+    from llama_index.llms.openai import OpenAI
+    llm = OpenAI(model="gpt-4o-mini")
+    # def async_stream_completions():
+    #     completions = llm.stream_complete("Paul Graham is ")
+    #     for completion in completions:
+    #         yield completion.delta
+    print("starting stream")
+    async def mock_stream():
+        while True:
+            await asyncio.sleep(1)
+            chunk = f"Hello {datetime.datetime.now()}"
+            yield chunk
+    response_server = StreamingHttpResponse(
+        mock_stream(),
+        content_type="text/event-stream",
+        headers={
+            'Cache-Control': 'no-cache',
+            'Transfer-Encoding': 'chunked',
+            'X-Accel-Buffering': 'no',
+        }
+    )
+    return response_server
 
 class KitchenAIAppSchema(Schema):
     namespace: str
