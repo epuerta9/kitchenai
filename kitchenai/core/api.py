@@ -189,32 +189,46 @@ async def query(request, label: str, data: QuerySchema):
         logger.error(f"Error in query: {e}")
         return HttpError(500, "query function not found")
 
-import asyncio
-import datetime
 @router.get("/stream/{label}")
-async def stream(request, label: str):
-    from llama_index.llms.openai import OpenAI
-    llm = OpenAI(model="gpt-4o-mini")
-    # def async_stream_completions():
-    #     completions = llm.stream_complete("Paul Graham is ")
-    #     for completion in completions:
-    #         yield completion.delta
-    print("starting stream")
-    async def mock_stream():
-        while True:
-            await asyncio.sleep(1)
-            chunk = f"Hello {datetime.datetime.now()}"
-            yield chunk
-    response_server = StreamingHttpResponse(
-        mock_stream(),
-        content_type="text/event-stream",
-        headers={
-            'Cache-Control': 'no-cache',
-            'Transfer-Encoding': 'chunked',
-            'X-Accel-Buffering': 'no',
-        }
-    )
-    return response_server
+def stream(request, label: str):
+    """Stream a query"""
+    try:
+        core_app = apps.get_app_config("core")
+        if not core_app.kitchenai_app:
+            logger.error("No kitchenai app in core app config")
+            return HttpResponse(status=404)
+        
+        stream_gen_func = core_app.kitchenai_app._query_stream_handlers.get(f"{core_app.kitchenai_app._namespace}.{label}")
+        if not stream_gen_func:
+            logger.error(f"Query function not found for {label}")
+            return HttpResponse(status=404)
+        
+        #Signal the start of the query
+        #query_input_signal.send(sender="query_input", data=data)
+        print(f"Querying {label}")
+
+        stream_gen = stream_gen_func(QuerySchema(query="summarize this code for me? write me a 500 word summary"))
+        #Signal the end of the query
+        #query_output_signal.send(sender="query_output", result=result)
+
+
+        response_server = StreamingHttpResponse(
+            stream_gen,
+            content_type="text/event-stream",
+            headers={
+                'Cache-Control': 'no-cache',
+                'Transfer-Encoding': 'chunked',
+                'X-Accel-Buffering': 'no',
+            }
+        )
+        return response_server
+    except Exception as e:
+        logger.error(f"Error in query: {e}")
+        return HttpError(500, "query function not found")
+
+
+
+
 
 class KitchenAIAppSchema(Schema):
     namespace: str
