@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.2] - 2024-12-11
+
+### 📚 Documentation
+
+- *(examples)* Added more examples to the frontpage and included python sdk repo
+
+### Bug
+
+- *(cook)* Lazy import on ollama as a separate dependency
+
 ## [0.12.1] - 2024-12-07
 
 ### Bug
