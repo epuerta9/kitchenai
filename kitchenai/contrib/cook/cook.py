@@ -6,7 +6,6 @@ import hashlib
 import asyncio
 import nest_asyncio
 from llama_index.llms.openai import OpenAI
-from llama_index.llms.ollama import Ollama
 
 
 # Setup Django and nest_asyncio
@@ -310,6 +309,7 @@ class Cook(Magics):
             if self.llm_provider == "openai":
                 llm = OpenAI(model=self.llm_model)
             else:
+                from llama_index.llms.ollama import Ollama
                 llm = Ollama(model=self.llm_model)
 
             kitchenai_few_shot = loader.get_template('build_templates/app.tmpl')
