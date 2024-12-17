@@ -1,34 +1,58 @@
-# 🍽️ KitchenAI  
+# 🍽️ **KitchenAI**  
 
-**Instantly turn AI Jupyter Notebooks into production-ready APIs.**  
+<p align="center">
+  <img src="docs/_static/images/logo.png" alt="KitchenAI" width="100" height="100">
+</p>
 
+**Simplify AI Development with KitchenAI: Your AI Backend and LLMOps Toolkit**  
+
+[![Docs](https://img.shields.io/badge/Docs-kitchenai.dev-blue)](https://docs.kitchenai.dev)  
 [![Falco](https://img.shields.io/badge/built%20with-falco-success)](https://github.com/Tobi-De/falco)  
 [![Hatch Project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)  
-[![Docs](https://img.shields.io/badge/Docs-kitchenai.dev-blue)](https://docs.kitchenai.dev)
 
 ---
+
+**[Documentation](https://docs.kitchenai.dev)**
+**[KitchenAI Cloud](#-get-early-access)**
 
 ![kitchenai-list](../docs/_static/images/kitchenai-list.gif)
 
 
-## **What is KitchenAI?**  
-KitchenAI bridges the gap between **AI developers**, **Application developers**, and **Infrastructure developers** making it easy to:
+## 🚀 **What is KitchenAI?**  
 
-- Author multiple AI techniques
-- Quickly test and iterate
-- Easily build and share
+KitchenAI is an open-source toolkit that simplifies AI complexities by acting as your **AI backend** and **LLMOps solution**—from experimentation to production.  
+
+It empowers **developers** to focus on delivering results without getting stuck in the weeds of AI infrastructure, observability, or deployment.  
+
+### **Key Goals**:  
+1. **Simplify AI Integration**: Easily turn AI experiments into production-ready APIs.  
+2. **Provide an AI Backend**: Handle the entire AI lifecycle—experimentation, observability, and scaling.  
+3. **Empower Developers**: Focus on application building, not infrastructure.
+
 
 ![kitchenai-dev](../docs/_static/images/kitchenai-highlevel1.png)
 
-- For **AI Developers**: Focus on your techniques like RAG or embeddings—KitchenAI handles the server piece. You can continue to work in the notebook you already feel comfortable in without worrying about the underlying infrastructure. KitchenAI will convert your notebook into a production-ready application. 
+---
 
-- For **App Developers**: Seamlessly integrate AI with a set of API's you can build an application on top of. Quickly test to see which AI technique best fits your application.  
+## 🛠️ **Who is KitchenAI For?**  
 
-- For **Infrastructure Developers**: Integrate with AI tooling, customize Django backends, build plugins, and leverage built-in support for observability platforms like Sentry and OpenTelemetry. KitchenAI is extensible to modify for more advanced use cases. 
+- **Application Developers**:  
+   - Seamlessly integrate AI into your apps using APIs.  
+   - Experiment and test AI techniques without reinventing the wheel.  
+
+- **AI Developers & Data Scientists**:  
+   - Move quickly from Jupyter notebooks to production-ready services.  
+   - Deploy custom AI techniques with ease (e.g., RAG, embeddings).  
+
+- **Platform & Infra Engineers**:  
+   - Customize your AI stack, integrate tools like Sentry, OpenTelemetry, and more.  
+   - Scale and optimize AI services with a modular, extensible framework.  
+
+--- 
 
 **Say goodbye to boilerplate!**  
 
-## 🚀 **Go from notebook to production in minutes.**
+## 🚀 **Go from notebook to app integration in minutes.**
 Example notebook: [kitchenai-community/llama_index_starter](https://github.com/epuerta9/kitchenai-community/blob/main/src/kitchenai_community/llama_index_starter/notebook.ipynb)
 
 By annotating your notebook with KitchenAI annotations, you can go from this:
@@ -38,22 +62,25 @@ By annotating your notebook with KitchenAI annotations, you can go from this:
 To interacting with the API using the built in client:
 
 ![kitchenai-dev](../docs/_static/images/cli-query.png)
+
 ---
 
-## 🚀 **Why KitchenAI?**  
+## 💡 **Why KitchenAI?**  
 
-Integrating AI into applications is getting more complicated, making it tough to test, tweak, and improve your code quickly. KitchenAI is here to fix that by meeting AI developers and data scientists where they already work. It makes the journey from Jupyter notebooks to a fully functional AI backend seamless—getting you up and running in just minutes.
+Integrating and scaling AI is **too complex** today. KitchenAI solves this:  
 
-With KitchenAI, you can bridge the gap between experimenting and going live, helping teams work faster and stay productive. The goal is simple: give you a set of tools that cuts the time it takes to turn AI ideas into production-ready solutions in half, so you can focus on what really matters—delivering results. 
+1. **AI Backend Ready to Go**:  
+   - Stop building APIs and infra from scratch. Deploy AI code as production-ready APIs in minutes.  
 
-**The ultimate tool in your AI development kit. Improve your LLMOps.**
+2. **Built-In LLMOps Features**:  
+   - Observability, tracing, and evaluation tools are pre-configured.  
 
-![kitchenai-dev](../docs/_static/images/workflow.png)
+3. **Framework-Agnostic & Extensible**:  
+   - Vendor-neutral, open-source, and easy to customize with plugins.  
 
+4. **Faster Time-to-Production**:  
+   - Go from experimentation to live deployments seamlessly.  
 
-Close the feedback loop between AI developers and App developers.
-
-🔗 Learn more at [docs.kitchenai.dev](https://docs.kitchenai.dev/develop/).  
 
 ---
 
@@ -100,55 +127,82 @@ Close the feedback loop between AI developers and App developers.
 
 ## ✨ **Features**  
 
-![kitchenai-features](../docs/_static/images/kitchenai-highlevel4.png)
+- **🚀 Production-Ready Backend**: Go from idea to production in minutes.  
+- **🛠️ Built-In LLMOps**: Observability, tracing, and evaluation out-of-the-box.  
+- **🔌 Extensible Framework**: Easily add custom plugins and AI techniques.  
+- **📦 Modular AI Modules**: Deploy and test AI components with ease.  
+- **🐳 Docker-First Deployment**: Build and scale with confidence.  
 
-- **📦 Quick Cookbook Creation**: Build cookbooks in seconds.  
-- **🚀 Production-Ready AI**: Turn AI code into robust endpoints.  
-- **🔌 Extensible Framework**: Add custom recipes and plugins effortlessly.  
-- **🐳 Docker-First Deployment**: Deploy with ease.  
+---
+
+## 📊 **AI Lifecycle with KitchenAI**  
+
+1. **Experiment**:  
+   - Start in Jupyter notebooks or existing AI tools.  
+   - Annotate your notebook to turn it into a deployable AI module.  
+
+2. **Build**:  
+   - Use KitchenAI to generate production-ready APIs automatically.  
+
+3. **Deploy**:  
+   - Run the module locally or in production with built-in observability and scaling.  
+
+4. **Monitor & Improve**:  
+   - Use KitchenAI's observability tools to evaluate performance, trace issues, and iterate.  
+
+## Developer Experience
+
+![Developer Flow](../docs/_static/images/workflow.png)
 
 ---
 
 ## 🔧 **Under the Hood**  
 
-- **Django Ninja**: Async-first API framework for high-performance endpoints.  
-- **Django Q2**: Background workers for long-running tasks. 
-- **Plugin Framework**: Django DJP integration
-- **AI Ecosystem**: Integrations to AI ecosystem and tools 
-- **S6 Overlay**: Optimized container orchestration.  
+- **Django Ninja**: High-performance async APIs.  
+- **LLMOps Stack**: Built-in tracing, observability, and evaluations.  
+- **Plugin System**: Add advanced custom functionality.  
+- **Docker-Optimized**: Seamless deployment with S6 overlays. 
 
-KitchenAI is **built for developers**, offering flexibility and scalability while letting you focus on AI.
+---
+
+## 🚀 **KitchenAI Cloud**  
+
+Coming soon: **KitchenAI Cloud** will offer a fully managed AI backend experience.  
+
+### **Key Benefits**:  
+- Serverless deployment for AI modules.  
+- Fully managed observability, tracing, and scaling.  
+- Team collaboration tools for faster iteration.  
+
+🔗 **Sign Up for Early Access**: [Register Here](https://tally.so/r/w8pYoo)  
 
 ---
 
 ## 🛠️ **Roadmap**  
 
-- **SDKs** for Python, Go, JS, and Rust.  
+- Expanded SDKs (Python, Go, JS).  
 - Enhanced plugin system.  
-- Signal-based architecture for event-driven apps.  
-- Built-in support for **Postgres** and **pgvector**.  
+- Enterprise-grade observability features.  
+- KitchenAI Cloud Beta.  
 
 ---
 
-## 🧑‍🍳 **Contribute**  
+## 🤝 **Contribute**  
 
-KitchenAI is in **alpha**—we welcome your contributions and feedback!  
+Kitchenai is in **alpha-**
 
-### 🛠️ **Setup**  
-```bash
-just bootstrap && just setup
-```
-
-- Requirements: Python 3.11+, Hatch, and Just.  
-- Creates a dev environment with pre-configured superuser (`admin@localhost` / `admin`).  
-
-Contributing details at [docs.kitchenai.dev](https://docs.kitchenai.dev).  
+We’re building KitchenAI in the open, and we’d love your contributions:  
+- ⭐ Star the repo on GitHub!  
+- 🛠️ Submit PRs, ideas, or feedback.  
+- 🧑‍🍳 Build plugins and AI modules for the community.  
 
 ---
 
 ## 🙏 **Acknowledgements**  
 
-Inspired by the [Falco Project](https://github.com/Tobi-De/falco). Thanks to the Python community for best practices and tools!  
+KitchenAI is inspired by the open-source community and modern AI development challenges. Let’s simplify AI, together.  
+
+Notable project: [Falco Project](https://github.com/Tobi-De/falco). Thanks to the Python community for best practices and tools!  
 
 ---
 
