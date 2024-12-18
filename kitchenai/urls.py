@@ -10,6 +10,7 @@ from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from falco_toolbox import views as toolbox_views
 from health_check.views import MainView
+import django_eventstream
 
 from .api import api
 
@@ -29,7 +30,11 @@ urlpatterns = [
     path("health/", MainView.as_view()),
     path(settings.ADMIN_URL, admin.site.urls),
     path("accounts/", include("allauth.urls")),
-    path("core/", include("kitchenai.core.urls", namespace="core")),
+    path("dashboard/", include("kitchenai.core.urls", namespace="dashboard")),
+    path("stream/agent/<str:id>", include(django_eventstream.urls)),
+    path("stream/query/<str:id>", include(django_eventstream.urls)),
+    path("stream/chat/<str:id>", include(django_eventstream.urls)),
+
 
 ] + djp.urlpatterns()
 

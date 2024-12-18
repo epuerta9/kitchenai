@@ -32,6 +32,7 @@ def simple_vector(dir: str, metadata: dict = {}, *args, **kwargs):
     )
     return {"response": len(response["documents"])}
 
+
 @kitchen.storage("simple-vector2")
 def simple_vector2(dir: str, metadata: dict = {}, *args, **kwargs):
     parser = Parser(api_key=os.environ.get("LLAMA_CLOUD_API_KEY", None))

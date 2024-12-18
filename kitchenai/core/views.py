@@ -9,13 +9,11 @@ from falco_toolbox.types import HttpRequest
 from .forms import KitchenAIModuleForm
 from .models import KitchenAIModule
 
-
 async def home(request: HttpRequest):
     return TemplateResponse(
         request,
         "pages/home.html",
     )
-
 
 @for_htmx(use_partial="table")
 def kitchenaimodule_list(request: HttpRequest):

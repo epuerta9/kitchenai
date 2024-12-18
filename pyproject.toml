@@ -60,6 +60,7 @@ dependencies = [
   "nbconvert",
   "faststream[nats]", 
   "starlette",
+  "django-eventstream",
   "dynamic-pip", 
   "jupyterlab",
   "nest_asyncio",
