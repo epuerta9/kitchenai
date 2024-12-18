@@ -246,5 +246,3 @@ def list_labels():
             console.print(table)
         except Exception as e:
             console.print(f"[red]Error fetching labels: {e}[/red]")
-
-

@@ -1,16 +1,13 @@
 import multiprocessing
 import os
-import sys
 from email.utils import parseaddr
 from pathlib import Path
 
 import djp
 import sentry_sdk
 from environs import Env
-from falco_toolbox.sentry import sentry_profiles_sampler
-from falco_toolbox.sentry import sentry_traces_sampler
-from marshmallow.validate import Email
-from marshmallow.validate import OneOf
+from falco_toolbox.sentry import sentry_profiles_sampler, sentry_traces_sampler
+from marshmallow.validate import Email, OneOf
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
@@ -42,7 +39,11 @@ KITCHENAI_DEBUG = env.bool("KITCHENAI_DEBUG", default=False)
 # https://docs.djangoproject.com/en/4.0/ref/settings/
 
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"] if DEBUG or KITCHENAI_DEBUG else ["localhost"], subcast=str)
+ALLOWED_HOSTS = env.list(
+    "ALLOWED_HOSTS",
+    default=["*"] if DEBUG or KITCHENAI_DEBUG else ["localhost"],
+    subcast=str,
+)
 
 ASGI_APPLICATION = "kitchenai.asgi.application"
 
@@ -62,7 +63,9 @@ if "CACHE_LOCATION" in os.environ:
 CSRF_COOKIE_SECURE = not DEBUG
 
 DATABASES = {
-    "default": env.dj_db_url("DATABASE_URL", default=f"sqlite:///{KITCHENAI_DB_DIR / 'db.sqlite3'}"),
+    "default": env.dj_db_url(
+        "DATABASE_URL", default=f"sqlite:///{KITCHENAI_DB_DIR / 'db.sqlite3'}"
+    ),
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
@@ -123,6 +126,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "kitchenai.core",
+    "kitchenai.notebooks",
 ]
 
 if DEBUG:
@@ -177,39 +181,39 @@ LANGUAGE_CODE = "en-us"
 # }
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
         },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',  # Set to INFO or WARNING to suppress DEBUG logs
-            'propagate': True,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
         },
-        'urllib3.connectionpool': {
-            'handlers': ['console'],
-            'level': 'WARNING',  # Suppress DEBUG logs from urllib3
-            'propagate': False,
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",  # Set to INFO or WARNING to suppress DEBUG logs
+            "propagate": True,
         },
-        'chromadb': {
-            'handlers': ['console'],
-            'level': 'WARNING',  # Suppress DEBUG logs from chromadb
-            'propagate': False,
+        "urllib3.connectionpool": {
+            "handlers": ["console"],
+            "level": "WARNING",  # Suppress DEBUG logs from urllib3
+            "propagate": False,
+        },
+        "chromadb": {
+            "handlers": ["console"],
+            "level": "WARNING",  # Suppress DEBUG logs from chromadb
+            "propagate": False,
         },
         "kitchenai": {
             "handlers": ["console"],
@@ -217,9 +221,9 @@ LOGGING = {
             "propagate": False,  # Prevent propagation to the root logger
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',  # Set the root logger level
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",  # Set the root logger level
     },
 }
 
@@ -261,7 +265,9 @@ if DEBUG:
 
 ROOT_URLCONF = "kitchenai.urls"
 
-SECRET_KEY = env.str("SECRET_KEY", default="django-insecure-ef6nIh7LcUjPtixFdz0_aXyUwlKqvBdJEcycRR6RvRY")
+SECRET_KEY = env.str(
+    "SECRET_KEY", default="django-insecure-ef6nIh7LcUjPtixFdz0_aXyUwlKqvBdJEcycRR6RvRY"
+)
 
 SECURE_HSTS_INCLUDE_SUBDOMAINS = not (DEBUG or KITCHENAI_DEBUG)
 
@@ -270,7 +276,9 @@ SECURE_HSTS_PRELOAD = not (DEBUG or KITCHENAI_DEBUG)
 # https://docs.djangoproject.com/en/dev/ref/middleware/#http-strict-transport-security
 # 2 minutes to start with, will increase as HSTS is tested
 # example of production value: 60 * 60 * 24 * 7 = 604800 (1 week)
-SECURE_HSTS_SECONDS = 0 if DEBUG or KITCHENAI_DEBUG else env.int("SECURE_HSTS_SECONDS", default=60 * 2)
+SECURE_HSTS_SECONDS = (
+    0 if DEBUG or KITCHENAI_DEBUG else env.int("SECURE_HSTS_SECONDS", default=60 * 2)
+)
 
 # https://noumenal.es/notes/til/django/csrf-trusted-origins/
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -456,22 +464,24 @@ Q_CLUSTER = {
 
 # sentry
 if env.bool("KITCHENAI_SENTRY", default=False):
-    if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not (DEBUG or KITCHENAI_DEBUG):
+    if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not (
+        DEBUG or KITCHENAI_DEBUG
+    ):
         sentry_sdk.init(
-        dsn=SENTRY_DSN.geturl(),
-        environment=env.str(
-            "SENTRY_ENV",
-            default="development",
-            validate=OneOf(["development", "production"]),
-        ),
-        integrations=[
-            DjangoIntegration(),
-            LoggingIntegration(event_level=None, level=None),
-        ],
-        traces_sampler=sentry_traces_sampler,
-        profiles_sampler=sentry_profiles_sampler,
-        send_default_pii=True,
-    )
+            dsn=SENTRY_DSN.geturl(),
+            environment=env.str(
+                "SENTRY_ENV",
+                default="development",
+                validate=OneOf(["development", "production"]),
+            ),
+            integrations=[
+                DjangoIntegration(),
+                LoggingIntegration(event_level=None, level=None),
+            ],
+            traces_sampler=sentry_traces_sampler,
+            profiles_sampler=sentry_profiles_sampler,
+            send_default_pii=True,
+        )
 
 # 4. Project Settings
 # -----------------------------------------------------------------------------------------------------

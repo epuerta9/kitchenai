@@ -27,42 +27,18 @@ class KitchenAIApp:
         self._default_hook = "kitchenai.contrib.kitchenai_sdk.hooks.default_hook"
         self._default_db =  default_db
         self._query_handlers = {}
+        self._query_stream_handlers = {}
         self._agent_handlers = {}
         self._embed_tasks= {}
         self._embed_delete_tasks = {}
 
     # Decorators for different route types
-    def query(self, label: str, streaming=False, llama_stack_emit="", **route_kwargs):
+    def query(self, label: str,  **route_kwargs):
         """Query is a decorator for query handlers with the ability to add middleware"""
         def decorator(func, **route_kwargs):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
-                if streaming:
-                    #NOTE: Streaming HTTP response is only a synchronous operation. Temporary solution
-                    # async def event_generator():
-                    #     async for event in func(*args, **kwargs):
-                    #         # Flush each chunk immediately
-                    #         yield event
-                    def event_generator():
-                        # Call the synchronous function and get the generator
-                        gen = func(*args, **kwargs)
-                        
-                        for event in gen:
-                            # Yield each chunk formatted as Server-Sent Events
-                            yield event
-
-
-                    result = StreamingHttpResponse(
-                        event_generator(),
-                        content_type="text/event-stream",
-                        headers={
-                            'Cache-Control': 'no-cache',
-                            'Transfer-Encoding': 'chunked',
-                            'X-Accel-Buffering': 'no',
-                        }
-                    )
-                # Non-streaming behavior
-                elif asyncio.iscoroutinefunction(func):
+                if asyncio.iscoroutinefunction(func):
                     result =  await func(*args, **kwargs)
                 else:
                     loop = asyncio.get_event_loop()
@@ -128,29 +104,12 @@ class KitchenAIApp:
             return wrapper
         return decorator
 
-    def agent(self, label: str, streaming=False, **route_kwargs):
+    def agent(self, label: str, **route_kwargs):
         """Agent is a decorator for agent handlers with the ability to add middleware"""
         def decorator(func, **route_kwargs):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
-                if streaming:
-                    #NOTE: Streaming HTTP response is only a synchronous operation
-                    async def event_generator():
-                        async for event in func(*args, **kwargs):
-                            # Flush each chunk immediately
-                            yield event
-
-                    return StreamingHttpResponse(
-                        event_generator(),
-                        content_type="text/event-stream",
-                        headers={
-                            'Cache-Control': 'no-cache',
-                            'Transfer-Encoding': 'chunked',
-                            'X-Accel-Buffering': 'no',
-                        }
-                    )
-                # Non-streaming behavior
-                elif asyncio.iscoroutinefunction(func):
+                if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
                 else:
                     loop = asyncio.get_event_loop()
@@ -158,6 +117,16 @@ class KitchenAIApp:
             self._agent_handlers[f"{self._namespace}.{label}"] = wrapper
 
             return wrapper
+
+        return decorator
+    
+    def stream(self, label: str, **route_kwargs):
+        """Stream is a decorator for stream handlers. It returns a Generator function"""
+        def decorator(func, **route_kwargs):
+
+            self._query_stream_handlers[f"{self._namespace}.{label}"] = func
+
+            return func
 
         return decorator
 
@@ -228,6 +197,7 @@ class KitchenAIApp:
         return {
             "namespace": self._namespace,
             "query_handlers": list(self._query_handlers.keys()),
+            "query_stream_handlers": list(self._query_stream_handlers.keys()),
             "agent_handlers": list(self._agent_handlers.keys()),
             "embed_tasks": list(self._embed_tasks.keys()),
             "embed_delete_tasks": list(self._embed_delete_tasks.keys()),
