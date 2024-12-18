@@ -127,7 +127,9 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "kitchenai.core",
     "kitchenai.notebooks",
-    #"kitchenai.django_webhook", # TODO: Uncomment this when we have a model to test with
+    "kitchenai.bento",
+    "kitchenai.plugins",
+    # "kitchenai.django_webhook", # TODO: Uncomment this when we have a model to test with
 ]
 
 if DEBUG:
@@ -498,7 +500,7 @@ KITCHENAI = {}
 
 
 # WEBHOOKS
-#DJANGO_WEBHOOK = dict(MODELS=["core.TestObject"])
+# DJANGO_WEBHOOK = dict(MODELS=["core.TestObject"])
 
 # Django plugin system. This has to be the last line
 djp.settings(globals())
