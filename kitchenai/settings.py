@@ -127,6 +127,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "kitchenai.core",
     "kitchenai.notebooks",
+    #"kitchenai.django_webhook", # TODO: Uncomment this when we have a model to test with
 ]
 
 if DEBUG:
@@ -495,6 +496,9 @@ KITCHENAI_LLM_MODEL = env.str("KITCHENAI_LLM_MODEL", default="gpt-4")
 
 KITCHENAI = {}
 
+
+# WEBHOOKS
+#DJANGO_WEBHOOK = dict(MODELS=["core.TestObject"])
 
 # Django plugin system. This has to be the last line
 djp.settings(globals())
