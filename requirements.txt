@@ -366,7 +366,7 @@ monotonic==1.6
     # via posthog
 nats-py==2.9.0
     # via faststream
-nbclient==0.10.0
+nbclient==0.10.2
     # via nbconvert
 nbconvert==7.16.4
     # via

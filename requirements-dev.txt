@@ -730,7 +730,7 @@ nats-py==2.9.0
     # via
     #   -c requirements.txt
     #   faststream
-nbclient==0.10.0
+nbclient==0.10.2
     # via
     #   -c requirements.txt
     #   nbconvert
