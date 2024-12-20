@@ -4,6 +4,7 @@ from django.conf import settings
 from rich.console import Console
 from rich.table import Table
 from typing import Annotated
+import os
 import requests
 app = typer.Typer()
 console = Console()
@@ -63,39 +64,62 @@ def copy(
         console.print(f"[red]Bento '{source}' not found[/red]")
         raise typer.Exit(1)
 
-    # Create destination directory if it doesn't exist
-    dest_path = Path(destination)
-    dest_path.mkdir(parents=True, exist_ok=True)
-
-    # Get repository contents
-    repo_path = bento["path"]
-    repo_url = f"https://api.github.com/repos/{repo_path}/contents"
+    repo_url = "https://github.com/epuerta9/kitchenai"
+    repo_path = "bento-community/kitchenai-bento-llama-index-starter"
     
-    def download_files(url, local_path):
-        response = requests.get(url)
-        if response.status_code != 200:
-            console.print(f"[red]Error accessing repository content at {url}[/red]")
-            return
+    download_github_folder(repo_url, repo_path, destination)
+    
 
-        contents = response.json()
-        for item in contents:
-            item_path = Path(local_path) / item["name"]
-            
-            if item["type"] == "dir":
-                item_path.mkdir(exist_ok=True)
-                download_files(item["url"], item_path)
-            else:
-                # Download file content
-                file_response = requests.get(item["download_url"])
-                if file_response.status_code == 200:
-                    item_path.write_bytes(file_response.content)
-                    console.print(f"[green]Downloaded: {item_path}[/green]")
-                else:
-                    console.print(f"[red]Failed to download: {item_path}[/red]")
 
-    try:
-        download_files(repo_url, dest_path)
-        console.print(f"[green]Successfully copied bento '{source}' to '{destination}'[/green]")
-    except Exception as e:
-        console.print(f"[red]Error copying files: {str(e)}[/red]")
-        raise typer.Exit(1)
+def download_file(url, dest_path):
+    """
+    Downloads a file from the given URL to the destination path.
+
+    :param url: URL of the file to download
+    :param dest_path: Local destination path
+    """
+    print(f"Downloading {url} to {dest_path}")
+    response = requests.get(url, stream=True)
+    if response.status_code == 200:
+        with open(dest_path, "wb") as file:
+            for chunk in response.iter_content(chunk_size=1024):
+                file.write(chunk)
+    else:
+        print(f"Failed to download file: {url} - {response.status_code}")
+def download_github_folder(repo_url, folder_path, dest_dir):
+    """
+    Downloads the contents of a specific folder from a GitHub repository.
+
+    :param repo_url: Base URL of the GitHub repo (e.g., https://github.com/username/repo)
+    :param folder_path: Path to the folder in the repo (e.g., bento-community/kitchenai-bento-llama-index-starter)
+    :param dest_dir: Local destination directory to save the contents
+    """
+    # Extract repo owner and name from the URL
+    repo_parts = repo_url.rstrip("/").split("/")
+    owner, repo = repo_parts[-2], repo_parts[-1]
+    branch = "main"  # Change if the default branch is not 'main'
+
+    # GitHub API URL to fetch contents of the folder
+    api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{folder_path}?ref={branch}"
+
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    response = requests.get(api_url, headers=headers)
+
+    if response.status_code != 200:
+        print(f"Failed to fetch folder contents: {response.status_code} - {response.text}")
+        return
+
+    # Parse the JSON response
+    folder_contents = response.json()
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+
+    for item in folder_contents:
+        item_name = item["name"]
+        item_path = os.path.join(dest_dir, item_name)
+        if item["type"] == "file":
+            # Download the file
+            download_file(item["download_url"], item_path)
+        elif item["type"] == "dir":
+            # Recursively download the subdirectory
+            download_github_folder(repo_url, f"{folder_path}/{item_name}", item_path)
