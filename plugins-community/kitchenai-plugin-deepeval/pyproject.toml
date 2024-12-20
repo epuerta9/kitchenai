@@ -1,96 +1,58 @@
 [build-system]
 build-backend = "hatchling.build"
-requires = [
-  "hatchling",
-]
+requires = ["hatchling"]
 
 [project]
-name = "kitchenai"
-version = "0.12.2"
+name = "deepeval_plugin"
+version = "0.0.1"
 description = ""
 readme = "README.md"
-authors = [ { name = "epuerta", email = "esteban_puerta@rhinosearch.io" } ]
+authors = [
+  { name = "epuerta", email = "esteban_puerta@rhinosearch.io" },
+]
 requires-python = ">=3.11"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
 ]
-
 dependencies = [
+  "django",
   "boto3",
-  "cookiecutter",
-  "crispy-tailwind",
-  "diskcache",
-  "django[argon2]",
-  "django-allauth[socialaccount]",
-  "django-allauth-ui",
-  "django-anymail[resend]",
-  "django-compressor",
-  "django-extensions",
-  "django-health-check",
-  "django-htmx",
-  "django-lifecycle",
-  "django-ninja",
-  "django-q-registry",
-  "django-q2",
-  "django-storages[s3]",
-  "django-tailwind-cli",
-  "django-template-partials",
-  "django-unique-user-email",
-  "django-widget-tweaks",
-  "djp",
-  "environs[django]",
-  "falco-toolbox",
-  "falco-ui",
-  "gunicorn",
-  "uvicorn",
-  "heroicons[django]",
-  "honcho",
-  "pillow",
-  "psycopg[binary]",
-  "pyyaml",
-  "refreshcss",
-  "rich",
-  "sentry-sdk",
-  "slippers",
-  "typer",
-  "whitenoise",
-  "posthog",
-  "nbformat",
-  "nbconvert",
-  "faststream[nats]", 
-  "starlette",
-  "django-eventstream",
-  "dynamic-pip", 
-  "jupyterlab",
-  "nest_asyncio",
-  "django-model-utils",
-  "kitchenai_python_sdk>=1.3.0"
+  "djp"
 ]
 
-scripts.kitchenai = "kitchenai.__main__:main"
+
+[tool.django-stubs]
+django_settings_module = "deepeval_plugin.settings"
+
+[tool.coverage.run]
+source_pkgs = ["deepeval_plugin", "tests"]
+branch = true
+parallel = true
+
+[tool.coverage.paths]
+deepeval_plugin = ["*/deepeval_plugin/deepeval_plugin"]
+tests = ["tests", "*/deepeval_plugin/tests"]
+
+[tool.coverage.report]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
+
 
 [tool.hatch.env]
-requires = [
-  "hatch-pip-compile>=1.11.2",
-]
+requires = ["hatch-pip-compile>=1.11.2"]
 
 [tool.hatch.metadata]
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-exclude = [
-  "static",
-]
-artifacts = [
-  "staticfiles",
-]
+exclude = ["static"]
+artifacts = ["staticfiles"]
 
 [tool.hatch.build.targets.binary]
 
 [[tool.hatch.envs.all.matrix]]
-python = [ "3.11", "3.12", "3.13" ]
+python = ["3.11", "3.12"]
 
 [tool.hatch.envs.default]
 type = "pip-compile"
@@ -122,6 +84,16 @@ dependencies = [
   ]
 lock-filename = "requirements-dev.txt"
 
+
+[tool.hatch.envs.test]
+dependencies = [
+    "pytest-django",
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "coverage[toml]>=6.5",
+]
+
 [tool.hatch.envs.docs]
 template = "dev"
 extra-dependencies = [
@@ -134,38 +106,51 @@ extra-dependencies = [
 ]
 lock-filename = "docs/requirements.txt"
 
-[tool.ruff]
-lint.extend-ignore = [ "EM101", "I001", "I002", "RUF012", "TID252", "TRY003" ]
-lint.extend-per-file-ignores."*/__main__.py" = [ "S104" ]
-lint.extend-per-file-ignores."*/migrations/*" = [ "E501" ]
-lint.extend-per-file-ignores."deploy/*" = [ "INP001" ]
-lint.extend-per-file-ignores."docs/conf.py" = [ "A001", "INP001" ]
-lint.extend-per-file-ignores."tests/**/*" = [ "ARG001", "PLR2004", "S101", "TID252" ]
+[tool.mypy]
+python_version = "3.11"
+check_untyped_defs = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+plugins = ["mypy_django_plugin.main"]
+
+[[tool.mypy.overrides]]
+ignore_errors = true
+module = [
+  "boto3.*",
+  "botocore.*",
+  "django_filters.*",
+  "djclick.*",
+  "health_check.*",
+  "*.migrations.*",
+]
+
+[tool.mypy_django_plugin]
+ignore_missing_model_attributes = true
+
+[project.entry-points.djp]
+bento = "deepeval_plugin"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "kitchenai.settings"
-addopts = "--reuse-db -n auto"
-norecursedirs = ".* bin build dist *.egg htmlcov logs node_modules static templates venv"
-python_files = "tests.py test_*.py *_tests.py"
+pythonpath = "."
+asyncio_mode = "auto"
 
-[tool.coverage.run]
-source_pkgs = [ "kitchenai", "tests" ]
-branch = true
-parallel = true
+[tool.ruff.lint]
+extend-ignore = ["TID252", "RUF012", "TRY003", "EM101", "I001", "I002"]
 
-[tool.coverage.paths]
-kitchenai = [ "*/kitchenai/kitchenai" ]
-tests = [ "tests", "*/kitchenai/tests" ]
-
-[tool.coverage.report]
-exclude_lines = [ "no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:" ]
+[tool.ruff.lint.extend-per-file-ignores]
+"deploy/*" = ["INP001"]
+"*/__main__.py" = ["S104"]
+"*/migrations/*" = ["E501"]
+"tests/**/*" = ["PLR2004", "S101", "TID252", "ARG001"]
+"docs/conf.py" = ["INP001", "A001"]
 
 [tool.bumpversion]
-current_version = "0.12.2"
+current_version = "0.0.1"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
-serialize = [
-  "{major}.{minor}.{patch}",
-]
+serialize = ["{major}.{minor}.{patch}"]
 search = "{current_version}"
 replace = "{new_version}"
 regex = false
@@ -184,49 +169,6 @@ commit_args = "--no-verify"
 filename = "pyproject.toml"
 search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
-
-[tool.mypy]
-python_version = "3.11"
-check_untyped_defs = true
-ignore_missing_imports = true
-warn_unused_ignores = true
-warn_redundant_casts = true
-warn_unused_configs = true
-plugins = [ "mypy_django_plugin.main" ]
-
-[[tool.mypy.overrides]]
-ignore_errors = true
-module = [
-  "allauth.*",
-  "boto3.*",
-  "botocore.*",
-  "debug_toolbar.*",
-  "django_filters.*",
-  "django_q.*",
-  "djclick.*",
-  "gunicorn.*",
-  "health_check.*",
-  "*.migrations.*",
-]
-
-[tool.django-stubs]
-django_settings_module = "kitchenai.settings"
-
-[tool.falco]
-htmx = "kitchenai/static/vendors/htmx/htmx.min.js:2.0.2"
-revision = "5ffa1f8e00881e1a2d77700ee1748664324d73d5"
-skip = [ "playground.ipynb", "README.md", "*/static/*" ]
-blueprint = "https://github.com/falcopackages/starter-template"
-
-[tool.falco.work]
-server = "python manage.py migrate && python manage.py runserver {address}"
-tailwind = "python manage.py tailwind watch"
-worker = "python manage.py qcluster"
-
-[tool.falco.crud]
-
-[tool.mypy_django_plugin]
-ignore_missing_model_attributes = true
 
 [tool.git-cliff.changelog]
 header = """

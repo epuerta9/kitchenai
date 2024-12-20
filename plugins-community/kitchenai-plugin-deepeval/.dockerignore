@@ -1,0 +1,14 @@
+*
+
+!deepeval_plugin/
+!deploy/
+!manage.py
+!requirements*.txt
+!tailwind.config.js
+!package*.json
+
+**/*~
+**/*.log
+**/.DS_Store
+**/Thumbs.db
+**/__pycache__/
