@@ -46,7 +46,6 @@ def import_cookbook(module_path):
 
 def setup(api: "NinjaAPI", module: str = "", project_root: str = os.getcwd()) -> "KitchenAIApp":
     # # Load configuration from the database
-    config = {}
     # Determine the user's project root directory (assumes the command is run from the user's project root)
     # Add the user's project root directory to the Python path
     if project_root not in sys.path:
@@ -54,18 +53,12 @@ def setup(api: "NinjaAPI", module: str = "", project_root: str = os.getcwd()) ->
 
     if module:
         logger.debug(f"importing module: {module}")
-        config["app"] = module
+        add_module_to_core(module)
 
-        #add module to db
-        root_module = get_or_create_root_module(config["app"])
-        if root_module:
-            root_module.name = config["app"]
-            root_module.save()
     else:
         logger.info("No module found in command or config. Running without any dynamic modules")
         return
 
-    add_module_to_core(config["app"])
 
 
 def add_module_router(api: "NinjaAPI"):
@@ -110,6 +103,28 @@ def add_module_to_core(module_path: str):
 
     except Exception as e:
         logger.error(f"error adding module to core: {e}")
+
+def add_package_to_core(package_name: str):
+    """
+    Add a package to the core app. Only one bento box can be added to the core app at a time.
+    """
+    try:
+        package = import_module(package_name)
+        instance = getattr(package, "app")
+        logger.info(f"Imported app from {package_name}") 
+        if isinstance(instance, KitchenAIApp):
+            #add the instance to the core app
+            core_app = apps.get_app_config("core")
+            core_app.kitchenai_app = instance
+            logger.info(f'{package_name} is a valid KitchenAIApp instance.')
+        else:
+            logger.error(f'{package_name} is not a valid KitchenAIApp instance.')
+        return instance
+    except (ImportError, AttributeError) as e:
+        logger.error(f"Error loading module '{e}")
+
+#TODO: remove the kitchenai mgmt db work. Most of the time we are just adding a bento box to the core app. without the need to manage state 
+#especially since kitchenai environments are so dynamic. It makes more sense to keep it at config runtime level.
 
 def get_or_create_root_module(module_path: str):
     try:

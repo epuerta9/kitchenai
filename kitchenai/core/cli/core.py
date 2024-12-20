@@ -111,12 +111,19 @@ def run(module: Annotated[str, typer.Option(help="Python module to load.")] = os
     django.setup()
     from kitchenai.api import api
     from kitchenai.core.utils import setup
+    from kitchenai.bento.models import Bento
+    console = Console()
 
-    setup(
-        api,
-        module=module,
-    )
-
+    if module:
+        setup(api, module=module)
+        console.print(f"[green]Successfully loaded module:[/green] {module}")
+    else:
+        try:
+            bento_box = Bento.objects.first()
+            bento_box.add_to_core()
+        except Bento.DoesNotExist:
+            console.print("[red]Error:[/red] No bento box loaded. Please run 'bento select' to select a bento box.")
+            raise Exception("No bento box loaded. Please run 'bento select' to select a bento box.")
     _run_uvicorn(sys.argv)
 
 

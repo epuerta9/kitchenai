@@ -496,7 +496,11 @@ ADMIN_URL = env.str("ADMIN_URL", default="kitchenai-admin/")
 KITCHENAI_LLM_PROVIDER = env.str("KITCHENAI_LLM_PROVIDER", default="openai")
 KITCHENAI_LLM_MODEL = env.str("KITCHENAI_LLM_MODEL", default="gpt-4")
 
-KITCHENAI = {}
+KITCHENAI = {
+    "bento": [],
+    "plugins": [],
+    "apps": [],
+}
 
 
 # WEBHOOKS

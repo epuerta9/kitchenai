@@ -73,7 +73,6 @@ class KitchenAIApp:
             elif self._storage_create_hooks.get(f"{self._namespace}.{label}") != self._default_hook and self._storage_create_hooks.get(f"{self._namespace}.{label}", None):
                 pass
             else:
-                logger.debug(f"Setting default success hook for {label}")
                 self._storage_create_hooks[f"{self._namespace}.{label}"] = self._default_hook
 
             @functools.wraps(func)

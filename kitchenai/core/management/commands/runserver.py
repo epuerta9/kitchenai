@@ -40,11 +40,22 @@ class Command(RunserverCommand):
             if settings.KITCHENAI_DEBUG or settings.DEBUG:
                 from kitchenai.api import api
                 from kitchenai.core.utils import setup
+                from kitchenai.bento.models import Bento
 
                 module = options.get('module_path')
                 if module:
                     setup(api, module=module)
                     self.stdout.write(self.style.SUCCESS(f"Loaded module: {module}"))
+                else:
+                    try:
+                        bento_box = Bento.objects.first()
+                        if not bento_box:
+                            self.stdout.write(self.style.ERROR("No bento box loaded. Please run 'bento select' to select a bento box."))
+                            raise Exception("No bento box loaded. Please run 'bento select' to select a bento box.")
+                        bento_box.add_to_core()
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR(f"Error loading bento box: {e}"))
+                        raise Exception(f"Error loading bento box: {e}")
             else:
                 raise Exception("KitchenAI is not in debug mode when running dev server. Please set KITCHENAI_DEBUG=True in your settings.py file.")
 
