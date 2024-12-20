@@ -5,7 +5,6 @@ import django
 import hashlib
 import asyncio
 import nest_asyncio
-from llama_index.llms.openai import OpenAI
 
 
 # Setup Django and nest_asyncio
@@ -13,14 +12,14 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kitchenai.settings")
 django.setup()
 nest_asyncio.apply()
 
-from kitchenai.core.models import CodeFunction,Notebook, CodeImport, CodeSetup
+from kitchenai.notebooks.models import CodeFunction,Notebook, CodeImport, CodeSetup
 from llama_index.core import PromptTemplate
 from django.template import loader
 from django.conf import settings
 
 
 @magics_class
-class Cook(Magics):
+class NotebookMagics(Magics):
 
     def __init__(self, shell):
         super().__init__(shell)  # Initialize the base class
@@ -307,6 +306,7 @@ class Cook(Magics):
                 "code_functions" : code_functions
             }
             if self.llm_provider == "openai":
+                from llama_index.llms.openai import OpenAI
                 llm = OpenAI(model=self.llm_model)
             else:
                 from llama_index.llms.ollama import Ollama
