@@ -14,7 +14,7 @@ API_BASE_URL = "https://raw.githubusercontent.com/epuerta9/kitchenai/main"
 
 @app.command("list")
 def list():
-    """List all available starter cookbooks."""
+    """List all available remote bentos."""
     response = requests.get(f"{API_BASE_URL}/bentos.json")
     if response.status_code != 200:
         console.print("[red]Error fetching cookbook list.[/red]")
@@ -26,7 +26,7 @@ def list():
         return
 
     # Create a table for the cookbooks
-    table = Table(title="Available Starter Cookbooks")
+    table = Table(title="Remote Bento Boxes")
     table.add_column("Name", style="cyan", no_wrap=True)
     table.add_column("Description", style="magenta")
     table.add_column("Package Name", style="magenta")
