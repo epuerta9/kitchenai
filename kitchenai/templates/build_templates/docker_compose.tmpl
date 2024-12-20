@@ -1,0 +1,75 @@
+services:
+  #for local development we don't need the image directly.Uncomment if you want to use the image you built and choose local as env
+  llama_index_starter_bento:
+    image: llama_index_starter_bento
+    ports:
+    - "8000:8000"
+    volumes:
+      - $HOME/.aws/credentials:/root/.aws/credentials:ro
+    network_mode: host
+    env_file:
+      - .env   
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP http receiver
+      - "8888:8888"   # Prometheus metrics exposed by the collector
+      - "8889:8889"   # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "55679:55679" # zpages extension
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+
+
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: "minioadmin"       # Default username
+      MINIO_ROOT_PASSWORD: "minioadmin"   # Default password (use a stronger password in production)
+    volumes:
+      - minio_data:/data                  # Persist data
+    ports:
+      - "9000:9000"                        # MinIO console port
+      - "9001:9001"                        # Optional: MinIO API port for admin console
+    command: server /data --console-address ":9001"
+  
+  # Optionally add other services here, for example an app that connects to MinIO
+
+volumes:
+  minio_data:
+    driver: local
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local

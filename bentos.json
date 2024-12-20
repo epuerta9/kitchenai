@@ -1,0 +1,10 @@
+{
+  "bentos": [
+    {
+      "name": "llama-index-starter",
+      "package_name": "llama_index_starter_bento",
+      "description": "A starter kitchenai bento backend for RAG using llama index",
+      "path": "bento-community/kitchenai-bento-llama-index-starter"
+    }
+  ]
+}

@@ -4,15 +4,18 @@ from django.conf import settings
 from rich.console import Console
 from rich.table import Table
 from typing import Annotated
+from .remote import app as remote_app
 
 app = typer.Typer()
 console = Console()
+
+app.add_typer(remote_app, name="remote")
 
 logger = logging.getLogger(__name__)
 
 @app.command()
 def select(package_name: Annotated[str, typer.Argument()]):
-
+    """Select the bento box kitchenai will use"""
     bento_boxes = settings.KITCHENAI.get("bento", [])
     for bento in bento_boxes:
         if bento.get("name") == package_name:
@@ -42,7 +45,7 @@ def select(package_name: Annotated[str, typer.Argument()]):
 
 @app.command()
 def list():
-    """List all KitchenAI bento boxes with their attributes."""
+    """List all local KitchenAI bento boxes with their attributes."""
     bento_boxes = settings.KITCHENAI.get("bento", [])
 
     # Table for Selected Bento Box
@@ -87,3 +90,22 @@ def list():
         console.print("No bento boxes found.")
 
 
+
+@app.command("pull")
+def pull(name: str):
+    """Pip install a specific bento and its package dependencies."""
+    from dynamicPip import DynamicPip
+    dynamic_pip = DynamicPip()
+
+    # declare target package
+    target_package = name
+
+    # install
+    console.print(f"[cyan]Installing bento package: [bold]{target_package}[/bold][/cyan]")
+    rtn = dynamic_pip.install_package(target_package)
+    if rtn == 0:
+        console.print(f"[green]Successfully installed {target_package}![/green]")
+    else:
+        console.print(f"[red]Failed to install {target_package} (return code: {rtn})[/red]")
+
+    console.print(f"[green]Successfully downloaded bento '{name}'![/green]")

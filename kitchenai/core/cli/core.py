@@ -176,6 +176,8 @@ def dev(
     # call_command("migrate")
     _run_with_honcho(commands)
 
+
+
 @app.command()
 def manage(args: list[str] = typer.Argument(None, help="Arguments for Django's manage.py")) -> None:
     """
@@ -315,10 +317,10 @@ def build(
 @app.command()
 def new():
     """
-    Reads the kitchen config file, reads the application file and runs the KitchenAI server
+    A new kitchenai bento,app, or plugin project
     """
 
-    cookiecutter("https://github.com/epuerta9/cookiecutter-cookbook.git", output_dir=".")
+    cookiecutter("https://github.com/epuerta9/cookiecutter-bento.git", output_dir=".")
 
 
 

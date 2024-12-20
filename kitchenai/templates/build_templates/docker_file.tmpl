@@ -1,0 +1,39 @@
+# Stage 1: Use the kitchenai base image
+FROM epuerta18/kitchenai:latest
+
+# Set up environment variables
+ENV PYSETUP_PATH="/opt/pysetup" \
+    VENV_PATH="/opt/pysetup/.venv" \
+    PYTHONPATH="/app" \
+    PATH="$VENV_PATH/bin:$PATH" \
+    KITCHENAI_MODULE="{{ module }}"
+
+# Set the working directory
+WORKDIR /app
+
+# Install a remote bento box
+{% if package_name %}
+RUN python -m ensurepip && \
+    python -m pip install {{ package_name}}
+{% endif %}
+
+{% if local %}
+COPY dist/ /app/dist
+RUN python -m ensurepip && \
+    python -m pip install -e /app/dist/
+{% endif %}
+
+# Handle KitchenAI initialization with optional admin flag
+RUN . $VENV_PATH/bin/activate && \
+python kitchenai init {% if not admin %}--admin{% endif %}
+
+{% if package_name %}
+RUN python kitchenai bento select {{ package_name }}
+{% endif %}
+
+
+# Expose the application port
+EXPOSE 8001
+
+# Use the init system defined in the base image
+ENTRYPOINT ["/init"]
