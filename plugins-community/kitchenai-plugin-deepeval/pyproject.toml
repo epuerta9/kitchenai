@@ -19,7 +19,8 @@ classifiers = [
 dependencies = [
   "django",
   "boto3",
-  "djp"
+  "djp",
+  "deepeval"
 ]
 
 

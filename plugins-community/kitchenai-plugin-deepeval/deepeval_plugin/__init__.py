@@ -16,11 +16,15 @@ def urlpatterns():
 @djp.hookimpl
 def settings(current_settings):
     # Make changes to the Django settings.py globals here
-    current_settings["KITCHENAI"]["bento"].append({
+    current_settings["KITCHENAI"]["plugins"].append({
         "name": "deepeval_plugin",
         "description": "deepeval integration with kitchenai",
-        "tags": ["deepeval", "bento", "deepeval_plugin", "kitchenai-plugin-deepeval"],
+        "tags": ["deepeval", "plugin", "deepeval_plugin", "kitchenai-plugin-deepeval"],
     })
+
+    current_settings["DEEPEVAL_PLUGIN"] = {
+        "enabled": False,
+    }
     
 
 
