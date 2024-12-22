@@ -3,9 +3,12 @@ import functools
 import importlib
 import logging
 from collections.abc import Callable
-from django.http import StreamingHttpResponse
 from ninja import Router
 
+from kitchenai.contrib.kitchenai_sdk.taxonomy.query import QueryTask
+from kitchenai.contrib.kitchenai_sdk.taxonomy.storage import StorageTask
+from kitchenai.contrib.kitchenai_sdk.taxonomy.embeddings import EmbedTask
+from kitchenai.contrib.kitchenai_sdk.taxonomy.agent import AgentTask
 
 from kitchenai.broker import broker
 
@@ -205,3 +208,21 @@ class KitchenAIApp:
             "storage_create_hooks": list(self._storage_create_hooks.keys()),
             "storage_delete_hooks": list(self._storage_delete_hooks.keys()),
         }       
+    
+class KitchenAIAppV2:
+    def __init__(self, namespace: str = "default"):
+        self.namespace = namespace
+        self.query = QueryTask(namespace)
+        self.storage = StorageTask(namespace)
+        self.embeddings = EmbedTask(namespace)
+        self.agent = AgentTask(namespace)
+
+    def to_dict(self):
+        """Generate a summary of all registered tasks."""
+        return {
+            "namespace": self.namespace,
+            "query_tasks": self.query.list_tasks(),
+            "storage_tasks": self.storage.list_tasks(),
+            "embed_tasks": self.embeddings.list_tasks(),
+            "stream_tasks": self.agent.list_tasks(),
+        }
