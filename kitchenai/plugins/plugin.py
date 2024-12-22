@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ValidationError
 import logging
+from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 
@@ -58,3 +59,11 @@ class Plugin:
         # Register the wrapped handler to the signal
         self.signal.connect(wrapped_handler)
         return wrapped_handler
+
+
+    @abstractmethod
+    def on_load(self):
+        """
+        Method to be overridden by subclasses to perform actions when the plugin is loaded.
+        """
+        pass

@@ -9,7 +9,6 @@ from .api.query import router as query_router
 from .api.agent import router as agent_router
 from .api.embedding import router as embedding_router
 from .api.file import router as file_router
-from ninja.errors import HttpError
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,5 @@
 from django.dispatch import Signal
-
+from .signals.evaluator import response_execute
 class PluginClient:
     def __init__(self, signal: Signal):
         """
@@ -27,3 +27,7 @@ class PluginClient:
         if taxonomy == "retriever":
             #we are expecting a response
             raise Exception("No handlers responded")
+        
+
+#clients
+response_execute_client = PluginClient(response_execute)

@@ -12,6 +12,10 @@ class PluginsConfig(AppConfig):
         from .models import Plugin
         loaded_plugins = settings.KITCHENAI.get('plugins', [])
         
+        # First delete plugins that are no longer loaded
+        Plugin.objects.exclude(name__in=loaded_plugins).delete()
+
+        # Then create any new plugins that are loaded but not in DB
         for plugin_name in loaded_plugins:
             try:
                 # Check if the plugin exists in the database

@@ -8,58 +8,10 @@ from django_q.tasks import async_task
 from kitchenai.contrib.kitchenai_sdk.hooks import delete_file_hook_core, process_file_hook_core
 from kitchenai.contrib.kitchenai_sdk.tasks import delete_file_task_core, process_file_task_core, embed_task_core, delete_embed_task_core
 import posthog
-from .models import FileObject, EmbedObject
+from ..models import EmbedObject
 logger = logging.getLogger(__name__)
 
 
-query_input_signal = Signal()
-query_output_signal = Signal()
-
-@receiver(query_input_signal)
-def my_signal_handler(sender, **kwargs):
-    print(f"Signal received from {sender}. Additional data: {kwargs}")
-
-@receiver(query_output_signal)
-def query_output_handler(sender, **kwargs):
-    print(f"Signal received from {sender}. Additional data: {kwargs}")
-
-@receiver(post_save, sender=FileObject)
-def file_object_created(sender, instance, created, **kwargs):
-    """
-    This signal is triggered when a new FileObject is created.
-    This will trigger any listeners with matching labels and run them as async tasks
-    """
-
-    if created:
-        #Ninja api should have all bolted on routes and a storage tasks
-        logger.info(f"<kitchenai_core>: FileObject created: {instance.pk}")
-        posthog.capture("file_object", "kitchenai_file_object_created")
-
-        core_app = apps.get_app_config("core")
-        if core_app.kitchenai_app:
-            f = core_app.kitchenai_app.storage_tasks(instance.ingest_label)
-            if f:
-                async_task(process_file_task_core, instance, hook=process_file_hook_core)
-            else:
-                logger.warning(f"No storage task found for {instance.ingest_label}")
-        else:
-            logger.warning("module: no kitchenai app found")
-
-
-
-@receiver(post_delete, sender=FileObject)
-def file_object_deleted(sender, instance, **kwargs):
-    """delete the file from vector db"""
-    logger.info(f"<kitchenai_core>: FileObject created: {instance.pk}")
-    core_app = apps.get_app_config("core")
-    if core_app.kitchenai_app:
-        f = core_app.kitchenai_app.storage_delete_tasks(instance.ingest_label)
-        if f:
-            async_task(delete_file_task_core,instance, hook=delete_file_hook_core)
-        else:
-            logger.warning(f"No storage task found for {instance.ingest_label}")
-    else:
-        logger.warning("module: no kitchenai app found")
 
 @receiver(post_save, sender=EmbedObject)
 def embed_object_created(sender, instance, created, **kwargs):
