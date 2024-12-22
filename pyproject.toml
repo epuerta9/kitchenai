@@ -110,6 +110,7 @@ dependencies = [
   "coverage[toml]>=6.5",
   "pre-commit",
   "pytest",
+  "pytest-asyncio",
   "pytest-django",
   "pytest-sugar",
   "pytest-xdist",
@@ -146,7 +147,9 @@ lint.extend-per-file-ignores."tests/**/*" = [ "ARG001", "PLR2004", "S101", "TID2
 DJANGO_SETTINGS_MODULE = "kitchenai.settings"
 addopts = "--reuse-db -n auto"
 norecursedirs = ".* bin build dist *.egg htmlcov logs node_modules static templates venv"
-python_files = "tests.py test_*.py *_tests.py"
+asyncio_default_fixture_loop_scope = "function"
+
+# python_files = "tests.py test_*.py *_tests.py"
 
 [tool.coverage.run]
 source_pkgs = [ "kitchenai", "tests" ]

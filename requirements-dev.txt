@@ -12,6 +12,7 @@
 # - coverage[toml]>=6.5
 # - pre-commit
 # - pytest
+# - pytest-asyncio
 # - pytest-django
 # - pytest-sugar
 # - pytest-xdist
@@ -915,9 +916,12 @@ pyproject-hooks==1.2.0
 pytest==8.3.3
     # via
     #   hatch.envs.dev
+    #   pytest-asyncio
     #   pytest-django
     #   pytest-sugar
     #   pytest-xdist
+pytest-asyncio==0.25.0
+    # via hatch.envs.dev
 pytest-django==4.9.0
     # via hatch.envs.dev
 pytest-sugar==1.0.0

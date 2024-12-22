@@ -129,6 +129,7 @@ LOCAL_APPS = [
     "kitchenai.notebooks",
     "kitchenai.bento",
     "kitchenai.plugins",
+    "kitchenai.dashboard",
     # "kitchenai.django_webhook", # TODO: Uncomment this when we have a model to test with
 ]
 
