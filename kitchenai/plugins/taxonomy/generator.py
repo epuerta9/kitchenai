@@ -4,11 +4,11 @@ from ..plugin import Plugin
 # Define input and output schemas for GeneratorPlugin
 class GeneratorInput(BaseModel):
     query: str  # The original query string
-
+    metadata: dict = {}  # Additional metadata      
 
 class GeneratorOutput(BaseModel):
     query: str  # The modified query string
-
+    metadata: dict = {}  # Additional metadata
 
 class GeneratorPlugin(Plugin):
     def __init__(self, signal, plugin_name):

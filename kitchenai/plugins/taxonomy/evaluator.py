@@ -5,11 +5,13 @@ from ..plugin import Plugin
 class EvaluatorInput(BaseModel):
     query: str  # The original query string
     response: str  # The response from the retriever
-    retrieve_context: list[any]  # The context retrieved from the retriever
+    retrieval_context: list[str]  # The context retrieved from the retriever
+    metadata: dict = {}  # Additional metadata
 
 
 class EvaluatorOutput(BaseModel):
     query: str  # The modified query string
+    metadata: dict = {}  # Additional metadata
 
 
 class EvaluatorPlugin(Plugin):

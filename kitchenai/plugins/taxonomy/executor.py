@@ -4,11 +4,12 @@ from ..plugin import Plugin
 # Define input and output schemas for ExecutorPlugin
 class ExecutorInput(BaseModel):
     query: str  # The original query string
+    metadata: dict = {}  # Additional metadata
 
 
 class ExecutorOutput(BaseModel):
     query: str  # The modified query string
-
+    metadata: dict = {}  # Additional metadata
 
 class ExecutorPlugin(Plugin):
     def __init__(self, signal, plugin_name):
