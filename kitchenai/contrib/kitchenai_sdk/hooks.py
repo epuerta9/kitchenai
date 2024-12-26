@@ -13,7 +13,7 @@ def process_file_hook_core(task):
     because it's not callable from django q."""
     try:
         kitchenai_app = get_core_kitchenai_app()
-        hook = kitchenai_app.storage_create_hooks(task.result.get('ingest_label'))
+        hook = kitchenai_app.storage.get_hook(task.result.get('ingest_label'), "on_create")
         if hook:
             hook(task)
         else:
@@ -26,7 +26,7 @@ def delete_file_hook_core(task):
     logger.info(f"delete_file_hook_core: {task.result}")
     try:
         kitchenai_app = get_core_kitchenai_app()
-        hook = kitchenai_app.storage_delete_hooks(task.result.get('ingest_label'))
+        hook = kitchenai_app.storage.get_hook(task.result.get('ingest_label'), "on_delete")
         if hook:
             hook(task)
     except Exception as e:

@@ -2,7 +2,11 @@ from kitchenai.contrib.kitchenai_sdk.base import KitchenAITask
 import functools
 
 class QueryTask(KitchenAITask):
-    def query(self, label: str):
+    def __init__(self, namespace: str):
+        super().__init__(namespace)
+        self.namespace = namespace
+
+    def handler(self, label: str):
         """Decorator for registering query tasks."""
         def decorator(func):
             @functools.wraps(func)

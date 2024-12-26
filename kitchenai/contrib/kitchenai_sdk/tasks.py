@@ -10,18 +10,13 @@ import importlib
 
 logger = logging.getLogger(__name__)
 
-def process_file_task_app(storage_function: Callable, instance: FileObject, *args, **kwargs):
-    """
-    process file async function for django apps
-    """
-    return _process_file_task(storage_function, instance, *args, **kwargs)
 
 
 def process_file_task_core(instance: FileObject, *args, **kwargs):
     """process file async function for core app using storage task"""
     try:
         kitchenai_app = get_core_kitchenai_app()
-        f = kitchenai_app.storage_tasks(instance.ingest_label)
+        f = kitchenai_app.storage.get_task(instance.ingest_label)
         if f:
             return _process_file_task(f, instance)
         else:
@@ -75,19 +70,11 @@ def _process_file_task(storage_function: Callable, instance: FileObject, *args, 
         instance.status = FileObject.Status.COMPLETED
         instance.save()
 
-#DELETES
-def delete_file_task_app(delete_function: Callable, instance: FileObject, *args, **kwargs):
-    """
-    delete file async function for django apps
-    """
-    return delete_function(instance, *args, **kwargs)
-
-
 def delete_file_task_core(instance: FileObject, *args, **kwargs):
     """delete file async function for core app using storage task"""
     try:
         kitchenai_app = get_core_kitchenai_app()
-        f = kitchenai_app.storage_delete_tasks(instance.ingest_label)
+        f = kitchenai_app.storage.get_hook(instance.ingest_label, "on_delete")
         if f:
             return f(instance, *args, **kwargs)
         else:
@@ -123,7 +110,7 @@ def embed_task_core(instance: EmbedObject, *args, **kwargs):
     """process file async function for core app using storage task"""
     try:
         kitchenai_app = get_core_kitchenai_app()
-        f = kitchenai_app._embed_tasks.get(f"{kitchenai_app._namespace}.{instance.ingest_label}")
+        f = kitchenai_app.embeddings.get_task(f"{kitchenai_app.namespace}.{instance.ingest_label}")
         if f:
             module_path, func_name = f.rsplit(".", 1)
             module = importlib.import_module(module_path)

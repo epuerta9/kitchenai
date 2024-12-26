@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 router = Router()
 class QuerySchema(Schema):
     query: str
+    artifacts: bool = False
     metadata: dict[str, str] | None = None
 
 
@@ -30,7 +31,7 @@ async def agent(request, label: str, data: QuerySchema):
         if not core_app.kitchenai_app:
             logger.error("No kitchenai app in core app config")
             return HttpResponse(status=404)
-        agent_func = core_app.kitchenai_app._agent_handlers.get(f"{core_app.kitchenai_app._namespace}.{label}")
+        agent_func = core_app.kitchenai_app.agents.get_task(label)
         if not agent_func:
             logger.error(f"Agent function not found for {label}")
             return HttpResponse(status=404)

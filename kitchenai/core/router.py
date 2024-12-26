@@ -27,12 +27,8 @@ class KitchenAIAppSchema(Schema):
     namespace: str
     query_handlers: List[str]
     agent_handlers: List[str]
-    embed_tasks: List[str]
-    embed_delete_tasks: List[str]
-    storage_tasks: List[str]
-    storage_delete_tasks: List[str]
-    storage_create_hooks: List[str]
-    storage_delete_hooks: List[str]
+    embed_handlers: List[str]
+    storage_handlers: List[str]
 
 
 @router.get("/labels", response=KitchenAIAppSchema)
@@ -42,7 +38,7 @@ async def labels(request):
     if not core_app.kitchenai_app:
         logger.error("No kitchenai app in core app config")
         return HttpResponse(status=404)
-        
+    print(core_app.kitchenai_app.to_dict())
     return core_app.kitchenai_app.to_dict()
 
 

@@ -5,8 +5,7 @@ from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.dispatch import receiver, Signal
 from django_q.tasks import async_task
-from kitchenai.contrib.kitchenai_sdk.hooks import delete_file_hook_core, process_file_hook_core
-from kitchenai.contrib.kitchenai_sdk.tasks import delete_file_task_core, process_file_task_core, embed_task_core, delete_embed_task_core
+
 import posthog
 logger = logging.getLogger(__name__)
 

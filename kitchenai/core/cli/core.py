@@ -82,17 +82,23 @@ def runserver(
     """Run Django runserver. If stream is true, it will run the uvicorn server. 
     If stream is false, it will run the dev runserver.
     """
+    django.setup()
+    from kitchenai.api import api
+    from kitchenai.core.utils import setup
+    from kitchenai.bento.models import Bento
 
+    if module:
+        setup(api, module=module)
+        console.print(f"[green]Successfully loaded module:[/green] {module}")
+    else:
+        try:
+            bento_box = Bento.objects.first()
+            bento_box.add_to_core()
+        except Bento.DoesNotExist:
+            console.print("[red]Error:[/red] No bento box loaded. Please run 'bento select' to select a bento box.")
+            raise Exception("No bento box loaded. Please run 'bento select' to select a bento box.")
     if stream:
-        django.setup()
-        from kitchenai.api import api
-        from kitchenai.core.utils import setup
         sys.argv = [sys.argv[0]]
-
-        setup(
-            api,
-            module=module
-        )
         _run_dev_uvicorn(sys.argv)   
     else:
         from django.core.management import execute_from_command_line
