@@ -160,7 +160,7 @@ def dev(
         mgmt.jupyter_token = notebook_id
         mgmt.save()
         
-        commands["jupyter"] = f"jupyter lab --NotebookApp.token='{notebook_id}'"
+        commands["jupyter"] = f"jupyter lab --NotebookApp.token='{notebook_id}' --port=8888"
 
 
     if tailwind:

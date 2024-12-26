@@ -9,11 +9,6 @@ class QuerySchema(Schema):
     metadata: dict[str, str] | None = None
 
 
-class QuerySchemaNew(Schema):
-    query: str
-    stream: bool = False
-    metadata: dict[str, str] | None = None
-
 
 class QueryBaseResponseSchema(Schema):
     input: str | None = None
@@ -21,6 +16,11 @@ class QueryBaseResponseSchema(Schema):
     retrieval_context: list[str] | None = None
     metadata: dict[str, str] | None = None
 
+
+class StorageSchema(Schema):
+    dir: str
+    metadata: dict[str, str] | None = None
+    extension: str | None = None
 
 class AgentResponseSchema(Schema):
     response: str

@@ -11,7 +11,7 @@ class KitchenAIManagement(TimeStamped):
     version = models.CharField(max_length=255)
     description = models.TextField(default="")
     jupyter_token = models.CharField(max_length=255, default="")
-    jupyter_host = models.CharField(max_length=255, default="")
+    jupyter_host = models.CharField(max_length=255, default="localhost")
     jupyter_port = models.CharField(max_length=255, default="8888")
     jupyter_protocol = models.CharField(max_length=255, default="http")
 

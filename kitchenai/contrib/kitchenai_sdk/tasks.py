@@ -7,6 +7,7 @@ from django.core.files.storage import default_storage
 from kitchenai.core.models import FileObject, EmbedObject
 from kitchenai.core.utils import get_core_kitchenai_app
 import importlib
+from .schema import EmbedSchema, StorageSchema
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,9 @@ def _process_file_task(storage_function: Callable, instance: FileObject, *args, 
 
                 temp_file.seek(0)
                 metadata = {"file_id": instance.pk, "file_name": file.name, "source": "kitchenai_cookbook", "file_label": instance.name}
-                result = storage_function(temp_dir, *args, extension=extension, metadata=metadata, **kwargs)
+                
+                data = StorageSchema(dir=temp_dir, metadata=metadata, extension=extension)
+                result = storage_function(data, **kwargs)
 
 
         return {
@@ -91,7 +94,7 @@ def _embed_task(embed_function: Callable, instance: EmbedObject, *args, **kwargs
     metadata.update(instance.metadata)
     
     try:
-        result = embed_function(instance.text, metadata=metadata, **kwargs)
+        result = embed_function(EmbedSchema(text=instance.text, metadata=metadata), **kwargs)
 
         return {
             "embed_result": result,
@@ -125,12 +128,12 @@ def delete_embed_task_core(instance: EmbedObject, *args, **kwargs):
     """delete embed task for core app"""
     try:
         kitchenai_app = get_core_kitchenai_app()
-        f = kitchenai_app._embed_delete_tasks.get(f"{kitchenai_app._namespace}.{instance.ingest_label}")
+        f = kitchenai_app.embeddings.get_hook(instance.ingest_label, "on_delete")
         if f:
             module_path, func_name = f.rsplit(".", 1)
             module = importlib.import_module(module_path)
             func = getattr(module, func_name)
-            return func(instance, *args, **kwargs)
+            return f(instance, *args, **kwargs) 
         else:
             logger.warning(f"No delete embed task found for {instance.ingest_label}")
     except Exception as e:
