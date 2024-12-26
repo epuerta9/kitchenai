@@ -7,19 +7,13 @@ from django.http import HttpResponse
 import logging
 import posthog
 from django.apps import apps
+from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, AgentResponseSchema
 
 from django_eventstream import send_event
 
 logger = logging.getLogger(__name__)
 router = Router()
-class QuerySchema(Schema):
-    query: str
-    artifacts: bool = False
-    metadata: dict[str, str] | None = None
 
-
-class AgentResponseSchema(Schema):
-    response: str
 
 
 @router.post("/{label}", response=AgentResponseSchema)

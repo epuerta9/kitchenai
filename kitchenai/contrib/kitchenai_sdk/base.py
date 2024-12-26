@@ -1,6 +1,4 @@
 from collections.abc import Callable
-import functools
-import importlib
 import logging
 
 logger = logging.getLogger(__name__)
