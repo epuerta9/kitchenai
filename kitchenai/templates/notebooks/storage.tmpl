@@ -1,0 +1,19 @@
+from kitchenai.contrib.kitchenai_sdk.schema import StorageSchema
+
+
+storage_data = StorageSchema(
+    dir="/path/to/documents",
+    metadata={"source": "research_papers", "category": "medical"},
+    extension=".pdf"
+)
+
+def {{func_name}}(data: StorageSchema, **kwargs):
+    """
+    Parse a directory of documents and store them in a vector database. This is run in a background task.
+    Args:
+        data: StorageSchema
+    """
+    pass
+
+
+result = {{func_name}}(storage_data)

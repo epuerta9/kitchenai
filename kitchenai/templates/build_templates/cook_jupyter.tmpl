@@ -25,17 +25,17 @@
 #kitchenai:{{func.type}}.{{func.label}}
 
 {% if func.type|contains:"storage" %}
-#use the function definition: def {{ func.label }}(dir: str, metadata: dict = {}, *args, **kwargs):
+from kitchenai.contrib.kitchenai_sdk.schema import StorageSchema
 
 {% elif func.type|contains:"query" %}
-#use the function definition: def {{ func.label }}(data: QuerySchema):
+from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, QueryBaseResponseSchema
 
 
 {% elif func.type|contains:"agent" %}
-#use the function definition: def {{ func.label }}(data: QuerySchema):
+from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, AgentResponseSchema
 
-{% elif func.type|contains:"embed" %}
-#use the function definition: def {{ func.label }}(instance: EmbedObject, metadata: dict = {}, **kwargs):
+{% elif func.type|contains:"embeddings" %}
+from kitchenai.contrib.kitchenai_sdk.schema import EmbedSchema
 
 {% endif %}
 

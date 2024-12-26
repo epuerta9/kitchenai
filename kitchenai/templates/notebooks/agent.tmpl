@@ -1,0 +1,31 @@
+from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, AgentResponseSchema
+import asyncio
+
+query_data = QuerySchema(
+    query="Find documents related to AI in healthcare.",
+    stream=False,
+    metadata={"topic": "healthcare", "keyword": "AI"}
+)
+
+async def {{func_name}}(data: QuerySchema):
+    """
+    Query the vector database with a chat interface
+    class QuerySchema(Schema):
+        query: str
+        stream: bool = False
+        metadata: dict[str, str] | None = None
+    Args:
+        data: QuerySchema
+    
+    Response:
+        AgentResponseSchema
+    """
+
+    # TODO: Implement the agent logic
+
+    return AgentResponseSchema(response="Hello, how are you?", metadata={"topic": "healthcare", "keyword": "AI"})
+async def run_query():
+    response = await {{label}}(query_data)
+    print("output:", response.response)
+
+asyncio.run(run_query())
