@@ -1,0 +1,9 @@
+[project]
+name = "kitchenai-llama"
+version = "0.1.1"
+description = "A library for KitchenAI to use LlamaIndex"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "llama-index>=0.12.8",
+]
