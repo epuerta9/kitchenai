@@ -9,7 +9,6 @@ import posthog
 from django.apps import apps
 from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, AgentResponseSchema
 
-from django_eventstream import send_event
 
 logger = logging.getLogger(__name__)
 router = Router()

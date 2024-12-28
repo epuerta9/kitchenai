@@ -153,9 +153,24 @@ def get_core_kitchenai_app():
 
     print(f"root_module: {root_module}")
     add_module_to_core(root_module)
+    # Get all installed app configs
+    installed_apps = apps.get_app_configs()
+    #ogger.info(f"installed_apps: {installed_apps}")
+    # for app_config in installed_apps:
+    #     logger.debug(f"Found app config: {app_config.name}")
     core_app = apps.get_app_config("core")
     if core_app.kitchenai_app:
         return core_app.kitchenai_app
     else:
         logger.error("No kitchenai app in core app config")
         raise Exception("No kitchenai app in core app config")
+
+
+def add_bento_box_to_core():
+    from kitchenai.bento.models import Bento
+    bento_box = Bento.objects.first()
+    if bento_box:
+        bento_box.add_to_core()
+    else:
+        logger.error("No bento box found")
+        raise Exception("No bento box found")

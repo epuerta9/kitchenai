@@ -262,6 +262,8 @@ filter_unconventional = true
 split_commits = false
 commit_parsers = [
   { message = "^feat", group = "<!-- 0 -->🚀 Features" },
+  { message = "^app", group = "<!-- 0 -->🚀 Applications" },
+  { message = "^plugins", group = "<!-- 0 -->🚀 Plugins" },
   { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
   { message = "^doc|^docs", group = "<!-- 3 -->📚 Documentation" },
   { message = "^perf", group = "<!-- 4 -->⚡ Performance" },

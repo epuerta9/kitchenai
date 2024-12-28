@@ -6,9 +6,9 @@ from django.http import HttpResponse
 import logging
 from django.apps import apps
 from ..signals import query_output_signal, query_input_signal
-from django_q.tasks import async_task
 from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, QueryBaseResponseSchema
 from uuid import uuid4
+from django_eventstream import send_event
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -39,8 +39,20 @@ async def query(request, label: str, data: QuerySchema):
         query_input_signal.send(sender="pre_query", data=data)
         if data.stream:
             uuid = uuid4()
-            task_id = async_task(query_func, data, stream_id=uuid)
-            metadata = KitchenAIMetadata(stream_id=uuid, stream=data.stream)
+            data.stream_id = str(uuid)
+            logger.info(f"data: {data}")
+            results = await query_func(data)
+            logger.info(f"results: {results}, is_generator: {hasattr(results, 'stream_gen')}")
+            if results.stream_gen:
+                # If it's an async generator, we need to handle it differently
+                async for text in results.stream_gen:
+                    # Yield each chunk of text as it arrives
+                    send_event("query/my-channel", "message", text)
+                    logger.info(text)
+                metadata = KitchenAIMetadata(stream_id=str(uuid), stream=data.stream)
+
+                return QueryResponseSchema(kitchenai_metadata=metadata)
+            metadata = KitchenAIMetadata(stream_id=str(uuid), stream=data.stream)
             return QueryResponseSchema(kitchenai_metadata=metadata)
         
         result = await query_func(data)
