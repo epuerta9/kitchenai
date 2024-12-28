@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% load partials static %}
+
+{% block content %}
+<div
+  class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
+  {% include "includes/header.html" %}
+</div>
+
+<div
+  class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
+  {% comment %} <section
+    class="stats stats-vertical col-span-12 w-full shadow-sm xl:stats-horizontal">
+    <div class="stat">
+      <div class="stat-title">Total Plugins</div>
+      <div class="stat-value">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Total Routes</div>
+      <div class="stat-value">5</div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Total Metric3</div>
+      <div class="stat-value">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Total Metric4</div>
+      {% if total_projects_cost %}
+      <div class="stat-value">$0</div>
+      {% else %}
+      <div class="stat-value">$0</div>
+
+      {% endif %}
+    </div>
+  </section> {% endcomment %}
+  <!-- card -->
+   <section class="card col-span-12 col-start-4 col-end-8 overflow-hidden bg-base-200 ">
+    <h1 class="prose py-4 text-lg">Playground app</h1>
+
+   </section>
+
+</div>
+{% endblock content %}
