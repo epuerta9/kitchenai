@@ -11,7 +11,10 @@ from llama_index.core.extractors import (
     TitleExtractor,
     QuestionsAnsweredExtractor)
 from llama_index.core import Document
-import asyncio
+
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 kitchen = KitchenAIApp()
 

@@ -14,7 +14,7 @@ def file_storage(dir: str, metadata: dict = {}, *args, **kwargs):
             Store uploaded files into a vector store with metadata
             chroma_collection = chroma_client.get_or_create_collection("quickstart")
             parser = Parser(api_key=os.environ.get("LLAMA_CLOUD_API_KEY", None))
-
+process
             response = parser.load(dir, metadata=metadata, **kwargs)
 
             vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
