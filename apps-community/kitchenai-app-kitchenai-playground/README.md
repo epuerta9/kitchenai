@@ -6,7 +6,7 @@ A KitchenAI app that provides a playground experience to experiment with the RAG
 # Contributing 
 
 1. create a dev environment 
-    `hatch shell dev`
+    `cd apps-community/kitchenai-app-kitchenai-playground/ && hatch shell dev`
 
 2. install latest kitchenai project 
     `pip install -e ../../kitchenai`
@@ -19,6 +19,9 @@ The project will will automatically register to the kitchenai project under **ki
 from here you can download a bento box,
 
 `pip install -e ../../bento-community/kitchenai-bento-rag-simple`
+
+list the bentos
+`kitchenai bento list`
 
 select a bento 
 
