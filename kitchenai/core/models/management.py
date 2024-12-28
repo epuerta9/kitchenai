@@ -10,6 +10,7 @@ class KitchenAIManagement(TimeStamped):
     project_name = models.CharField(max_length=255)
     version = models.CharField(max_length=255)
     description = models.TextField(default="")
+    module_path = models.CharField(max_length=255, default="bento")
     jupyter_token = models.CharField(max_length=255, default="")
     jupyter_host = models.CharField(max_length=255, default="localhost")
     jupyter_port = models.CharField(max_length=255, default="8888")
@@ -27,20 +28,7 @@ class KitchenAIPlugins(TimeStamped):
         return self.name
 
 
-class KitchenAIDependencies(TimeStamped):
-    name = models.CharField(max_length=255, unique=True)
-    kitchen = models.ForeignKey(KitchenAIManagement, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-
 
 class KitchenAIRootModule(TimeStamped):
     name = models.CharField(max_length=255, unique=True)
     kitchen = models.ForeignKey(KitchenAIManagement, on_delete=models.CASCADE)
-
-class KitchenAIModule(TimeStamped):
-    name = models.CharField(max_length=255)
-    kitchen = models.ForeignKey(KitchenAIManagement, on_delete=models.CASCADE)
-    jupyter_path = models.CharField(max_length=255, default="")
-    file = models.FileField(upload_to=module_directory_path)

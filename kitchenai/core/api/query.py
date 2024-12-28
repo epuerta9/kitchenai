@@ -28,31 +28,34 @@ async def query(request, label: str, data: QuerySchema):
         core_app = apps.get_app_config("core")
         if not core_app.kitchenai_app:
             logger.error("No kitchenai app in core app config")
-            return HttpResponse(status=404)
+            raise HttpError(404, "No kitchenai app in core app config")
         
         query_func = core_app.kitchenai_app.query.get_task(label)
         if not query_func:
             logger.error(f"Query function not found for {label}")
-            return HttpResponse(status=404)
+            raise HttpError(404, "Query function not found for {label}")
         
         #Signal the start of the query. Generic signals
         query_input_signal.send(sender="pre_query", data=data)
         if data.stream:
-            uuid = uuid4()
-            data.stream_id = str(uuid)
-            logger.info(f"data: {data}")
+            if not data.stream_id:
+                logger.error("stream_id is required for streaming requests")
+                raise HttpError(400, "stream_id is required for streaming requests")
+            
             results = await query_func(data)
-            logger.info(f"results: {results}, is_generator: {hasattr(results, 'stream_gen')}")
             if results.stream_gen:
                 # If it's an async generator, we need to handle it differently
+                if not hasattr(results.stream_gen, '__aiter__'):
+                    logger.error("Expected async generator but received different type")
+                    raise HttpError(500, "Internal streaming error")
+                logger.debug(f"streaming text: {data.stream_id}")
                 async for text in results.stream_gen:
                     # Yield each chunk of text as it arrives
-                    send_event("query/my-channel", "message", text)
-                    logger.info(text)
-                metadata = KitchenAIMetadata(stream_id=str(uuid), stream=data.stream)
+                    send_event(data.stream_id, "message", text)
+                metadata = KitchenAIMetadata(stream_id=data.stream_id, stream=data.stream)
 
                 return QueryResponseSchema(kitchenai_metadata=metadata)
-            metadata = KitchenAIMetadata(stream_id=str(uuid), stream=data.stream)
+            metadata = KitchenAIMetadata(stream_id=data.stream_id, stream=data.stream)
             return QueryResponseSchema(kitchenai_metadata=metadata)
         
         result = await query_func(data)
@@ -61,6 +64,9 @@ async def query(request, label: str, data: QuerySchema):
         extended_result = QueryResponseSchema(**result.dict(), kitchenai_metadata=metadata)
         query_output_signal.send(sender="post_query", result=extended_result)
         return extended_result
+    except HttpError as e:
+        logger.error(f"HttpError raised: {e}")
+        raise e  
     except Exception as e:
         logger.error(f"Error in query: {e}")
-        return HttpError(500, "query function not found")
+        raise HttpError(500, "query function not found")

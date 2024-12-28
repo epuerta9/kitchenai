@@ -35,7 +35,6 @@ def file_object_created(sender, instance, created, **kwargs):
             logger.warning("module: no kitchenai app found")
 
 
-
 @receiver(post_delete, sender=FileObject)
 def file_object_deleted(sender, instance, **kwargs):
     """delete the file from vector db"""

@@ -503,6 +503,8 @@ KITCHENAI = {
     "apps": [],
 }
 
+KITCHENAI_APP = "bento"
+
 
 # WEBHOOKS
 # DJANGO_WEBHOOK = dict(MODELS=["core.TestObject"])

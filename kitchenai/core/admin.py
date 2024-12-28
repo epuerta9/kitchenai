@@ -4,7 +4,6 @@ from .models import (
     EmbedObject,
     FileObject,
     KitchenAIManagement,
-    KitchenAIModule,
     KitchenAIRootModule
 )
 
@@ -29,16 +28,3 @@ class KitchenAIRootModuleAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(KitchenAIModule)
-class KitchenAIModuleAdmin(admin.ModelAdmin):
-    list_display = (
-        "created_at",
-        "updated_at",
-        "name",
-        "kitchen",
-        "jupyter_path",
-        "file",
-    )
-    list_filter = ("created_at", "updated_at", "kitchen")
-    search_fields = ("name",)
-    date_hierarchy = "created_at"

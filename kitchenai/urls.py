@@ -31,11 +31,7 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("accounts/", include("allauth.urls")),
     path("dashboard/", include("kitchenai.core.urls", namespace="dashboard")),
-    path("stream/agent/<str:agent_id>", include(django_eventstream.urls)),
-    path("stream/query/<str:query_id>", include(django_eventstream.urls)),
-    path("stream/chat/<str:chat_id>", include(django_eventstream.urls)),
-
-
+    path("events/", include(django_eventstream.urls))
 ] + djp.urlpatterns()
 
 if settings.DEBUG:

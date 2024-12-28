@@ -6,7 +6,7 @@ from kitchenai.core.router import router as core_router
 
 logger = logging.getLogger(__name__)
 
-api = NinjaAPI(version="0.10.0")
+api = NinjaAPI(version="0.11.0")
 
 
 apps.get_app_configs()

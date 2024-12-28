@@ -3,10 +3,8 @@ import pathlib
 
 import yaml
 from django.core.management.base import BaseCommand
-from kitchenai.core.models import KitchenAIDependencies
 from kitchenai.core.models import KitchenAIManagement
 from kitchenai.core.models import KitchenAIModules
-from kitchenai.core.models import KitchenAIPlugins
 
 logger = logging.getLogger("kitchenai.core.commands")
 
@@ -86,32 +84,3 @@ class Command(BaseCommand):
             logger.error(e)
             return
 
-        try:
-            plugins = config.get("plugins", None)
-            if plugins:
-                for plugin in plugins:
-                    KitchenAIPlugins.objects.create(
-                        name=plugin,
-                        kitchen = mgmt,
-                    )
-        except KeyError as e:
-            logger.error(e)
-            return
-        except Exception as e:
-            logger.error(e)
-            return
-
-        try:
-            dependencies = config.get("dependencies", None)
-            if dependencies:
-                for dep in dependencies:
-                    KitchenAIDependencies.objects.create(
-                        name=dep,
-                        kitchen = mgmt,
-                    )
-        except KeyError as e:
-            logger.error(e)
-            return
-        except Exception as e:
-            logger.error(e)
-            return

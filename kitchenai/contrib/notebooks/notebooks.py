@@ -5,7 +5,6 @@ import django
 import hashlib
 import asyncio
 import nest_asyncio
-import aiohttp
 
 
 # Setup Django and nest_asyncio
@@ -14,13 +13,10 @@ django.setup()
 nest_asyncio.apply()
 
 from kitchenai.notebooks.models import CodeFunction,Notebook, CodeImport, CodeSetup
-from kitchenai.core.models import KitchenAIManagement
-from llama_index.core import PromptTemplate
 from django.template import loader
 from django.conf import settings
 from django.template import Template, Context
-import requests
-import json
+
 
 
 @magics_class
@@ -479,6 +475,8 @@ class NotebookMagics(Magics):
         """
         Create a kitchenai app.py file from the registered code.
         """
+        from llama_index.core import PromptTemplate
+
         verbose = line.strip() == "verbose"
 
         async def process_setup():

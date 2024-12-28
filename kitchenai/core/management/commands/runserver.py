@@ -41,12 +41,18 @@ class Command(RunserverCommand):
                 from kitchenai.api import api
                 from kitchenai.core.utils import setup
                 from kitchenai.bento.models import Bento
-
+                from kitchenai.core.models.management import KitchenAIManagement
                 module = options.get('module_path')
                 if module:
+                    mgmt = KitchenAIManagement.objects.get(name="kitchenai_management")
+                    mgmt.module_path = module
+                    mgmt.save()
                     setup(api, module=module)
                     self.stdout.write(self.style.SUCCESS(f"Loaded module: {module}"))
                 else:
+                    mgmt = KitchenAIManagement.objects.get(name="kitchenai_management")
+                    mgmt.module_path = "bento"
+                    mgmt.save()
                     try:
                         bento_box = Bento.objects.first()
                         if not bento_box:

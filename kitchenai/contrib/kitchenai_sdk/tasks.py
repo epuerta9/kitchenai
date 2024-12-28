@@ -6,15 +6,15 @@ from collections.abc import Callable
 from django.core.files.storage import default_storage
 from kitchenai.core.models import FileObject, EmbedObject
 from kitchenai.core.utils import get_core_kitchenai_app
-import importlib
 from .schema import EmbedSchema, StorageSchema
 
 logger = logging.getLogger(__name__)
 
 
 
-def process_file_task_core(instance: FileObject, *args, **kwargs):
+def process_file_task_core(instance, *args, **kwargs):
     """process file async function for core app using storage task"""
+    logger.info(f"processing file with id: {instance.ingest_label}")
     try:
         kitchenai_app = get_core_kitchenai_app()
         f = kitchenai_app.storage.get_task(instance.ingest_label)
@@ -23,7 +23,8 @@ def process_file_task_core(instance: FileObject, *args, **kwargs):
         else:
             logger.warning(f"No storage task found for {instance.ingest_label}")
     except Exception as e:
-        logger.error(f"Error in run_task: {e}")
+        logger.error(f"Error in process_file_task_core: {e}")
+        raise e
 
 def _process_file_task(storage_function: Callable, instance: FileObject, *args, **kwargs):
     """process file task"""
@@ -55,11 +56,10 @@ def _process_file_task(storage_function: Callable, instance: FileObject, *args, 
                     #TODO: add hook to notify other parts of the system
 
                 temp_file.seek(0)
-                metadata = {"file_id": instance.pk, "file_name": file.name, "source": "kitchenai_cookbook", "file_label": instance.name}
+                metadata = {"id": str(instance.pk), "file_path": file.name, "file_name": file.name, "source": "kitchenai", "instance_label": instance.ingest_label}
                 
                 data = StorageSchema(dir=temp_dir, metadata=metadata, extension=extension)
                 result = storage_function(data, **kwargs)
-
 
         return {
             "storage_result": result,
@@ -83,13 +83,14 @@ def delete_file_task_core(instance: FileObject, *args, **kwargs):
         else:
             logger.warning(f"No delete task found for {instance.ingest_label}")
     except Exception as e:
-        logger.error(f"Error in run_task: {e}")
+        logger.error(f"Error in delete_file_task_core: {e}")
+        raise e
 
 def _embed_task(embed_function: Callable, instance: EmbedObject, *args, **kwargs):
     """embed task"""
     instance.status = EmbedObject.Status.PROCESSING
     instance.save()
-    metadata = {"object_id": instance.pk, "text": instance.text, "source": "kitchenai_cookbook", "object_label": instance.ingest_label}
+    metadata = {"id": str(instance.pk), "text": instance.text, "source": "kitchenai", "instance_label": instance.ingest_label}
 
     metadata.update(instance.metadata)
     
@@ -113,29 +114,24 @@ def embed_task_core(instance: EmbedObject, *args, **kwargs):
     """process file async function for core app using storage task"""
     try:
         kitchenai_app = get_core_kitchenai_app()
-        f = kitchenai_app.embeddings.get_task(f"{kitchenai_app.namespace}.{instance.ingest_label}")
+        f = kitchenai_app.embeddings.get_task(instance.ingest_label)
         if f:
-            module_path, func_name = f.rsplit(".", 1)
-            module = importlib.import_module(module_path)
-            func = getattr(module, func_name)
-            return _embed_task(func, instance, **kwargs)
+            return _embed_task(f, instance, **kwargs)
         else:
             logger.warning(f"No embed task found for {instance.ingest_label}")
     except Exception as e:
-        logger.error(f"Error in run_task: {e}")
-
+        logger.error(f"Error in embed_task_core: {e}")
+        raise e
+    
 def delete_embed_task_core(instance: EmbedObject, *args, **kwargs):
     """delete embed task for core app"""
     try:
         kitchenai_app = get_core_kitchenai_app()
         f = kitchenai_app.embeddings.get_hook(instance.ingest_label, "on_delete")
         if f:
-            module_path, func_name = f.rsplit(".", 1)
-            module = importlib.import_module(module_path)
-            func = getattr(module, func_name)
             return f(instance, *args, **kwargs) 
         else:
             logger.warning(f"No delete embed task found for {instance.ingest_label}")
     except Exception as e:
-        logger.error(f"Error in run_task: {e}")
-
+        logger.error(f"Error in delete_embed_task_core: {e}")
+        raise e

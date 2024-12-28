@@ -9,7 +9,7 @@ from django.conf import settings
 from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
 from kitchenai.core.models import KitchenAIManagement
 from kitchenai.core.models import KitchenAIRootModule
-
+from django.conf import settings
 if TYPE_CHECKING:
     from ninja import NinjaAPI
 
@@ -142,22 +142,21 @@ def get_first_root_module() -> str:
     except KitchenAIRootModule.DoesNotExist:
         raise Exception("No root module found. Please create a root module first.")
 
-
 def get_core_kitchenai_app():
-    project_root = os.getcwd()
+    """
+    Set the core kitchenai_app whether its bento or dynamic module.
+    """
+    mgmt = KitchenAIManagement.objects.get(name="kitchenai_management")
+    if mgmt.module_path == "bento":
+            add_bento_box_to_core()
+    else:
+        logger.info(f"Adding module to core: {mgmt.module_path}")
+        project_root = os.getcwd()
+        if project_root not in sys.path:
+            sys.path.insert(0, project_root)
+        add_module_to_core(mgmt.module_path)
 
-    # Add the user's project root directory to the Python path
-    if project_root not in sys.path:
-        sys.path.insert(0, project_root)
-    root_module = get_first_root_module()
 
-    print(f"root_module: {root_module}")
-    add_module_to_core(root_module)
-    # Get all installed app configs
-    installed_apps = apps.get_app_configs()
-    #ogger.info(f"installed_apps: {installed_apps}")
-    # for app_config in installed_apps:
-    #     logger.debug(f"Found app config: {app_config.name}")
     core_app = apps.get_app_config("core")
     if core_app.kitchenai_app:
         return core_app.kitchenai_app

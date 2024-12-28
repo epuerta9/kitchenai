@@ -11,23 +11,28 @@ def default_hook(task):
 def process_file_hook_core(task):
     """process file hook for core app. We have to mock the hook function
     because it's not callable from django q."""
-    try:
-        kitchenai_app = get_core_kitchenai_app()
-        hook = kitchenai_app.storage.get_hook(task.result.get('ingest_label'), "on_create")
-        if hook:
-            hook(task)
-        else:
-            logger.warning(f"No hook found for {task.result.get('ingest_label')}")
-    except Exception as e:
-        logger.error(f"Error in run_task: {e}")
+    logger.info(f"process_file_hook_core: {task.result}")
+    if task.result:
+        try:
+            kitchenai_app = get_core_kitchenai_app()
+            hook = kitchenai_app.storage.get_hook(task.result.get('ingest_label'), "on_create")
+            if hook:
+                hook(task)
+            else:
+                logger.warning(f"No hook found for {task.result.get('ingest_label')}")
+        except Exception as e:
+            logger.error(f"Error in run_task: {e}")
 
 
 def delete_file_hook_core(task):
     logger.info(f"delete_file_hook_core: {task.result}")
-    try:
-        kitchenai_app = get_core_kitchenai_app()
-        hook = kitchenai_app.storage.get_hook(task.result.get('ingest_label'), "on_delete")
-        if hook:
-            hook(task)
-    except Exception as e:
-        logger.error(f"Error in run_task: {e}")
+    if task.result:
+        try:
+            kitchenai_app = get_core_kitchenai_app()
+            hook = kitchenai_app.storage.get_hook(task.result.get('ingest_label'), "on_delete")
+            if hook:
+                hook(task)
+            else:
+                logger.warning(f"No hook found for {task.result.get('ingest_label')}")
+        except Exception as e:
+            logger.error(f"Error in run_task: {e}")
