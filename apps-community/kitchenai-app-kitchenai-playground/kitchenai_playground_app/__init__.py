@@ -23,6 +23,8 @@ def settings(current_settings):
     current_settings["KITCHENAI"]["apps"].append({
         "name": "kitchenai_playground_app",
         "description": "app to interact with kitchenai backends",
+        "namespace": "playground",
+        "home": "home",
         "tags": ["kitchenai-playground", "app", "kitchenai_playground_app", "kitchenai-app-kitchenai-playground"],
     })
     

@@ -129,7 +129,7 @@ module = [
 ignore_missing_model_attributes = true
 
 [project.entry-points.djp]
-bento = "kitchenai_playground_app"
+kitchenai_playground_app = "kitchenai_playground_app"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "kitchenai.settings"
