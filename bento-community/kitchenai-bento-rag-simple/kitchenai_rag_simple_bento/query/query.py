@@ -61,7 +61,7 @@ async def kitchenai_bento_simple_rag_stream_vjnk(data: QuerySchema):
     index = VectorStoreIndex.from_vector_store(
         vector_store,
     )
-    query_engine = index.as_query_engine(streaming=True, similarity_top_k=1)
+    query_engine = index.as_query_engine(chat_mode="best", llm=llm, streaming=True)
     
     streaming_response = await query_engine.aquery(data.query)
 

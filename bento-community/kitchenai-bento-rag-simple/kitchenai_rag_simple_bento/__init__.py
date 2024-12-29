@@ -1,6 +1,7 @@
 from django.urls import path
 from django.conf import settings
 import djp
+from django.urls import include
 
 @djp.hookimpl
 def installed_apps():
@@ -10,8 +11,9 @@ def installed_apps():
 @djp.hookimpl
 def urlpatterns():
     # A list of URL patterns to add to urlpatterns:
-    return []
-
+    return [
+        path("simple-rag/", include("kitchenai_rag_simple_bento.urls", namespace="simple_rag")),
+    ]
 
 @djp.hookimpl
 def settings(current_settings):
@@ -19,6 +21,8 @@ def settings(current_settings):
     current_settings["KITCHENAI"]["bento"].append({
         "name": "kitchenai_rag_simple_bento",
         "description": "a simple RAG starter that covers majority of cases",
+        "namespace": "simple_rag",
+        "home": "home",
         "tags": ["rag-simple", "bento", "kitchenai_rag_simple_bento", "kitchenai-bento-rag-simple"],
     })
     

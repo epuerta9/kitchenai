@@ -135,7 +135,7 @@ module = [
 ignore_missing_model_attributes = true
 
 [project.entry-points.djp]
-bento = "kitchenai_rag_simple_bento"
+kitchenai_rag_simple_bento = "kitchenai_rag_simple_bento"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "kitchenai.settings"
