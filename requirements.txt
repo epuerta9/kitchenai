@@ -34,7 +34,6 @@
 # - heroicons[django]
 # - honcho
 # - jupyterlab
-# - kitchenai-python-sdk>=1.3.0
 # - nbconvert
 # - nbformat
 # - nest-asyncio
@@ -343,8 +342,6 @@ jupyterlab-pygments==0.3.0
     # via nbconvert
 jupyterlab-server==2.27.3
     # via jupyterlab
-kitchenai-python-sdk==1.3.0
-    # via hatch.envs.default
 markdown-it-py==3.0.0
     # via rich
 markupsafe==3.0.2
@@ -439,7 +436,6 @@ pydantic==2.9.2
     # via
     #   django-ninja
     #   fast-depends
-    #   kitchenai-python-sdk
 pydantic-core==2.23.4
     # via pydantic
 pygments==2.18.0
@@ -458,7 +454,6 @@ python-dateutil==2.9.0.post0
     #   arrow
     #   botocore
     #   jupyter-client
-    #   kitchenai-python-sdk
     #   posthog
     #   svix
 python-dotenv==1.0.1
@@ -603,7 +598,6 @@ typing-extensions==4.12.2
     #   dj-database-url
     #   faststream
     #   ipython
-    #   kitchenai-python-sdk
     #   psycopg
     #   pydantic
     #   pydantic-core
@@ -616,7 +610,6 @@ urllib3==2.2.3
     # via
     #   botocore
     #   django-anymail
-    #   kitchenai-python-sdk
     #   requests
     #   sentry-sdk
 uvicorn==0.34.0
