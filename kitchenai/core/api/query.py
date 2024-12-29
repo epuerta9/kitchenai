@@ -48,10 +48,33 @@ async def query(request, label: str, data: QuerySchema):
                 if not hasattr(results.stream_gen, '__aiter__'):
                     logger.error("Expected async generator but received different type")
                     raise HttpError(500, "Internal streaming error")
-                logger.debug(f"streaming text: {data.stream_id}")
+                
                 async for text in results.stream_gen:
                     # Yield each chunk of text as it arrives
-                    send_event(data.stream_id, "message", text)
+                    # Buffer for incomplete words
+                    logger.debug(f"streaming text: {text}")
+                    buffer = ""
+                    for chunk in text.split():
+                        logger.debug(f"streaming chunk text split: {chunk}")
+                        if buffer:
+                            # Combine buffer with current chunk
+                            chunk = buffer + chunk
+                            buffer = ""
+                        if not chunk[-1].isalnum() and chunk[-1] not in {".", ",", "!", "?"}:
+                            # If the chunk ends with an incomplete word, buffer it
+                            buffer = chunk
+                        else:
+                            logger.debug(f"streaming chunk: {chunk}")
+                            # Send complete word
+                            send_event(data.stream_id, "message", {"output": chunk})
+                    if buffer:
+                        # Send remaining buffer as a word
+                        send_event(data.stream_id, "message", {"output": buffer})
+
+                    #send_event(data.stream_id, "message", {"output": text})
+
+                send_event(data.stream_id, "stream-end", {"output": "Stream complete"})
+
                 metadata = KitchenAIMetadata(stream_id=data.stream_id, stream=data.stream)
 
                 return QueryResponseSchema(kitchenai_metadata=metadata)

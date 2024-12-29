@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 router = Router()
 router.add_router("/query", query_router, tags=["query"])
-router.add_router("/agent", agent_router, tags=["agent"])
+#router.add_router("/agent", agent_router, tags=["agent"])
 router.add_router("/embeddings", embedding_router, tags=["embeddings"])
 router.add_router("/file", file_router, tags=["file"]) 
 
