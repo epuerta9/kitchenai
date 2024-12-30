@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-2xl font-bold mb-6">Chat Sessions</h2>
+            
+            {% if chats %}
+                <div class="space-y-4">
+                    {% for chat in chats %}
+                        <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg hover:bg-base-300 transition-colors">
+                            <div>
+                                <h3 class="font-semibold">Chat Session #{{ chat.id }}</h3>
+                                <p class="text-sm text-base-content/70">Started {{ chat.created_at|date:"M d, Y" }}</p>
+                            </div>
+                            <a href="{% url 'dashboard:chat_session' chat.id %}" class="btn btn-primary btn-sm">
+                                Continue Chat
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center text-base-content/70 my-8">
+                    <p>No chat sessions found</p>
+                </div>
+            {% endif %}
+
+            <div class="card-actions justify-center mt-6">
+                <form hx-post="{% url 'dashboard:chat' %}" class="w-full flex justify-center">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary gap-2">
+                        <svg data-src="{% static 'icons/plus.svg' %}" class="w-5 h-5"></svg>
+                        Start New Session
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

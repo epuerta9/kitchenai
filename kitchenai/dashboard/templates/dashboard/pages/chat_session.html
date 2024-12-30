@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="flex h-screen">
+  <!-- Main Chat Column -->
+  <div class="flex-1 flex flex-col">
+    <!-- Chat Messages Area -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chat-messages">
+      <!-- Messages will be inserted here -->
+      <div class="chat chat-start">
+        <div class="chat-bubble">Welcome to KitchenAI! How can I help you today?</div>
+      </div>
+    </div>
+
+    <!-- Icon Menu Bar -->
+    <div class="border-t border-base-300 p-2">
+      <div class="flex justify-center space-x-4">
+        <button class="btn btn-ghost btn-circle">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/microphone.svg" class="h-5 w-5"></svg>
+        </button>
+        <button class="btn btn-ghost btn-circle">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/photo.svg" class="h-5 w-5"></svg>
+        </button>
+        <button class="btn btn-ghost btn-circle">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/document.svg" class="h-5 w-5"></svg>
+        </button>
+        <button class="btn btn-ghost btn-circle">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/cog.svg" class="h-5 w-5"></svg>
+        </button>
+      </div>
+    </div>
+    <!-- Chat Input Area -->
+    <div class="border-t border-base-300 p-4">
+      <form class="flex gap-2" 
+            hx-post="{% url 'dashboard:chat_send' chat.id %}" 
+            hx-target="#chat-messages" 
+            hx-swap="beforeend"
+            hx-target-2="#metrics-panel"
+            hx-swap-2="innerHTML">
+        <input type="text" 
+               placeholder="Type your message here..." 
+               class="input input-bordered flex-1" 
+               name="message">
+        <button type="submit" class="btn btn-primary">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/paper-airplane.svg" class="h-5 w-5"></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Right Metrics Panel -->
+  <div id="metrics-panel" class="w-80 border-l border-base-300 bg-base-100 p-4">
+    <h3 class="text-lg font-bold mb-4">Chat Metrics</h3>
+    
+    <div hx-get="{% url 'dashboard:aggregated_metrics' chat.id %}"
+         hx-trigger="load, every 3s"
+         hx-swap="innerHTML">
+    </div>
+
+  </div>
+</div>
+{% endblock content %}
+
+{% block inline_javascript %}
+<script>
+  document.body.addEventListener('htmx:afterSwap', function() {
+    const messagesDiv = document.getElementById('chat-messages');
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  });
+</script>
+{% endblock inline_javascript %}

@@ -1,0 +1,40 @@
+
+
+{% if chat_metrics %}
+<div class="space-y-4">
+  <div class="stats stats-vertical shadow">
+    {% for metric, value in chat_metrics.items %}
+    <div class="stat">
+      <div class="stat-title">{{ metric }}</div>
+      <div class="stat-value">
+        {% if metric == 'sources_used' %}
+          {{ value|length }}
+        {% else %}
+          {{ value }}
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="card bg-base-200">
+    <div class="card-body">
+      <h4 class="card-title text-sm">Sources Used</h4>
+      <ul class="list-disc list-inside text-sm">
+        {% for source in chat_metrics.sources_used %}
+        <li>{{ source }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="flex flex-col items-center justify-center h-[calc(100vh-8rem)] space-y-4 text-base-content/50">
+  <div class="flex space-x-4">
+    <svg data-src="https://unpkg.com/heroicons/20/solid/chart-bar.svg" class="h-8 w-8"></svg>
+    <svg data-src="https://unpkg.com/heroicons/20/solid/clock.svg" class="h-8 w-8"></svg>
+    <svg data-src="https://unpkg.com/heroicons/20/solid/document-text.svg" class="h-8 w-8"></svg>
+  </div>
+  <p class="text-center">Start a conversation to see metrics</p>
+</div>
+{% endif %}

@@ -1,0 +1,14 @@
+<div class="chat chat-start">
+  <div class="chat-image avatar">
+    <div class="w-10 rounded-full bg-primary/10">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/cpu-chip.svg" class="h-6 w-6 m-2 text-primary"></svg>
+    </div>
+  </div>
+  <div class="chat-bubble">{{ message }}</div>
+</div>
+
+<div class="chat-metrics">
+  {% for metric, value in chat_metrics.items %}
+    <div class="chat-metric">{{ metric }}: {{ value }}</div>
+  {% endfor %}
+</div>
