@@ -38,7 +38,6 @@ async def labels(request):
     if not core_app.kitchenai_app:
         logger.error("No kitchenai app in core app config")
         return HttpResponse(status=404)
-    print(core_app.kitchenai_app.to_dict())
     return core_app.kitchenai_app.to_dict()
 
 

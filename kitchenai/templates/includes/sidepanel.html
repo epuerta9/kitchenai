@@ -19,6 +19,27 @@
           </svg>
           Dashboard
         </a>
+        <a href="{% url 'dashboard:labels' %}"
+           class="{% if request.resolver_match.url_name == 'labels' %}active{% endif %}">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/tag.svg"
+               class="h-5 w-5">
+          </svg>
+          Labels
+        </a>
+        <a href="{% url 'dashboard:file' %}" 
+           class="{% if request.resolver_match.url_name == 'file' %}active{% endif %}">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/document.svg"
+               class="h-5 w-5">
+          </svg>
+          Files
+        </a>
+        <a href="{% url 'dashboard:embeddings' %}"
+           class="{% if request.resolver_match.url_name == 'embeddings' %}active{% endif %}">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/squares-plus.svg"
+               class="h-5 w-5">
+          </svg>
+          Embeddings
+        </a>
         <a href="/api/docs"
            class="{% if request.resolver_match.url_name == 'api-docs' %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/code-bracket.svg"

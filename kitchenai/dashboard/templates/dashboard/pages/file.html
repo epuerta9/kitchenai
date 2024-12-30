@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% load partials static %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold">Files</h1>
+        <p class="text-base-content/70">Manage your uploaded files and their processing status</p>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <!-- File Upload Section -->
+            <div class="mb-8">
+                <div class="flex justify-between items-start">
+                    <h2 class="card-title mb-4">Upload New File</h2>
+                    <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-sm">
+                            <span>Available Labels</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </label>
+                        <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                            {% for handler in storage_handlers %}
+                                <li><a onclick="document.getElementsByName('ingest_label')[0].value='{{ handler }}'">{{ handler }}</a></li>
+                            {% empty %}
+                                <li><span class="text-base-content/70 p-2">No labels available</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                    {% csrf_token %}
+                    {{ form.file.errors }}
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">{{ form.file.label }}</span>
+                            {% if form.file.help_text %}
+                            <span class="label-text-alt">{{ form.file.help_text }}</span>
+                            {% endif %}
+                        </label>
+                        <input type="file" name="{{ form.file.name }}" class="file-input file-input-bordered w-full" {% if form.file.required %}required{% endif %}>
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Ingest Label</span>
+                        </label>
+                        <input type="text" name="ingest_label" class="input input-bordered w-full" required>
+                    </div>
+
+                    <label class="label">
+                        <span class="label-text">Additional Metadata</span>
+                        <span class="label-text-alt">(Optional)</span>
+                    </label>
+                    <div id="metadata-fields" class="grid grid-cols-1 gap-4">
+                        <div class="form-control flex flex-row gap-2">
+                            <input type="text" name="metadata_key[]" placeholder="Key" class="input input-bordered w-1/2">
+                            <input type="text" name="metadata_value[]" placeholder="Value" class="input input-bordered w-1/2">
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="removeMetadataField(this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addMetadataField()" class="btn btn-ghost btn-sm mt-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                        Add Metadata Field
+                    </button>
+                    <script>
+                        function addMetadataField() {
+                            const container = document.getElementById('metadata-fields');
+                            const newField = document.createElement('div');
+                            newField.className = 'form-control flex flex-row gap-2';
+                            newField.innerHTML = `
+                                <input type="text" name="metadata_key[]" placeholder="Key" class="input input-bordered w-1/2">
+                                <input type="text" name="metadata_value[]" placeholder="Value" class="input input-bordered w-1/2">
+                                <button type="button" class="btn btn-ghost btn-sm" onclick="removeMetadataField(this)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            `;
+                            container.appendChild(newField);
+                        }
+
+                        function removeMetadataField(button) {
+                            button.parentElement.remove();
+                        }
+                    </script>
+
+                    <button type="submit" class="btn btn-primary">
+                        Upload File
+                    </button>
+                </form>
+
+                <div class="divider"></div>
+            </div>
+
+            <!-- File List Section -->
+            <div>
+                <h2 class="card-title mb-4">Uploaded Files</h2>
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Ingest Label</th>
+                                <th>Status</th>
+                                <th>Upload Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file in files %}
+                            <tr>
+                                <td>{{ file.name }}</td>
+                                <td>{{ file.ingest_label }}</td>
+                                <td>
+                                    <div class="badge 
+                                        {% if file.status == 'completed' %}badge-success
+                                        {% elif file.status == 'failed' %}badge-error
+                                        {% elif file.status == 'processing' %}badge-warning
+                                        {% else %}badge-ghost{% endif %}">
+                                        {{ file.status }}
+                                    </div>
+                                </td>
+                                <td>{{ file.created_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <div class="flex gap-2">
+                                        <a href="{{ file.file.url }}" class="btn btn-sm btn-outline btn-info">
+                                            Download
+                                        </a>
+                                        <button 
+                                            class="btn btn-sm btn-outline btn-error"
+                                            hx-delete="{% url 'dashboard:delete_file' file.id %}"
+                                            hx-confirm="Are you sure you want to delete this file?"
+                                            hx-target="closest tr"
+                                            hx-swap="outerHTML">
+                                            Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-base-content/70">
+                                    No files uploaded yet
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
