@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% load partials static %}
+
+{% block content %}
+<div class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
+  {% include "includes/header.html" %}
+</div>
+
+<div class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
+    <div class="col-span-12 lg:col-span-8 lg:col-start-3">
+        <a href="{% url 'simple_rag:home' %}" class="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+        </a>
+    </div>
+    <section class="card col-span-12 lg:col-span-8 lg:col-start-3 bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title mb-6">Settings</h2>
+      <pre class="p-4 bg-neutral text-neutral-content rounded-lg overflow-x-auto font-mono">
+        {{ settings }}
+        </pre>
+    </div>
+  </section>
+  <section class="card col-span-12 lg:col-span-8 lg:col-start-3 bg-base-100 shadow-xl mt-8">
+    
+    <div class="card-body">
+      <h2 class="card-title mb-6">Available Environment Variables</h2>
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Variable Name</th>
+              <th>Description</th>
+              <th>Default Value</th>
+              <th>Required</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for var_name, var_info in available_env_vars.items %}
+            <tr>
+              <td class="font-mono text-sm">{{ var_name }}</td>
+              <td>{{ var_info.description }}</td>
+              <td class="font-mono">{{ var_info.default }}</td>
+              <td>{{ var_info.required|yesno:"Yes,No" }}</td>
+              <td class="text-sm">
+                {% if var_info.type %}
+                  Type: {{ var_info.type }}<br>
+                {% endif %}
+                {% if var_info.note %}
+                  {{ var_info.note }}<br>
+                {% endif %}
+                {% if var_info.allowed_values %}
+                  Allowed values: 
+                  {% if var_info.allowed_values.items %}
+                    <br>
+                    {% for type, values in var_info.allowed_values.items %}
+                      • {{ type }}: {{ values|join:", " }}<br>
+                    {% endfor %}
+                  {% else %}
+                    {{ var_info.allowed_values|join:", " }}
+                  {% endif %}
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+{% endblock content %} 
