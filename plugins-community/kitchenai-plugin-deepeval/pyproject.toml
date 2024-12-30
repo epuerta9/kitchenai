@@ -131,7 +131,7 @@ module = [
 ignore_missing_model_attributes = true
 
 [project.entry-points.djp]
-bento = "deepeval_plugin"
+deepeval_plugin = "deepeval_plugin"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "kitchenai.settings"

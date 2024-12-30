@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 import djp
 
@@ -10,7 +10,9 @@ def installed_apps():
 @djp.hookimpl
 def urlpatterns():
     # A list of URL patterns to add to urlpatterns:
-    return []
+    return [
+        path("deepeval/", include("deepeval_plugin.urls", namespace="deepeval")),
+    ]
 
 
 @djp.hookimpl
@@ -19,6 +21,8 @@ def settings(current_settings):
     current_settings["KITCHENAI"]["plugins"].append({
         "name": "deepeval_plugin",
         "description": "deepeval integration with kitchenai",
+        "namespace": "deepeval",
+        "home": "home",
         "tags": ["deepeval", "plugin", "deepeval_plugin", "kitchenai-plugin-deepeval"],
     })
 
