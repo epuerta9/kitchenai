@@ -20,3 +20,12 @@ class Bento(TimeStamped):
     
     def add_to_core(self):
         add_package_to_core(self.get_import_path())
+
+
+class LoadedBento(TimeStamped):
+    name = models.CharField(max_length=255)
+    config = models.JSONField(default=dict)
+    settings = models.JSONField(default=dict)
+
+    def __str__(self):
+        return self.name

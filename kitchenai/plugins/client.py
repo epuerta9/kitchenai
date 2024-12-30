@@ -1,5 +1,4 @@
 from django.dispatch import Signal
-from .signals.evaluator import response_execute
 class PluginClient:
     def __init__(self, signal: Signal):
         """
@@ -30,4 +29,4 @@ class PluginClient:
         
 
 #clients
-response_execute_client = PluginClient(response_execute)
+# response_execute_client = PluginClient(response_execute)

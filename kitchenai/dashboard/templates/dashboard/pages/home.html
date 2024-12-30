@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load partials static %}
+
+{% block content %}
+
+<div
+  class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
+  {% include "includes/header.html" %}
+</div>
+
+<div
+  class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
+  <section
+    class="stats stats-vertical col-span-12 w-full shadow-sm xl:stats-horizontal">
+    <div class="stat">
+      <div class="stat-title">Total Bentos</div>
+      <div class="stat-value">{{ bento|length }}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Total Plugins</div>
+      <div class="stat-value">{{ plugins|length }}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Total Apps</div>
+      <div class="stat-value">{{ apps|length }}</div>
+    </div>
+    <div class="stat">
+        <div class="stat-title">Total Files</div>
+        <div class="stat-value">{{ total_files }}</div>
+    </div>
+    <div class="stat">
+        <div class="stat-title">Total Embeddings</div>
+        <div class="stat-value">{{ total_embeddings }}</div>
+    </div>
+  </section>
+  <!-- card -->
+   <section class="col-span-12">
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center">
+          <h2 class="text-2xl font-bold">
+            Bento Boxes
+            {% if selected_bento %}
+              {% if module_type == "bento" %}
+                <span class="badge badge-success badge-sm ml-2">{{ selected_bento.name }}</span>
+              {% else %}
+                <span class="badge badge-ghost badge-sm ml-2">{{ selected_bento.name }} (inactive)</span>
+              {% endif %}
+            {% endif %}
+          </h2>
+        </div>
+      </div>
+
+      {% if module_type != "bento" %}
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-sm">Dynamic Bento Boxes:</span>
+          <span class="text-success font-semibold">{{ module_type }}</span>
+        </div>
+      {% endif %}
+
+      <div class="grid grid-cols-3 gap-4">
+         {% if bento %}
+            {% for b in bento %}
+            <div class="card bg-base-100 w-96 shadow-xl">
+               <figure>
+                 <img
+                   src="{% static 'images/bento.png' %}"
+                   alt="Bento" />
+               </figure>
+               <div class="card-body">
+                 <h2 class="card-title">
+                   {{ b.name }}
+                   {% if selected_bento and b.name == selected_bento.name %}
+                     {% if module_type == "bento" %}
+                       <div class="badge badge-success badge-sm">Active</div>
+                     {% else %}
+                       <div class="badge badge-ghost badge-sm">Inactive</div>
+                     {% endif %}
+                   {% endif %}
+                 </h2>
+                 <p>{{ b.description }}</p>
+                 <div class="card-actions justify-end">
+                   <a href="{% url b.namespace|add:':home' %}" class="btn btn-primary">View</a>
+                 </div>
+               </div>
+             </div>
+            {% endfor %}
+         {% else %}
+            <div class="col-span-3 flex flex-col items-center justify-center p-8 text-center">
+              <svg data-src="https://unpkg.com/heroicons/24/outline/squares-2x2.svg" class="h-12 w-12 text-gray-400"></svg>
+              <h3 class="mt-2 text-sm font-semibold text-gray-900">No bentos</h3>
+              <p class="mt-1 text-sm text-gray-500">Get started by creating some bentos</p>
+            </div>
+         {% endif %}
+      </div>
+   </section>
+
+   <section class="col-span-12">
+    <h2 class="text-2xl font-bold mb-6">Plugins</h2>
+    <div class="grid grid-cols-3 gap-4">
+       {% if plugins %}
+         {% for plugin in plugins %}
+         <div class="card bg-base-100 w-96 shadow-xl">
+            <figure>
+              <img
+                src="{% static 'images/plugins.svg' %}"
+                alt="Plugin thumbnail"
+                class="w-full h-32 object-contain p-4" />
+            </figure>
+            <div class="card-body">
+              <h2 class="card-title">{{ plugin.name }}</h2>
+              <p>{{ plugin.description }}</p>
+              <div class="card-actions justify-end">
+                <a href="{% url plugin.namespace|add:':home' %}" class="btn btn-primary">View</a>
+              </div>
+            </div>
+          </div>
+         {% endfor %}
+       {% else %}
+         <div class="col-span-3 flex flex-col items-center justify-center p-8 text-center">
+           <svg data-src="https://unpkg.com/heroicons/24/outline/puzzle-piece.svg" class="h-12 w-12 text-gray-400"></svg>
+           <h3 class="mt-2 text-sm font-semibold text-gray-900">No plugins</h3>
+           <p class="mt-1 text-sm text-gray-500">Get started by installing some plugins</p>
+         </div>
+       {% endif %}
+    </div>
+   </section>
+   <section class="col-span-12">
+    <h2 class="text-2xl font-bold mb-6">Apps</h2>
+    <div class="grid grid-cols-3 gap-4">
+       {% if apps %}
+         {% for app in apps %}
+         <div class="card bg-base-100 w-96 shadow-xl">
+            <figure>
+              <img
+                src="{% static 'images/apps.svg' %}"
+                alt="App thumbnail"
+                class="w-full h-32 object-contain p-4" />
+            </figure>
+            <div class="card-body">
+              <h2 class="card-title">{{ app.name }}</h2>
+              <p>{{ app.description }}</p>
+              <div class="card-actions justify-end">
+                <a href="{% url app.namespace|add:':home' %}" class="btn btn-primary">View</a>
+              </div>
+            </div>
+          </div>
+         {% endfor %}
+       {% else %}
+         <div class="col-span-3 flex flex-col items-center justify-center p-8 text-center">
+           <svg data-src="https://unpkg.com/heroicons/24/outline/squares-2x2.svg" class="h-12 w-12 text-gray-400"></svg>
+           <h3 class="mt-2 text-sm font-semibold text-gray-900">No apps</h3>
+           <p class="mt-1 text-sm text-gray-500">Get started by installing some apps</p>
+         </div>
+       {% endif %}
+    </div>
+   </section>
+
+</div>
+
+{% endblock %}
