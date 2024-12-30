@@ -29,11 +29,12 @@
 # - environs[django]
 # - falco-toolbox
 # - falco-ui
-# - faststream[nats]
+# - faststream[redis]
 # - gunicorn
 # - heroicons[django]
 # - honcho
 # - jupyterlab
+# - kitchenai-py
 # - nbconvert
 # - nbformat
 # - nest-asyncio
@@ -342,6 +343,10 @@ jupyterlab-pygments==0.3.0
     # via nbconvert
 jupyterlab-server==2.27.3
     # via jupyterlab
+kitchenai-py==0.0.2
+    # via hatch.envs.default
+kitchenai-python-sdk==1.4.0
+    # via kitchenai-py
 markdown-it-py==3.0.0
     # via rich
 markupsafe==3.0.2
@@ -361,8 +366,6 @@ mistune==3.0.2
     # via nbconvert
 monotonic==1.6
     # via posthog
-nats-py==2.9.0
-    # via faststream
 nbclient==0.10.0
     # via nbconvert
 nbconvert==7.16.4
@@ -436,6 +439,7 @@ pydantic==2.9.2
     # via
     #   django-ninja
     #   fast-depends
+    #   kitchenai-python-sdk
 pydantic-core==2.23.4
     # via pydantic
 pygments==2.18.0
@@ -454,6 +458,7 @@ python-dateutil==2.9.0.post0
     #   arrow
     #   botocore
     #   jupyter-client
+    #   kitchenai-python-sdk
     #   posthog
     #   svix
 python-dotenv==1.0.1
@@ -475,6 +480,8 @@ pyzmq==26.2.0
     #   jupyter-server
 rcssmin==1.1.2
     # via django-compressor
+redis==5.2.1
+    # via faststream
 referencing==0.35.1
     # via
     #   jsonschema
@@ -488,9 +495,11 @@ requests==2.32.3
     #   django-allauth
     #   django-anymail
     #   jupyterlab-server
+    #   kitchenai-py
     #   posthog
     #   pubcontrol
     #   requests-oauthlib
+    #   sseclient
 requests-oauthlib==2.0.0
     # via django-allauth
 rfc3339-validator==0.1.4
@@ -534,6 +543,7 @@ six==1.16.0
     #   posthog
     #   python-dateutil
     #   rfc3339-validator
+    #   sseclient
 slippers==0.6.2
     # via
     #   hatch.envs.default
@@ -546,6 +556,8 @@ soupsieve==2.6
     # via beautifulsoup4
 sqlparse==0.5.1
     # via django
+sseclient==0.0.27
+    # via kitchenai-py
 stack-data==0.6.3
     # via ipython
 starlette==0.40.0
@@ -598,6 +610,7 @@ typing-extensions==4.12.2
     #   dj-database-url
     #   faststream
     #   ipython
+    #   kitchenai-python-sdk
     #   psycopg
     #   pydantic
     #   pydantic-core
@@ -610,6 +623,7 @@ urllib3==2.2.3
     # via
     #   botocore
     #   django-anymail
+    #   kitchenai-python-sdk
     #   requests
     #   sentry-sdk
 uvicorn==0.34.0

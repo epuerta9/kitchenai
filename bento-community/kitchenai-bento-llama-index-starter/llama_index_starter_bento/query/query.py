@@ -1,10 +1,9 @@
 from llama_index_starter_bento.kitchen import app as kitchen
-from kitchenai.contrib.kitchenai_sdk.api import QuerySchema
+from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema
 import logging
 
 from llama_index.core import VectorStoreIndex, StorageContext
 from llama_index.vector_stores.chroma import ChromaVectorStore
-from kitchenai.plugins.client import response_execute
 from llama_index_starter_bento.kitchen import chroma_collection, llm
 
 logger = logging.getLogger(__name__)
@@ -36,7 +35,6 @@ async def query(data: QuerySchema):
     )
     query_engine = index.as_query_engine(chat_mode="best", llm=llm, verbose=True)
     response = query_engine.query(data.query)
-    response_execute("deepeval_plugin", "evaluator", response.response)
 
     return {"msg": response.response}
 

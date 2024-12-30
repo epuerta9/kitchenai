@@ -59,13 +59,14 @@ dependencies = [
   "posthog",
   "nbformat",
   "nbconvert",
-  "faststream[nats]", 
+  "faststream[redis]", 
   "starlette",
   "django-eventstream",
   "dynamic-pip", 
   "jupyterlab",
   "nest_asyncio",
-  "django-model-utils"
+  "django-model-utils",
+  "kitchenai-py"
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"
