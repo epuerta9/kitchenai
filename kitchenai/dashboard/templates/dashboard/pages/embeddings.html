@@ -23,7 +23,7 @@
                             </svg>
                         </label>
                         <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                            {% for handler in storage_handlers %}
+                            {% for handler in embed_handlers %}
                                 <li><a onclick="document.getElementsByName('ingest_label')[0].value='{{ handler }}'">{{ handler }}</a></li>
                             {% empty %}
                                 <li><span class="text-base-content/70 p-2">No labels available</span></li>

@@ -1,14 +1,39 @@
+{% if error %}
+<!-- Error message -->
+<div class="chat chat-start">
+  <div class="chat-image avatar">
+    <div class="w-10 rounded-full bg-error/10">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/exclamation-triangle.svg" class="h-6 w-6 m-2 text-error"></svg>
+    </div>
+  </div>
+  <div class="chat-bubble chat-bubble-error">{{ error }}</div>
+</div>
+{% else %}
+<!-- User input message on right -->
+<div class="chat chat-end">
+  <div class="chat-image avatar">
+    <div class="w-10 rounded-full bg-base-300">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/user.svg" class="h-6 w-6 m-2 text-base-content"></svg>
+    </div>
+  </div>
+  <div class="chat-bubble">{{ metrics.input_text }}</div>
+</div>
+
+<!-- AI output message in center -->
 <div class="chat chat-start">
   <div class="chat-image avatar">
     <div class="w-10 rounded-full bg-primary/10">
       <svg data-src="https://unpkg.com/heroicons/20/solid/cpu-chip.svg" class="h-6 w-6 m-2 text-primary"></svg>
     </div>
   </div>
-  <div class="chat-bubble">{{ message }}</div>
+  <div class="chat-bubble">{{ metrics.output_text }}</div>
 </div>
 
-<div class="chat-metrics">
-  {% for metric, value in chat_metrics.items %}
-    <div class="chat-metric">{{ metric }}: {{ value }}</div>
-  {% endfor %}
+<!-- Metrics display -->
+<div class="chat-metrics bg-base-200 rounded-lg p-4 text-sm space-y-2">
+  <div>Response Time: {{ metrics.response_time }}s</div>
+  <div>Token Usage: {{ metrics.token_usage }}</div>
+  <div>Confidence Score: {{ metrics.confidence_score }}</div>
+  <div>Sources Used: {{ metrics.sources_used|join:", " }}</div>
 </div>
+{% endif %}

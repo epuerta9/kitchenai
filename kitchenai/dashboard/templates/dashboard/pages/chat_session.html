@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load partials %}
 
 {% block content %}
 <div class="flex h-screen">
@@ -7,29 +8,179 @@
   <div class="flex-1 flex flex-col">
     <!-- Chat Messages Area -->
     <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chat-messages">
-      <!-- Messages will be inserted here -->
+      <!-- Initial welcome message -->
       <div class="chat chat-start">
-        <div class="chat-bubble">Welcome to KitchenAI! How can I help you today?</div>
+        <div class="chat-bubble">Chat with your bento box. Give it a spin!</div>
       </div>
+      
+      <!-- Display existing chat messages -->
+      {% for message in metrics %}
+        <!-- User input message on right -->
+        <div class="chat chat-end">
+          <div class="chat-image avatar">
+            <div class="w-10 rounded-full bg-base-300">
+              <svg data-src="https://unpkg.com/heroicons/20/solid/user.svg" class="h-6 w-6 m-2 text-base-content"></svg>
+            </div>
+          </div>
+          <div class="chat-bubble">{{ message.input_text }}</div>
+        </div>
+
+        <!-- AI output message in center -->
+        <div class="chat chat-start">
+          <div class="chat-image avatar">
+            <div class="w-10 rounded-full bg-primary/10">
+              <svg data-src="https://unpkg.com/heroicons/20/solid/cpu-chip.svg" class="h-6 w-6 m-2 text-primary"></svg>
+            </div>
+          </div>
+          <div class="chat-bubble">{{ message.output_text }}</div>
+        </div>
+
+        <!-- Metrics display -->
+        <div class="chat-metrics bg-base-200 rounded-lg p-4 text-sm space-y-2">
+          <div>Response Time: {{ message.response_time }}s</div>
+          <div>Token Usage: {{ message.token_usage }}</div>
+          <div>Confidence Score: {{ message.confidence_score }}</div>
+          <div>Sources Used: {{ message.sources_used|join:", " }}</div>
+        </div>
+      {% endfor %}
     </div>
 
     <!-- Icon Menu Bar -->
     <div class="border-t border-base-300 p-2">
       <div class="flex justify-center space-x-4">
-        <button class="btn btn-ghost btn-circle">
+        <a href="{% url 'dashboard:chat' %}" class="btn btn-ghost btn-circle tooltip flex items-center justify-center" data-tip="Back to Chat List">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/arrow-left.svg" class="h-5 w-5"></svg>
+        </a>
+        <button class="btn btn-ghost btn-circle tooltip flex items-center justify-center" data-tip="Voice Input" onclick="coming_soon_modal.showModal()">
           <svg data-src="https://unpkg.com/heroicons/20/solid/microphone.svg" class="h-5 w-5"></svg>
         </button>
-        <button class="btn btn-ghost btn-circle">
+        <button class="btn btn-ghost btn-circle tooltip flex items-center justify-center" data-tip="Upload Image" onclick="coming_soon_modal.showModal()">
           <svg data-src="https://unpkg.com/heroicons/20/solid/photo.svg" class="h-5 w-5"></svg>
         </button>
-        <button class="btn btn-ghost btn-circle">
+        <button class="btn btn-ghost btn-circle tooltip flex items-center justify-center" data-tip="Upload Document" onclick="coming_soon_modal.showModal()">
           <svg data-src="https://unpkg.com/heroicons/20/solid/document.svg" class="h-5 w-5"></svg>
         </button>
-        <button class="btn btn-ghost btn-circle">
+        <button class="btn btn-ghost btn-circle tooltip flex items-center justify-center" data-tip="Settings" onclick="settings_modal.showModal()">
           <svg data-src="https://unpkg.com/heroicons/20/solid/cog.svg" class="h-5 w-5"></svg>
         </button>
       </div>
     </div>
+
+    <dialog id="coming_soon_modal" class="modal">
+      <div class="modal-box">
+        <div class="flex flex-col items-center gap-4">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/clock.svg" class="h-12 w-12 text-primary"></svg>
+          <h3 class="font-bold text-lg">Coming Soon!</h3>
+          <p class="text-center">This feature is currently under development.</p>
+          <form method="dialog">
+            <button class="btn btn-primary">Close</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Settings Modal -->
+    <dialog id="settings_modal" class="modal">
+      <div class="modal-box">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-lg">Chat Settings</h3>
+          <form method="dialog">
+            <button class="btn btn-ghost btn-sm btn-circle">
+              <svg data-src="https://unpkg.com/heroicons/20/solid/x-mark.svg" class="h-5 w-5"></svg>
+            </button>
+          </form>
+        </div>
+        <form action="{% url 'dashboard:chat_settings' chat.id %}" method="post">
+          {% csrf_token %}
+          <div class="space-y-4">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Chat Type</span>
+              </label>
+              <select class="select select-bordered" name="chat_type">
+                <option value="query" {% if settings.chat_type == 'query' %}selected{% endif %}>Query</option>
+                <option value="agent" {% if settings.chat_type == 'agent' %}selected{% endif %}>Agent</option>
+              </select>
+            </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Selected Label</span>
+              </label>
+              <input type="text" value="{{ settings.selected_label }}" class="input input-bordered" name="selected_label" />
+            </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Bento Name</span>
+              </label>
+              <input type="text" value="{{ settings.bento_name }}" class="input input-bordered" name="bento_name" />
+            </div>
+
+            <label class="label">
+              <span class="label-text">Additional Metadata</span>
+              <span class="label-text-alt">(Optional)</span>
+            </label>
+            <div id="metadata-fields" class="grid grid-cols-1 gap-4">
+              {% for key, value in settings.metadata.items %}
+              <div class="form-control flex flex-row gap-2">
+                <input type="text" name="metadata_key[]" placeholder="Key" value="{{ key }}" class="input input-bordered w-1/2">
+                <input type="text" name="metadata_value[]" placeholder="Value" value="{{ value }}" class="input input-bordered w-1/2">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="removeMetadataField(this)">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              {% endfor %}
+              <div class="form-control flex flex-row gap-2">
+                <input type="text" name="metadata_key[]" placeholder="Key" class="input input-bordered w-1/2">
+                <input type="text" name="metadata_value[]" placeholder="Value" class="input input-bordered w-1/2">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="removeMetadataField(this)">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <button type="button" onclick="addMetadataField()" class="btn btn-ghost btn-sm mt-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Add Metadata Field
+            </button>
+            <script>
+              function addMetadataField() {
+                const container = document.getElementById('metadata-fields');
+                const newField = document.createElement('div');
+                newField.className = 'form-control flex flex-row gap-2';
+                newField.innerHTML = `
+                  <input type="text" name="metadata_key[]" placeholder="Key" class="input input-bordered w-1/2">
+                  <input type="text" name="metadata_value[]" placeholder="Value" class="input input-bordered w-1/2">
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="removeMetadataField(this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                `;
+                container.appendChild(newField);
+              }
+
+              function removeMetadataField(button) {
+                button.parentElement.remove();
+              }
+            </script>
+
+            <div class="flex justify-end mt-4">
+              <button type="submit" class="btn btn-primary">
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
     <!-- Chat Input Area -->
     <div class="border-t border-base-300 p-4">
       <form class="flex gap-2" 
@@ -37,13 +188,19 @@
             hx-target="#chat-messages" 
             hx-swap="beforeend"
             hx-target-2="#metrics-panel"
-            hx-swap-2="innerHTML">
+            hx-swap-2="innerHTML"
+            hx-indicator="#loading-indicator">
         <input type="text" 
                placeholder="Type your message here..." 
                class="input input-bordered flex-1" 
                name="message">
         <button type="submit" class="btn btn-primary">
-          <svg data-src="https://unpkg.com/heroicons/20/solid/paper-airplane.svg" class="h-5 w-5"></svg>
+          <span class="htmx-indicator" id="loading-indicator">
+            <span class="loading loading-spinner loading-sm"></span>
+          </span>
+          <span class="htmx-indicator-hide">
+            <svg data-src="https://unpkg.com/heroicons/20/solid/paper-airplane.svg" class="h-5 w-5"></svg>
+          </span>
         </button>
       </form>
     </div>
@@ -51,13 +208,21 @@
 
   <!-- Right Metrics Panel -->
   <div id="metrics-panel" class="w-80 border-l border-base-300 bg-base-100 p-4">
-    <h3 class="text-lg font-bold mb-4">Chat Metrics</h3>
+    <h3 class="text-lg font-bold mb-4">
+      Chat Metrics
+      <button class="btn btn-ghost btn-xs btn-circle" 
+              hx-get="{% url 'dashboard:aggregated_metrics' chat.id %}"
+              hx-target="#metrics-content"
+              hx-swap="innerHTML">
+        <svg data-src="https://unpkg.com/heroicons/20/solid/arrow-path.svg" class="h-4 w-4"></svg>
+      </button>
+    </h3>
     
-    <div hx-get="{% url 'dashboard:aggregated_metrics' chat.id %}"
-         hx-trigger="load, every 3s"
+    <div id="metrics-content"
+         hx-get="{% url 'dashboard:aggregated_metrics' chat.id %}"
+         hx-trigger="load"
          hx-swap="innerHTML">
     </div>
-
   </div>
 </div>
 {% endblock content %}

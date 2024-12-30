@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="p-8">
+    <div class="flex items-center mb-8">
+        <a href="{% url 'dashboard:home' %}" class="btn btn-ghost">
+            <svg data-src="https://www.svgrepo.com/show/521416/arrow-left.svg" width="24" height="24"></svg>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="flex flex-col items-center justify-center min-h-[60vh]">
+        <div class="card w-96 bg-base-100 shadow-xl">
+            <div class="card-body items-center text-center">
+                <svg data-src="https://www.svgrepo.com/show/525775/warning-circle.svg" class="w-24 h-24 text-error mb-4"></svg>
+                <h2 class="card-title text-error">Error</h2>
+                <p class="text-base-content">{{ error }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

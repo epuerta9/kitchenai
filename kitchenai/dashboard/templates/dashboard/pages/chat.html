@@ -9,14 +9,22 @@
             {% if chats %}
                 <div class="space-y-4">
                     {% for chat in chats %}
-                        <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg hover:bg-base-300 transition-colors">
+                        <div id="chat-{{ chat.id }}" class="flex items-center justify-between p-4 bg-base-200 rounded-lg hover:bg-base-300 transition-colors">
                             <div>
                                 <h3 class="font-semibold">Chat Session #{{ chat.id }}</h3>
                                 <p class="text-sm text-base-content/70">Started {{ chat.created_at|date:"M d, Y" }}</p>
                             </div>
-                            <a href="{% url 'dashboard:chat_session' chat.id %}" class="btn btn-primary btn-sm">
-                                Continue Chat
-                            </a>
+                            <div class="flex gap-2">
+                                <a href="{% url 'dashboard:chat_session' chat.id %}" class="btn btn-primary btn-sm">
+                                    Continue Chat
+                                </a>
+                                <button class="btn btn-ghost btn-sm btn-circle"
+                                        hx-delete="{% url 'dashboard:chat_delete' chat.id %}"
+                                        hx-swap="outerHTML"
+                                        hx-target="#chat-{{ chat.id }}">
+                                    <svg data-src="https://unpkg.com/heroicons/20/solid/trash.svg" class="h-5 w-5"></svg>
+                                </button>
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
@@ -25,11 +33,10 @@
                     <p>No chat sessions found</p>
                 </div>
             {% endif %}
-
             <div class="card-actions justify-center mt-6">
-                <form hx-post="{% url 'dashboard:chat' %}" class="w-full flex justify-center">
+                <form method="POST" action="{% url 'dashboard:chat' %}" class="w-full flex justify-center">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-primary gap-2">
+                    <button type="submit" class="btn btn-primary gap-2 text-center">
                         <svg data-src="{% static 'icons/plus.svg' %}" class="w-5 h-5"></svg>
                         Start New Session
                     </button>
