@@ -11,13 +11,13 @@ class KitchenAITask:
 
 
     def register_task(self, label: str, func: Callable):
-        task_key = f"{self.namespace}.{label}"
+        task_key = f"{label}"
         self._tasks[task_key] = func
         return func
 
     def get_task(self, label: str) -> Callable | None:
         logger.info(f"Getting task for {label}")
-        task_key = f"{self.namespace}.{label}"
+        task_key = f"{label}"
         logger.info(f"Task key: {task_key}")
         return self._tasks.get(task_key)
     
