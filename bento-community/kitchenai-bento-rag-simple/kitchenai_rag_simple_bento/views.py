@@ -29,6 +29,6 @@ async def settings_view(request, bento_name):
     loaded_bento = next((bento for bento in loaded_bentos if bento["name"] == bento_name), None)
     settings = json.dumps(loaded_bento["settings"], indent=4)
 
-    available_env_vars = get_available_env_vars()
+    available_env_vars = get_available_env_vars().model_dump()
 
     return render(request, 'kitchenai_rag_simple_bento/pages/settings.html', {'settings': settings, 'config': loaded_bento, 'available_env_vars': available_env_vars})
