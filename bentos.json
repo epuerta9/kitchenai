@@ -1,10 +1,16 @@
 {
   "bentos": [
     {
-      "name": "kitchenai-bento-llama-index-starter",
-      "package_name": "llama_index_starter_bento",
-      "description": "A starter kitchenai bento backend for RAG using llama index",
-      "path": "bento-community/kitchenai-bento-llama-index-starter"
+      "name": "kitchenai_rag_simple_bento",
+      "description": "a simple RAG starter that covers majority of cases",
+      "namespace": "simple_rag",
+      "home": "home",
+      "tags": [
+        "rag-simple",
+        "bento",
+        "kitchenai_rag_simple_bento",
+        "kitchenai-bento-rag-simple"
+      ]
     }
   ]
 }
