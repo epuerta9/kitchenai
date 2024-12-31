@@ -34,6 +34,40 @@
   <div>Response Time: {{ metrics.response_time }}s</div>
   <div>Token Usage: {{ metrics.token_usage }}</div>
   <div>Confidence Score: {{ metrics.confidence_score }}</div>
-  <div>Sources Used: {{ metrics.sources_used|join:", " }}</div>
+  
+  <!-- Collapsible Sources -->
+  <div class="collapse bg-base-100">
+    <input type="checkbox" id="collapse-{{ metrics.id }}" /> 
+    <label for="collapse-{{ metrics.id }}" class="collapse-title text-base font-medium flex items-center gap-2 cursor-pointer">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/document-magnifying-glass.svg" class="h-5 w-5"></svg>
+      Retrieved Sources
+    </label>
+    <div class="collapse-content">
+      <div class="overflow-x-auto">
+        <table class="table table-xs">
+          <thead>
+            <tr>
+              <th>Source Text</th>
+              <th>Score</th>
+              <th>Metadata</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for source in metrics.sources_used %}
+            <tr>
+              <td class="whitespace-pre-wrap">{{ source.text }}</td>
+              <td>{{ source.score|floatformat:3 }}</td>
+              <td>
+                {% for key, value in source.metadata.items %}
+                <div><span class="font-semibold">{{ key }}:</span> {{ value }}</div>
+                {% endfor %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 {% endif %}

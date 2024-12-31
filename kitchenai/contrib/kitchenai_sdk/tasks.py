@@ -11,12 +11,12 @@ from .schema import EmbedSchema, StorageSchema
 logger = logging.getLogger(__name__)
 
 
-
 def process_file_task_core(instance, *args, **kwargs):
     """process file async function for core app using storage task"""
     logger.info(f"processing file with id: {instance.ingest_label}")
     try:
         kitchenai_app = get_core_kitchenai_app()
+        
         f = kitchenai_app.storage.get_task(instance.ingest_label)
         if f:
             return _process_file_task(f, instance)

@@ -25,7 +25,7 @@
           <div class="chat-bubble">{{ message.input_text }}</div>
         </div>
 
-        <!-- AI output message in center -->
+        <!-- AI output message on left -->
         <div class="chat chat-start">
           <div class="chat-image avatar">
             <div class="w-10 rounded-full bg-primary/10">
@@ -33,14 +33,48 @@
             </div>
           </div>
           <div class="chat-bubble">{{ message.output_text }}</div>
-        </div>
-
-        <!-- Metrics display -->
-        <div class="chat-metrics bg-base-200 rounded-lg p-4 text-sm space-y-2">
-          <div>Response Time: {{ message.response_time }}s</div>
-          <div>Token Usage: {{ message.token_usage }}</div>
-          <div>Confidence Score: {{ message.confidence_score }}</div>
-          <div>Sources Used: {{ message.sources_used|join:", " }}</div>
+          
+          <!-- Metrics display -->
+          <div class="chat-metrics bg-base-200 rounded-lg p-4 text-sm space-y-2">
+            <div>Response Time: {{ message.response_time }}s</div>
+            <div>Token Usage: {{ message.token_usage }}</div>
+            <div>Confidence Score: {{ message.confidence_score }}</div>
+            
+            <!-- Collapsible Sources -->
+            <div class="collapse bg-base-100">
+              <input type="checkbox" id="collapse-{{ forloop.counter }}" /> 
+              <label for="collapse-{{ forloop.counter }}" class="collapse-title text-base font-medium flex items-center gap-2 cursor-pointer">
+                <svg data-src="https://unpkg.com/heroicons/20/solid/document-magnifying-glass.svg" class="h-5 w-5"></svg>
+                Retrieved Sources
+              </label>
+              <div class="collapse-content">
+                <div class="overflow-x-auto">
+                  <table class="table table-xs">
+                    <thead>
+                      <tr>
+                        <th>Source Text</th>
+                        <th>Score</th>
+                        <th>Metadata</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for source in message.sources_used %}
+                      <tr>
+                        <td class="whitespace-pre-wrap">{{ source.text }}</td>
+                        <td>{{ source.score|floatformat:3 }}</td>
+                        <td>
+                          {% for key, value in source.metadata.items %}
+                          <div><span class="font-semibold">{{ key }}:</span> {{ value }}</div>
+                          {% endfor %}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       {% endfor %}
     </div>

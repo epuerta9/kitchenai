@@ -16,8 +16,8 @@ class StorageTask(KitchenAITask, KitchenAITaskHookMixin):
         def decorator(func):
             @functools.wraps(func)
             @self.with_dependencies(*dependencies)
-            async def wrapper(*args, **kwargs):
-                return await func(*args, **kwargs)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
             return self.register_task(label, wrapper)
         return decorator
 

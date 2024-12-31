@@ -1,6 +1,5 @@
 from django.http import HttpRequest
 from django.template.response import TemplateResponse
-from falco_toolbox.types import HttpRequest
 from django.conf import settings
 import logging
 from kitchenai.bento.models import Bento
@@ -10,10 +9,11 @@ from kitchenai.dashboard.forms import FileUploadForm
 from django.shortcuts import redirect
 from django.apps import apps
 from django.http import HttpResponse
-from .models import Chat, ChatMetric, AggregatedChatMetric, ChatSetting
+from ..models import Chat, ChatMetric, AggregatedChatMetric, ChatSetting
 from kitchenai.core.exceptions import QueryHandlerBadRequestError
 from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, QueryBaseResponseSchema
 from kitchenai.core.api.query import query_handler
+from .bento import *
 
 logger = logging.getLogger(__name__)
 
@@ -266,11 +266,22 @@ async def chat_send(request: HttpRequest, chat_id: int):
             {"message": message, "error": e.message}
         )
     
-    logger.debug(f"result: {result}")
+    # Convert retrieval context to JSON-serializable format
+    sources = [
+        {
+            "text": source.text,
+            "metadata": source.metadata,
+            "score": source.score
+        }
+        for source in (result.retrieval_context or [])
+    ]
+    
     metric = await ChatMetric.objects.acreate(
-        input_text=message, 
+        input_text=result.input, 
         output_text=result.output, 
-        chat=chat
+        chat=chat,
+        metadata=result.metadata,
+        sources_used=sources
     )
 
     return TemplateResponse(

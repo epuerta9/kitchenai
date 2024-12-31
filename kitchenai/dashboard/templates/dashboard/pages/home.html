@@ -84,6 +84,18 @@
                </div>
              </div>
             {% endfor %}
+            <a href="{% url 'dashboard:bento_install' %}" class="card bg-base-100 w-96 shadow-xl hover:bg-base-200 cursor-pointer flex items-center">
+              <div class="card-body flex flex-col items-center justify-center min-h-[300px] self-center">
+                <div class="flex justify-center items-center my-auto">
+                  <div class="flex flex-col my-auto">   
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                </div>
+                <p class="mt-4 text-lg font-semibold text-center">Add New Bento</p>
+              </div>
+            </a>
          {% else %}
             <div class="col-span-3 flex flex-col items-center justify-center p-8 text-center">
               <svg data-src="https://unpkg.com/heroicons/24/outline/squares-2x2.svg" class="h-12 w-12 text-gray-400"></svg>

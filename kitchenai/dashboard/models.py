@@ -31,6 +31,7 @@ class ChatMetric(TimeStamped):
     token_usage = models.IntegerField(default=0)
     confidence_score = models.IntegerField(default=0)
     sources_used = models.JSONField(default=list)
+    metadata = models.JSONField(default=dict)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
 
     def __str__(self):
