@@ -29,7 +29,8 @@ class KitchenAIAppSchema(Schema):
     agent_handlers: List[str]
     embed_handlers: List[str]
     storage_handlers: List[str]
-
+import logging
+logger = logging.getLogger(__name__)    
 
 @router.get("/labels", response=KitchenAIAppSchema)
 async def labels(request):

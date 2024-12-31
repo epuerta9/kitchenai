@@ -40,6 +40,13 @@
           </svg>
           Embeddings
         </a>
+        <a href="{% url 'dashboard:chat' %}"
+           class="{% if request.resolver_match.url_name == 'chat' %}active{% endif %}">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/chat-bubble-left-right.svg"
+               class="h-5 w-5">
+          </svg>
+          Chat
+        </a>
         <a href="/api/docs"
            class="{% if request.resolver_match.url_name == 'api-docs' %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/code-bracket.svg"

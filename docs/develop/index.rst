@@ -1,5 +1,6 @@
-Develop
-============
+Development
+==========
+
 .. include:: ./README.md
    :parser: myst_parser.sphinx_
 
@@ -7,4 +8,4 @@ Develop
     :hidden:
 
     ai-developer/index
-    app-developer/index
+    concepts/index
