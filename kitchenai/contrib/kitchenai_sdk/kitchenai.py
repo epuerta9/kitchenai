@@ -13,12 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class KitchenAIApp:
-    def __init__(self, namespace: str = "default"):
+    def __init__(self, namespace: str = "default", manager = None):
         self.namespace = namespace
-        self.query = QueryTask(namespace)
-        self.storage = StorageTask(namespace)
-        self.embeddings = EmbedTask(namespace)
-        self.agent = AgentTask(namespace)
+        self.query = QueryTask(namespace, manager)
+        self.storage = StorageTask(namespace, manager)
+        self.embeddings = EmbedTask(namespace, manager)
+        self.agent = AgentTask(namespace, manager)
         self._default_hook = "kitchenai.contrib.kitchenai_sdk.hooks.default_hook"
 
 

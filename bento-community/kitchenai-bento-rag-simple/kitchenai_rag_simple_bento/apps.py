@@ -1,5 +1,48 @@
+from kitchenai.bento.bento_config import BentoBaseConfig
+from kitchenai.bento.types import DependencyType
+from kitchenai.bento.manager import DependencyManager  
+from typing import Any
+from kitchenai.core.types import EnvVars
+import logging
+logger = logging.getLogger(__name__)
+import logging
+import sys
 from django.apps import AppConfig
-from llama_index.llms.litellm import LiteLLM
+import os
+
+# Configure basic logging to stdout
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+# Write to a file for debugging
+debug_log = open("/tmp/kitchen_debug.log", "a")
+
+# from django.apps import AppConfig
+class KitchenaiRagSimpleBentoConfig(BentoBaseConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "kitchenai_rag_simple_bento"
+
+    def ready(self):
+        debug_log.write("\n=== App Ready Called ===\n")
+        debug_log.write(f"Process ID: {os.getpid()}\n")
+        
+        try:
+            from .kitchen import get_app
+            app = get_app()  # This will ensure handlers are loaded
+            debug_log.write(f"Kitchen app handlers: {app.to_dict()}\n")
+        except Exception as e:
+            debug_log.write(f"Error in ready(): {str(e)}\n")
+            import traceback
+            traceback.print_exc(file=debug_log)
+        
+        debug_log.write("=== App Ready Complete ===\n")
+        debug_log.flush()
+        
+        return super().ready()
+    
 
 
 class KitchenaiRagSimpleBentoConfig(AppConfig):
@@ -7,37 +50,31 @@ class KitchenaiRagSimpleBentoConfig(AppConfig):
     name = "kitchenai_rag_simple_bento"
 
     def ready(self):
-        """Initialize KitchenAI app when Django starts"""
-        
-        import kitchenai_rag_simple_bento.storage.vector
         import kitchenai_rag_simple_bento.query.query
+        import kitchenai_rag_simple_bento.storage.vector
         import kitchenai_rag_simple_bento.embeddings.embeddings
-        
-        #TODO: add better validation for config
-        from django.conf import settings
-        if settings.KITCHENAI_RAG_SIMPLE_BENTO["model_type"] == "ollama":
-            from llama_index.llms.ollama import OLLama
-            self.llm = OLLama(model=settings.KITCHENAI_RAG_SIMPLE_BENTO["model_name"])
-        elif settings.KITCHENAI_RAG_SIMPLE_BENTO["model_type"] == "litellm":
-            self.llm = LiteLLM(settings.KITCHENAI_RAG_SIMPLE_BENTO["model_name"])
-        else:
-            raise ValueError(f"Invalid model type: {settings.KITCHENAI_RAG_SIMPLE_BENTO['model_type']}")
-        
-        
-        if settings.KITCHENAI_RAG_SIMPLE_BENTO["vector_store"] == "chroma":
-            from llama_index.vector_stores.chroma import ChromaVectorStore
-            import chromadb
+        print("KitchenaiRagSimpleBentoConfig ready", file=sys.stdout)   
 
-            self.vector_client = chromadb.PersistentClient(path="chroma_db")
-            self.vector_collection = self.vector_client.get_or_create_collection("quickstart")
-            self.vector_store = ChromaVectorStore(chroma_collection=self.vector_collection)
 
-        elif settings.KITCHENAI_RAG_SIMPLE_BENTO["vector_store"] == "pgvector":
-            from llama_index.vector_stores.pgvector import PGVectorStore
-            import pgvector
-            self.vector_client = pgvector.connect()
-            self.vector_store = PGVectorStore(pgvector_collection=self.vector_collection)
-        else:
-            raise ValueError(f"Invalid vector store: {settings.KITCHENAI_RAG_SIMPLE_BENTO['vector_store']}")
+# class KitchenaiRagSimpleBentoConfig(BentoBaseConfig):
+#     default_auto_field = "django.db.models.BigAutoField"
+#     name = "kitchenai_rag_simple_bento"
 
+#     def __init__(self, app_name, app_module):
+#         print(f"RAGBento.__init__ for {app_name}", file=sys.stdout)
+#         sys.stdout.flush()
+        
+#         # Inject the dependency manager implementation
+#         dependency_manager = DependencyManager.get_instance(app_name)
+#         super().__init__(app_name, app_module, dependency_manager)
+
+#     def ready(self):
+#         print(f"RAGBento.ready START for {self.name}", file=sys.stdout)
+#         sys.stdout.flush()
+        
+#         # Debug: Print final app state
+#         print("Apps in ready:", [app.name for app in apps.get_app_configs()], file=sys.stdout)
+#         sys.stdout.flush()
+        
+#         return super().ready()
 
