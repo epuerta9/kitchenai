@@ -10,39 +10,6 @@ import sys
 from django.apps import AppConfig
 import os
 
-# Configure basic logging to stdout
-logging.basicConfig(
-    stream=sys.stdout,
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-# Write to a file for debugging
-debug_log = open("/tmp/kitchen_debug.log", "a")
-
-# from django.apps import AppConfig
-class KitchenaiRagSimpleBentoConfig(BentoBaseConfig):
-    default_auto_field = "django.db.models.BigAutoField"
-    name = "kitchenai_rag_simple_bento"
-
-    def ready(self):
-        debug_log.write("\n=== App Ready Called ===\n")
-        debug_log.write(f"Process ID: {os.getpid()}\n")
-        
-        try:
-            from .kitchen import get_app
-            app = get_app()  # This will ensure handlers are loaded
-            debug_log.write(f"Kitchen app handlers: {app.to_dict()}\n")
-        except Exception as e:
-            debug_log.write(f"Error in ready(): {str(e)}\n")
-            import traceback
-            traceback.print_exc(file=debug_log)
-        
-        debug_log.write("=== App Ready Complete ===\n")
-        debug_log.flush()
-        
-        return super().ready()
-    
 
 
 class KitchenaiRagSimpleBentoConfig(AppConfig):

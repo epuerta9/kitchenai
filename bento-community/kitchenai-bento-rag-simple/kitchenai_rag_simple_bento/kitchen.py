@@ -1,61 +1,58 @@
-import sys
-from django.apps import apps
+
 from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
 from kitchenai.bento.manager import DependencyManager
-import logging
+from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, QueryBaseResponseSchema
+from llama_index.core import VectorStoreIndex, StorageContext
+from django.apps import apps
+from kitchenai.bento.types import DependencyType
+
+from kitchenai_llama.storage.llama_parser import Parser
+from kitchenai.contrib.kitchenai_sdk.schema import StorageSchema
+from llama_index.core.node_parser import TokenTextSplitter
+from llama_index.core.extractors import (
+    TitleExtractor,
+    QuestionsAnsweredExtractor)
+from llama_index.core import Document
+from kitchenai.contrib.kitchenai_sdk.schema import EmbedSchema
+from django.apps import apps
 import os
 
-# Write to a file for debugging
-debug_log = open("/tmp/kitchen_debug.log", "a")
-debug_log.write("\n=== New Kitchen Module Load ===\n")
-debug_log.flush()
 
-# Create the app instance at module level
-debug_log.write("Creating KitchenAI app\n")
-dependency_manager = DependencyManager.get_instance("kitchenai_rag_simple_bento")
-app = KitchenAIApp(namespace="kitchenai_rag_simple_bento", manager=dependency_manager)
 
-def trigger_registration():
-    """Force decorator execution by creating a temporary handler"""
-    debug_log.write("Triggering registration\n")
-    
-    @app.query.handler("_temp")
-    def _temp_handler():
-        pass
-    
-    # Remove the temporary handler
-    app.query._tasks.pop("_temp", None)
-    
-    debug_log.write(f"After trigger: {app.to_dict()}\n")
-    debug_log.flush()
+#dependency_manager = DependencyManager.get_instance("kitchenai_rag_simple_bento")
+app = KitchenAIApp(namespace="kitchenai_rag_simple_bento", manager=None)
 
-def get_app():
-    """Get or create the app instance with handlers loaded"""
-    global app
-    
-    if not any([app.query._tasks, app.storage._tasks, app.embeddings._tasks]):
-        debug_log.write("Loading handlers\n")
-        try:
-            # Import the modules
-            import kitchenai_rag_simple_bento.query.query
-            import kitchenai_rag_simple_bento.storage.vector
-            import kitchenai_rag_simple_bento.embeddings.embeddings
-            
-            # Trigger the decorators
-            trigger_registration()
-            
-            debug_log.write(f"Final app state: {app.to_dict()}\n")
-        except Exception as e:
-            debug_log.write(f"Error loading handlers: {str(e)}\n")
-            import traceback
-            traceback.print_exc(file=debug_log)
-    
-    debug_log.write(f"Returning app with handlers: {app.to_dict()}\n")
-    debug_log.flush()
-    return app
 
-# Trigger registration when module is loaded
-trigger_registration()
+@app.query.handler("kitchenai-bento-rag-simple", DependencyType.LLM, DependencyType.VECTOR_STORE)
+async def kitchenai_bento_simple_rag_vjnk(data: QuerySchema, llm, vector_store):
+    """Query handler"""
+    index = VectorStoreIndex.from_vector_store(vector_store)
+    query_engine = index.as_query_engine(chat_mode="best", llm=llm, verbose=True)
+    response = await query_engine.aquery(data.query)
+    return QueryBaseResponseSchema(output=response.response)
 
-# Export both the raw app and the getter
-__all__ = ['app', 'get_app']
+
+@app.storage.handler("kitchenai-bento-simple-rag")
+def simple_storage(data: StorageSchema, **kwargs):
+    parser = Parser(api_key=os.environ.get("LLAMA_CLOUD_API_KEY", None))
+    response = parser.load(data.dir, metadata=data.metadata, **kwargs)
+    vector_store = apps.get_app_config("kitchenai_rag_simple_bento").vector_store
+    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    VectorStoreIndex.from_documents(
+        response["documents"], storage_context=storage_context, show_progress=True,
+            transformations=[TokenTextSplitter(), TitleExtractor(),QuestionsAnsweredExtractor()]
+    )
+
+
+@app.embeddings.handler("kitchenai-bento-simple-rag")
+def simple_rag_bento_vagh(data: EmbedSchema):
+    documents = [Document(text=data.text)]
+    vector_store = apps.get_app_config("kitchenai_rag_simple_bento").vector_store
+    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    VectorStoreIndex.from_documents(
+        documents, storage_context=storage_context, show_progress=True,
+            transformations=[TokenTextSplitter(), TitleExtractor(),QuestionsAnsweredExtractor()]
+    )
+
+
+

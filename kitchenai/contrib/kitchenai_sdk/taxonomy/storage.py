@@ -1,5 +1,6 @@
 from ..base import KitchenAITask, KitchenAITaskHookMixin
 import functools
+import sys
 from kitchenai.bento.types import DependencyType
 
 class StorageTask(KitchenAITask, KitchenAITaskHookMixin):
@@ -13,7 +14,6 @@ class StorageTask(KitchenAITask, KitchenAITaskHookMixin):
     def handler(self, label: str, *dependencies: DependencyType):
         """Decorator for registering storage tasks with dependencies."""
         def decorator(func):
-            print("Decorator called")
             @functools.wraps(func)
             @self.with_dependencies(*dependencies)
             async def wrapper(*args, **kwargs):

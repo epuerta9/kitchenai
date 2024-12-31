@@ -1,5 +1,6 @@
 from collections.abc import Callable
 import logging
+import sys
 from functools import wraps
 from kitchenai.bento.types import DependencyType
 import asyncio

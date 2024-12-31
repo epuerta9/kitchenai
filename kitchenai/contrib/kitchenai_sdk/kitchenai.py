@@ -6,12 +6,6 @@ from kitchenai.contrib.kitchenai_sdk.taxonomy.storage import StorageTask
 from kitchenai.contrib.kitchenai_sdk.taxonomy.embeddings import EmbedTask
 from kitchenai.contrib.kitchenai_sdk.taxonomy.agent import AgentTask
 
-
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
-
 class KitchenAIApp:
     def __init__(self, namespace: str = "default", manager = None):
         self.namespace = namespace

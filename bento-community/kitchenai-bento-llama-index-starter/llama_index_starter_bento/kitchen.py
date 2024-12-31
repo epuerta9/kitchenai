@@ -1,6 +1,6 @@
 from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
 from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
-from kitchenai.contrib.kitchenai_sdk.api import QuerySchema, EmbedSchema
+from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, EmbedSchema
 from llama_index.core import VectorStoreIndex, StorageContext
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.llms.openai import OpenAI
