@@ -1,6 +1,6 @@
-from enum import Enum, auto
+from enum import StrEnum, auto
 
-class DependencyType(Enum):
+class DependencyType(StrEnum):
     """Types of dependencies that can be managed."""
     LLM = auto()
     VECTOR_STORE = auto()

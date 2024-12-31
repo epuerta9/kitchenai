@@ -1,47 +1,52 @@
 from kitchenai.bento.bento_config import BentoBaseConfig
 from kitchenai.bento.types import DependencyType
-from kitchenai.bento.manager import DependencyManager  
-from typing import Any
-from kitchenai.core.types import EnvVars
-import logging
-logger = logging.getLogger(__name__)
-import logging
+from kitchenai.bento.manager import DependencyManager
+from kitchenai.core.types import EnvVars, ModelType, ModelName, VectorStore
 import sys
-from django.apps import AppConfig
-import os
+from llama_index.llms.litellm import LiteLLM
 
-
-
-class KitchenaiRagSimpleBentoConfig(AppConfig):
+class KitchenaiRagSimpleBentoConfig(BentoBaseConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "kitchenai_rag_simple_bento"
 
-    def ready(self):
-        import kitchenai_rag_simple_bento.query.query
-        import kitchenai_rag_simple_bento.storage.vector
-        import kitchenai_rag_simple_bento.embeddings.embeddings
-        print("KitchenaiRagSimpleBentoConfig ready", file=sys.stdout)   
+    def __init__(self, app_name, app_module):
+        super().__init__(app_name, app_module)
+        self.dependency_manager = DependencyManager.get_instance(app_name)
 
+    def get_settings_key(self) -> str:
+        """Return the settings key for this bento's configuration."""
+        return "KITCHENAI_RAG_SIMPLE_BENTO"
 
-# class KitchenaiRagSimpleBentoConfig(BentoBaseConfig):
-#     default_auto_field = "django.db.models.BigAutoField"
-#     name = "kitchenai_rag_simple_bento"
-
-#     def __init__(self, app_name, app_module):
-#         print(f"RAGBento.__init__ for {app_name}", file=sys.stdout)
-#         sys.stdout.flush()
+    def create_dependencies(self, config: dict) -> dict[DependencyType, any]:
+        """Create and return all required dependencies.
         
-#         # Inject the dependency manager implementation
-#         dependency_manager = DependencyManager.get_instance(app_name)
-#         super().__init__(app_name, app_module, dependency_manager)
-
-#     def ready(self):
-#         print(f"RAGBento.ready START for {self.name}", file=sys.stdout)
-#         sys.stdout.flush()
+        Args:
+            config: Configuration dictionary from Django settings
+            
+        Returns:
+            Dict[DependencyType, Any]: Mapping of dependency types to instances
+        """
+        dependencies = {}
         
-#         # Debug: Print final app state
-#         print("Apps in ready:", [app.name for app in apps.get_app_configs()], file=sys.stdout)
-#         sys.stdout.flush()
+        # Create LLM dependency
+        dependencies[DependencyType.LLM] = LiteLLM(ModelName.GPT4O)
         
-#         return super().ready()
+        # Create Vector Store dependency
+        dependencies[DependencyType.VECTOR_STORE] = self._create_vector_store_dependency(config)
+        
+        return dependencies
+    
+    def _create_vector_store_dependency(self, config: dict):
+        from llama_index.vector_stores.chroma import ChromaVectorStore
+        import chromadb
 
+        chroma_client = chromadb.PersistentClient(path="chroma_db")
+        chroma_collection = chroma_client.get_or_create_collection("quickstart")
+
+        return ChromaVectorStore(chroma_collection)
+    def on_ready(self) -> None:
+        """Additional initialization after dependencies are set up."""
+
+        
+        # Import kitchen to ensure app and handlers are initialized
+        from .kitchen import app

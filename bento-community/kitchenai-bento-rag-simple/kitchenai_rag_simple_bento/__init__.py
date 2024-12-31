@@ -19,8 +19,8 @@ def get_available_env_vars():
     """
     try:
         return RAGConfigSchema(
-            model_type=os.environ.get(EnvVars.MODEL_TYPE, ModelType.LITELLM),
-            model_name=os.environ.get(EnvVars.MODEL_NAME, ModelName.GPT4O),
+            llm_type=os.environ.get(EnvVars.MODEL_TYPE, ModelType.LITELLM),
+            llm_name=os.environ.get(EnvVars.MODEL_NAME, ModelName.GPT4O),
             temperature=float(os.environ.get(EnvVars.TEMPERATURE, "0.7")),
             vector_store=os.environ.get(EnvVars.VECTOR_STORE, VectorStore.CHROMA),
             chunk_size=int(os.environ.get(EnvVars.CHUNK_SIZE, "1024"))

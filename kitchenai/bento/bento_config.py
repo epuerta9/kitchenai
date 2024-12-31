@@ -21,8 +21,6 @@ class BentoBaseConfig(AppConfig, ABC):
             app_name: The Django app name
             app_module: The Django app module
         """
-        print(f"BentoBaseConfig.__init__ for {app_name}", file=sys.stdout)
-        sys.stdout.flush()
         super().__init__(app_name, app_module)
         self.dependency_manager = dependency_manager
 

@@ -16,11 +16,19 @@ from llama_index.core import Document
 from kitchenai.contrib.kitchenai_sdk.schema import EmbedSchema
 from django.apps import apps
 import os
+from llama_index.llms.litellm import LiteLLM
+from llama_index.vector_stores.chroma import ChromaVectorStore
+from kitchenai.core.types import EnvVars, ModelType, ModelName, VectorStore
+import chromadb
 
+chroma_client = chromadb.PersistentClient(path="chroma_db")
+chroma_collection = chroma_client.get_or_create_collection("quickstart")
 
+dependency_manager = DependencyManager.get_instance("kitchenai_rag_simple_bento")
+dependency_manager.register_dependency(DependencyType.LLM, LiteLLM(ModelName.GPT4O))
+dependency_manager.register_dependency(DependencyType.VECTOR_STORE, ChromaVectorStore(chroma_collection))
 
-#dependency_manager = DependencyManager.get_instance("kitchenai_rag_simple_bento")
-app = KitchenAIApp(namespace="kitchenai_rag_simple_bento", manager=None)
+app = KitchenAIApp(namespace="kitchenai_rag_simple_bento", manager=dependency_manager)
 
 
 @app.query.handler("kitchenai-bento-rag-simple", DependencyType.LLM, DependencyType.VECTOR_STORE)
@@ -31,6 +39,36 @@ async def kitchenai_bento_simple_rag_vjnk(data: QuerySchema, llm, vector_store):
     response = await query_engine.aquery(data.query)
     return QueryBaseResponseSchema(output=response.response)
 
+
+@app.query.handler("kitchenai-bento-rag-simple-stream")
+async def kitchenai_bento_simple_rag_stream_vjnk(data: QuerySchema):
+    """
+    Query the vector database with a chat interface
+    class QuerySchema(Schema):
+        query: str
+        stream: bool = False
+        metadata: dict[str, str] | None = None
+    Args:
+        data: QuerySchema
+    
+    Response:
+        QueryBaseResponseSchema:
+            input: str | None = None
+            output: str | None = None
+            retrieval_context: list[str] | None = None
+            generator: Callable | None = None
+            metadata: dict[str, str] | None = None
+    """
+    vector_store = apps.get_app_config("kitchenai_rag_simple_bento").vector_store
+    index = VectorStoreIndex.from_vector_store(
+        vector_store,
+    )
+    query_engine = index.as_query_engine(chat_mode="best", llm=apps.get_app_config("kitchenai_rag_simple_bento").llm, streaming=True)
+    
+    streaming_response = await query_engine.aquery(data.query)
+
+
+    return QueryBaseResponseSchema(stream_gen=streaming_response.response_gen)
 
 @app.storage.handler("kitchenai-bento-simple-rag")
 def simple_storage(data: StorageSchema, **kwargs):
