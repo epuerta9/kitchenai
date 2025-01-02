@@ -1,11 +1,10 @@
 from pydantic import BaseModel, ValidationError
 import logging
-from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 
 class Plugin:
-    def __init__(self, signal, taxonomy, name, input_model: BaseModel = None, output_model: BaseModel = None):
+    def __init__(self, signal, taxonomy, name, sender=None, input_model: BaseModel = None, output_model: BaseModel = None):
         """
         Base class for plugins.
         :param signal: The signal to which the plugin registers its handler.
@@ -15,6 +14,7 @@ class Plugin:
         :param output_model: Pydantic model for output validation.
         """
         self.signal = signal
+        self.sender = sender
         self.taxonomy = taxonomy
         self.name = name
         self.input_model = input_model
@@ -40,30 +40,21 @@ class Plugin:
 
             # If the result is already a Pydantic model, return it or its dict
             if isinstance(result, self.output_model):
-                return result.dict()
+                return result.model_dump()
 
             # Validate and parse output
             if self.output_model:
                 try:
                     validated_output = self.output_model(**result)
-                    return validated_output.dict()
+                    return validated_output.model_dump()
                 except ValidationError as e:
                     raise ValueError(f"Invalid output for handler {func.__name__}: {e}")
-
-            return result
+            #send it to the next signal if needed
 
         # Attach metadata to the handler
         wrapped_handler._taxonomy = self.taxonomy
         wrapped_handler._plugin_name = self.name
 
         # Register the wrapped handler to the signal
-        self.signal.connect(wrapped_handler)
+        self.signal.connect(wrapped_handler, sender=self.sender)
         return wrapped_handler
-
-
-    @abstractmethod
-    def on_load(self):
-        """
-        Method to be overridden by subclasses to perform actions when the plugin is loaded.
-        """
-        pass

@@ -13,6 +13,10 @@ from ..models import Chat, ChatMetric, AggregatedChatMetric, ChatSetting
 from kitchenai.core.exceptions import QueryHandlerBadRequestError
 from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, QueryBaseResponseSchema
 from kitchenai.core.api.query import query_handler
+from kitchenai.core.signals.query import QuerySignalSender, query_signal
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
+
+
 from .bento import *
 
 logger = logging.getLogger(__name__)
@@ -72,11 +76,24 @@ async def file(request: HttpRequest):
             )
         return redirect("dashboard:file")
 
+    # Get pagination parameters
+    page = int(request.GET.get('page', 1))
+    per_page = int(request.GET.get('per_page', 10))
+
+    # Calculate offset and limit
+    offset = (page - 1) * per_page
+
     form = FileUploadForm()
     core_app = apps.get_app_config("core")
     labels = core_app.kitchenai_app.to_dict()
     storage_handlers = labels.get("storage_handlers", [])
-    files = FileObject.objects.all().order_by("-created_at")
+    
+    # Get total count for pagination
+    total_files = await FileObject.objects.acount()
+    total_pages = (total_files + per_page - 1) // per_page
+
+    # Get paginated files
+    files = FileObject.objects.all().order_by("-created_at")[offset:offset + per_page].all()
 
     return TemplateResponse(
         request,
@@ -85,9 +102,12 @@ async def file(request: HttpRequest):
             "files": files,
             "form": form,
             "storage_handlers": storage_handlers,
+            "current_page": page,
+            "total_pages": total_pages,
+            "per_page": per_page,
+            "total_files": total_files,
         },
     )
-
 
 async def delete_file(request: HttpRequest, file_id: int):
     await FileObject.objects.filter(id=file_id).adelete()
@@ -113,6 +133,15 @@ async def labels(request: HttpRequest):
 
 
 async def embeddings(request: HttpRequest):
+    # Default pagination parameters
+    page = request.GET.get('page', 1)
+    try:
+        page = int(page)
+    except ValueError:
+        page = 1
+    
+    per_page = 10  # Items per page
+
     if request.method == "POST":
         text = request.POST.get("text")
         ingest_label = request.POST.get("ingest_label")
@@ -136,8 +165,23 @@ async def embeddings(request: HttpRequest):
             )
         return redirect("dashboard:embeddings")
 
-    # Get all embeddings sorted by creation date
-    embeddings = EmbedObject.objects.all().order_by("-created_at")
+    # Get total count and all embeddings ordered by creation date
+    total_embeddings = await EmbedObject.objects.acount()
+    all_embeddings = EmbedObject.objects.all().order_by("-created_at")
+
+    # Create a list from async queryset for pagination
+    embeddings_list = [embedding async for embedding in all_embeddings]
+    
+    # Create paginator
+    paginator = Paginator(embeddings_list, per_page)
+    total_pages = paginator.num_pages
+
+    try:
+        current_page_embeddings = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        # If page is out of range, deliver last page
+        page = paginator.num_pages
+        current_page_embeddings = paginator.page(paginator.num_pages)
 
     # Get available storage handlers for the dropdown
     core_app = apps.get_app_config("core")
@@ -148,11 +192,14 @@ async def embeddings(request: HttpRequest):
         request,
         "dashboard/pages/embeddings.html",
         {
-            "embeddings": embeddings,
+            "embeddings": current_page_embeddings,
             "embed_handlers": embed_handlers,
+            "current_page": page,
+            "total_pages": total_pages,
+            "per_page": per_page,
+            "total_embeddings": total_embeddings,
         },
     )
-
 
 async def delete_embedding(request: HttpRequest, embedding_id: int):
     await EmbedObject.objects.filter(id=embedding_id).adelete()
@@ -181,6 +228,14 @@ async def chat(request: HttpRequest):
 
 
 async def chat_session(request: HttpRequest, chat_id: int):
+    plugin_widgets = []
+    plugins = settings.KITCHENAI.get("plugins", [])
+    if plugins:
+        #get the plugin objects from app configs 
+        plugin_objects = [apps.get_app_config(plugin["name"]) for plugin in plugins]
+        for plugin in plugin_objects:
+            plugin_widgets.append(plugin.plugin.get_chat_metric_widget())
+
     chat = (
         await Chat.objects.select_related("chatsetting")
         .prefetch_related(
@@ -198,6 +253,7 @@ async def chat_session(request: HttpRequest, chat_id: int):
             "chat": chat,
             "metrics": all_metrics,
             "settings": chat.chatsetting,
+            "plugin_widgets": plugin_widgets,
         },
     )
 
@@ -248,6 +304,15 @@ async def chat_settings(request: HttpRequest, chat_id: int):
 async def chat_send(request: HttpRequest, chat_id: int):
     message = request.POST.get("message")
     # Fetch chat and chatsetting in one query using select_related
+    plugin_widgets = []
+    plugins = settings.KITCHENAI.get("plugins", [])
+    if plugins:
+        #get the plugin objects from app configs 
+        plugin_objects = [apps.get_app_config(plugin["name"]) for plugin in plugins]
+        for plugin in plugin_objects:
+            plugin_widgets.append(plugin.plugin.get_chat_metric_widget())
+
+
     chat = await Chat.objects.select_related('chatsetting').aget(id=chat_id)
     
     try:
@@ -284,8 +349,13 @@ async def chat_send(request: HttpRequest, chat_id: int):
         sources_used=sources
     )
 
+    await query_signal.asend(QuerySignalSender.POST_DASHBOARD_QUERY, **result.model_dump(), source_id=metric.id)
+
     return TemplateResponse(
         request,
         "dashboard/htmx/chat_response.html",
-        {"message": message, "metrics": metric},
+        {"message": message, 
+         "metrics": metric,
+         "plugin_widgets": plugin_widgets
+        },
     )

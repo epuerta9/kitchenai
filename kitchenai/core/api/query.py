@@ -2,12 +2,10 @@
 from ninja import Router
 from pydantic import BaseModel
 from ninja.errors import HttpError
-from django.http import HttpResponse
 import logging
 from django.apps import apps
-from ..signals import query_output_signal, query_input_signal
+from ..signals import query_signal, QuerySignalSender
 from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, QueryBaseResponseSchema
-from uuid import uuid4
 from django_eventstream import send_event
 from kitchenai.core.exceptions import QueryHandlerBadRequestError
 
@@ -48,7 +46,7 @@ async def query_handler(label: str, data: QuerySchema) -> QueryResponseSchema:
             raise QueryHandlerBadRequestError(message=f"Query function not found for {label}")
         
         #Signal the start of the query. Generic signals
-        query_input_signal.send(sender="pre_query", data=data)
+        await query_signal.asend(sender=QuerySignalSender.PRE_API_QUERY, data=data)
         if data.stream:
             if not data.stream_id:
                 logger.error("stream_id is required for streaming requests")
@@ -83,7 +81,6 @@ async def query_handler(label: str, data: QuerySchema) -> QueryResponseSchema:
                         # Send remaining buffer as a word
                         send_event(data.stream_id, "message", {"output": buffer})
 
-                    #send_event(data.stream_id, "message", {"output": text})
 
                 send_event(data.stream_id, "stream-end", {"output": "Stream complete"})
 
@@ -97,7 +94,7 @@ async def query_handler(label: str, data: QuerySchema) -> QueryResponseSchema:
         #Signal the end of the query
         metadata = KitchenAIMetadata(stream=data.stream)
         extended_result = QueryResponseSchema(**result.dict(), kitchenai_metadata=metadata)
-        query_output_signal.send(sender="post_query", result=extended_result)
+        await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=extended_result)
         return extended_result
     except Exception as e:
         logger.error(f"Error in query handler: {e}")

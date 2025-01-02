@@ -37,10 +37,6 @@ class ChatMetric(TimeStamped):
     def __str__(self):
         return f"{self.chat.name} - {self.response_time}s"
     
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        async_task("kitchenai.dashboard.tasks.update_aggregated_metrics", self)
-
 
 class AggregatedChatMetric(TimeStamped):
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)

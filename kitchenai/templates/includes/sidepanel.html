@@ -5,57 +5,57 @@
   <nav class="flex min-h-screen w-64 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
     <div class="mx-4 flex items-center gap-2 font-black">
       <img src="{% static 'images/icon-logo.png' %}" alt="KitchenAI" class="h-10 w-15">
-      <span>
-        KitchenAI
-
-      </span>
+      <span>KitchenAI</span>
     </div>
+    
+    <div class="divider"></div>
+
     <ul class="menu">
       <li>
         <a href="{% url 'home' %}"
-           class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+           class="{% if 'home' in request.path %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/home.svg"
                class="h-5 w-5">
           </svg>
           Dashboard
         </a>
         <a href="{% url 'dashboard:labels' %}"
-           class="{% if request.resolver_match.url_name == 'labels' %}active{% endif %}">
+           class="{% if 'labels' in request.path %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/tag.svg"
                class="h-5 w-5">
           </svg>
           Labels
         </a>
         <a href="{% url 'dashboard:file' %}" 
-           class="{% if request.resolver_match.url_name == 'file' %}active{% endif %}">
+           class="{% if 'file' in request.path %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/document.svg"
                class="h-5 w-5">
           </svg>
           Files
         </a>
         <a href="{% url 'dashboard:embeddings' %}"
-           class="{% if request.resolver_match.url_name == 'embeddings' %}active{% endif %}">
+           class="{% if 'embeddings' in request.path %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/squares-plus.svg"
                class="h-5 w-5">
           </svg>
           Embeddings
         </a>
         <a href="{% url 'dashboard:chat' %}"
-           class="{% if request.resolver_match.url_name == 'chat' %}active{% endif %}">
+           class="{% if 'chat' in request.path %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/chat-bubble-left-right.svg"
                class="h-5 w-5">
           </svg>
           Chat
         </a>
         <a href="/api/docs"
-           class="{% if request.resolver_match.url_name == 'api-docs' %}active{% endif %}">
+           class="{% if 'api' in request.path %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/code-bracket.svg"
                class="h-5 w-5">
           </svg>
           API
         </a>
         <a href="/kitchenai-admin"
-           class="{% if request.resolver_match.url_name == 'admin' %}active{% endif %}">
+           class="{% if 'admin' in request.path %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/cog.svg"
                class="h-5 w-5">
           </svg>
@@ -64,6 +64,4 @@
       </li>
     </ul>
   </nav>
-
-
 </aside>

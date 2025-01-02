@@ -4,7 +4,6 @@ from django.http import HttpResponse
 import logging
 from django.apps import apps
 from typing import List
-from .signals import query_output_signal, query_input_signal
 from .api.query import router as query_router
 from .api.agent import router as agent_router
 from .api.embedding import router as embedding_router

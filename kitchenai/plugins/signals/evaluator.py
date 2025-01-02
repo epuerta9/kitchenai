@@ -1,9 +1,5 @@
 from django.dispatch import Signal
 
-# Query evaluation signals
-query_received = Signal()  # Emitted when a new query is received, before processing
-query_processed = Signal()  # After query processing, before LLM call
-query_completed = Signal()  # After full query cycle completion
 
 # Context evaluation signals
 context_retrieved = Signal()  # When context is fetched from vector store
@@ -24,3 +20,4 @@ quality_metrics_recorded = Signal()  # Response quality measurements
 ground_truth_compared = Signal()  # When response is compared to expected output
 dataset_recorded = Signal()  # When interaction is saved to evaluation dataset
 evaluation_metrics_updated = Signal()  # When evaluation scores are updated
+evaluation_completed = Signal()  # When evaluation is completed

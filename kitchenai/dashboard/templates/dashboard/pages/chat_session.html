@@ -2,6 +2,8 @@
 {% load static %}
 {% load partials %}
 
+{% load custom_filters %}
+
 {% block content %}
 <div class="flex h-screen">
   <!-- Main Chat Column -->
@@ -74,6 +76,14 @@
                 </div>
               </div>
             </div>
+
+            {% if plugin_widgets %}
+              {% for widget in plugin_widgets %}
+                <div hx-get="{% url widget message.id %}"
+                     hx-trigger="load"
+                     hx-swap="outerHTML"></div>
+              {% endfor %}
+            {% endif %}
           </div>
         </div>
       {% endfor %}
