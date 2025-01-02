@@ -27,7 +27,9 @@ def settings(current_settings):
     })
 
     current_settings["DEEPEVAL_PLUGIN"] = {
-        "enabled": False,
+        "is_enabled": True,
+        "api_signal": False, 
+        "chat_signal": True,
     }
     
 

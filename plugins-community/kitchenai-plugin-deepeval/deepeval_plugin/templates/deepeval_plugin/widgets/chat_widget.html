@@ -1,0 +1,66 @@
+{% if answer_relevance %}
+<div class="collapse bg-base-100">
+    <input type="checkbox" id="collapse-deepeval-{{ source_id }}" /> 
+    <label for="collapse-deepeval-{{ source_id }}" class="collapse-title text-base font-medium flex items-center gap-2 cursor-pointer">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/check-circle.svg" class="h-5 w-5"></svg>
+      DeepEval Analysis: Relevance Score ({{ answer_relevance.score|floatformat:3 }})
+    </label>
+    <div class="collapse-content">
+      <div class="overflow-x-auto">
+        <table class="table table-xs">
+          <thead>
+            <tr>
+              <th>Statements</th>
+              <th>Verdicts</th>
+              <th>Score</th>
+              <th>Reason</th>
+              <th>Success</th>
+              <th>Logs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="whitespace-pre-wrap">{{ answer_relevance.statements|join:", " }}</td>
+              <td class="whitespace-pre-wrap">{{ answer_relevance.verdicts|join:", " }}</td>
+              <td>{{ answer_relevance.score|floatformat:3 }}</td>
+              <td class="whitespace-pre-wrap">{{ answer_relevance.reason }}</td>
+              <td>
+                {% if answer_relevance.success %}
+                  <div class="badge badge-success">Pass</div>
+                {% else %}
+                  <div class="badge badge-error">Fail</div>
+                {% endif %}
+              </td>
+              <td>
+                <!-- Modal trigger button -->
+                <label for="logs-modal-deepeval-{{ source_id }}-{{ answer_relevance.id }}" class="badge badge-ghost cursor-pointer">
+                  View Logs
+                </label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal dialog -->
+  <input type="checkbox" id="logs-modal-deepeval-{{ source_id }}-{{ answer_relevance.id }}" class="modal-toggle" />
+  <div class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-4">DeepEval Logs</h3>
+      <div class="bg-base-200 rounded-lg">
+        <pre class="max-h-96 overflow-y-auto font-mono text-sm p-4 whitespace-pre-wrap">{{ formatted_logs|safe }}</pre>
+      </div>
+      <div class="modal-action">
+        <label for="logs-modal-deepeval-{{ source_id }}-{{ answer_relevance.id }}" class="btn">Close</label>
+      </div>
+    </div>
+    <label class="modal-backdrop" for="logs-modal-deepeval-{{ source_id }}-{{ answer_relevance.id }}">Close</label>
+  </div>
+{% else %}
+<div class="flex items-center gap-2 p-4">
+  <div class="loading loading-spinner"></div>
+  <div class="font-medium">DeepEval Analysis not found...</div>
+</div>
+{% endif %}

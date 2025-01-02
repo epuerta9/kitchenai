@@ -7,11 +7,9 @@ class DeepevalPluginConfig(AppConfig):
 
     def ready(self):
         """Initialize KitchenAI app when Django starts"""
-        # from kitchenai.plugins.signals.evaluator import response_execute
+        from kitchenai.core.signals.query import query_signal, QuerySignalSender
+        from .signals import answer_relevance_post_save
+        from .plugin import DeepEvalPlugin
 
-        # from .plugin import EvaluatorPlugin
+        self.plugin = DeepEvalPlugin(query_signal, QuerySignalSender.POST_DASHBOARD_QUERY, self.name)
 
-        # prompt_management = EvaluatorPlugin(response_execute, self.name)
-
-        # prompt_management.on_load()
-        pass
