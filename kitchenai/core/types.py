@@ -13,6 +13,7 @@ class ModelType(str, Enum):
 
 class ModelName(str, Enum):
     GPT4O = "gpt-4o"
+    GROQ_LLAMA3_70B_VERSATILE = "groq/llama-3.1-70b-versatile"
     GPT4O_MINI = "gpt-4o-mini"
     LLAMA2 = "llama2"
     MISTRAL = "mistral"
