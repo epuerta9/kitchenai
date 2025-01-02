@@ -22,6 +22,14 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 from kitchenai.core.types import  ModelName
 import chromadb
 import logging
+from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
+from llama_index.core import Settings
+import tiktoken
+
+token_counter = TokenCountingHandler(
+    tokenizer=tiktoken.encoding_for_model(ModelName.GPT4O).encode
+)
+Settings.callback_manager = CallbackManager([token_counter])
 
 
 chroma_client = chromadb.PersistentClient(path="chroma_db")
@@ -46,6 +54,7 @@ async def kitchenai_bento_simple_rag_vjnk(data: QuerySchema, llm, vector_store):
     index = VectorStoreIndex.from_vector_store(vector_store)
     query_engine = index.as_query_engine(chat_mode="best", filters=filters, llm=llm, verbose=True)
     response = await query_engine.aquery(data.query)
+    logger.info(f"Token count: {token_counter.total_llm_token_count}")
     return QueryBaseResponseSchema.from_response(data, response)
 
 
