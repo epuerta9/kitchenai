@@ -32,7 +32,7 @@ env.read_env(Path(BASE_DIR, ".env").as_posix())
 # is True or it is False. `DEBUG` should be only true in development, and
 # False when deployed, whether or not it's a production environment.
 DEBUG = env.bool("DEBUG", default=False)
-KITCHENAI_DEBUG = env.bool("KITCHENAI_DEBUG", default=False)
+KITCHENAI_LOCAL = env.bool("KITCHENAI_LOCAL", default=True)
 
 # 1. Django Core Settings
 # -----------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ KITCHENAI_DEBUG = env.bool("KITCHENAI_DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list(
     "ALLOWED_HOSTS",
-    default=["*"] if DEBUG or KITCHENAI_DEBUG else ["localhost"],
+    default=["*"] if DEBUG or KITCHENAI_LOCAL else ["localhost"],
     subcast=str,
 )
 
@@ -69,7 +69,7 @@ DATABASES = {
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
-if not DEBUG or KITCHENAI_DEBUG:
+if not DEBUG or KITCHENAI_LOCAL:
     DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)
     DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
@@ -83,7 +83,7 @@ DEFAULT_FROM_EMAIL = env.str(
 
 EMAIL_BACKEND = (
     "django.core.mail.backends.console.EmailBackend"
-    if (DEBUG or KITCHENAI_DEBUG)
+    if (DEBUG or KITCHENAI_LOCAL)
     else "anymail.backends.resend.EmailBackend"
 )
 
@@ -146,7 +146,7 @@ if DEBUG:
 
 INSTALLED_APPS = LOCAL_APPS + THIRD_PARTY_APPS + DJANGO_APPS
 
-if DEBUG or KITCHENAI_DEBUG:
+if DEBUG or KITCHENAI_LOCAL:
     INTERNAL_IPS = [
         "127.0.0.1",
         "10.0.2.2",
@@ -255,7 +255,7 @@ MIDDLEWARE = [
     "django.middleware.cache.FetchFromCacheMiddleware",
 ]
 
-if DEBUG or KITCHENAI_DEBUG:
+if DEBUG or KITCHENAI_LOCAL:
     MIDDLEWARE.remove("django.middleware.cache.UpdateCacheMiddleware")
     MIDDLEWARE.remove("django.middleware.cache.FetchFromCacheMiddleware")
 
@@ -273,15 +273,15 @@ SECRET_KEY = env.str(
     "SECRET_KEY", default="django-insecure-ef6nIh7LcUjPtixFdz0_aXyUwlKqvBdJEcycRR6RvRY"
 )
 
-SECURE_HSTS_INCLUDE_SUBDOMAINS = not (DEBUG or KITCHENAI_DEBUG)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not (DEBUG or KITCHENAI_LOCAL)
 
-SECURE_HSTS_PRELOAD = not (DEBUG or KITCHENAI_DEBUG)
+SECURE_HSTS_PRELOAD = not (DEBUG or KITCHENAI_LOCAL)
 
 # https://docs.djangoproject.com/en/dev/ref/middleware/#http-strict-transport-security
 # 2 minutes to start with, will increase as HSTS is tested
 # example of production value: 60 * 60 * 24 * 7 = 604800 (1 week)
 SECURE_HSTS_SECONDS = (
-    0 if DEBUG or KITCHENAI_DEBUG else env.int("SECURE_HSTS_SECONDS", default=60 * 2)
+    0 if DEBUG or KITCHENAI_LOCAL else env.int("SECURE_HSTS_SECONDS", default=60 * 2)
 )
 
 # https://noumenal.es/notes/til/django/csrf-trusted-origins/
@@ -295,7 +295,7 @@ SERVER_EMAIL = env.str(
     validate=lambda v: Email()(parseaddr(v)[1]),
 )
 
-SESSION_COOKIE_SECURE = not (DEBUG or KITCHENAI_DEBUG)
+SESSION_COOKIE_SECURE = not (DEBUG or KITCHENAI_LOCAL)
 
 STORAGES = {
     "default": {
@@ -311,7 +311,7 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-if (DEBUG or KITCHENAI_DEBUG) and not env.bool("USE_S3", default=False):
+if (DEBUG or KITCHENAI_LOCAL) and not env.bool("USE_S3", default=False):
     STORAGES["default"] = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     }
@@ -343,7 +343,7 @@ TEMPLATES = [
             "loaders": [
                 (
                     "template_partials.loader.Loader",
-                    DEFAULT_LOADERS if (DEBUG or KITCHENAI_DEBUG) else CACHED_LOADERS,
+                    DEFAULT_LOADERS if (DEBUG or KITCHENAI_LOCAL) else CACHED_LOADERS,
                 )
             ],
         },
@@ -381,7 +381,7 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-if DEBUG or KITCHENAI_DEBUG:
+if DEBUG or KITCHENAI_LOCAL:
     AUTH_PASSWORD_VALIDATORS = []
 
 # django.contrib.staticfiles
@@ -403,7 +403,7 @@ STATICFILES_FINDERS = (
 # django-allauth
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http" if (DEBUG or KITCHENAI_DEBUG) else "https"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http" if (DEBUG or KITCHENAI_LOCAL) else "https"
 
 ACCOUNT_EMAIL_REQUIRED = True
 
@@ -415,12 +415,17 @@ ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
 
 ACCOUNT_UNIQUE_EMAIL = True
 
-ACCOUNT_USERNAME_REQUIRED = False
+# Forms and UI
+ACCOUNT_FORMS = {
+    'login': 'allauth.account.forms.LoginForm',
 
-LOGIN_REDIRECT_URL = "home"
+}
+
+LOGIN_REDIRECT_URL = "dashboard:home"
+
 
 # django-anymail
-if not (DEBUG or KITCHENAI_DEBUG):
+if not (DEBUG or KITCHENAI_LOCAL):
     resend_api_key = env.str("RESEND_API_KEY", default=None)
     if resend_api_key:
         ANYMAIL = {
@@ -430,8 +435,8 @@ if not (DEBUG or KITCHENAI_DEBUG):
         EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # django-compressor
-COMPRESS_ENABLED = not (DEBUG or KITCHENAI_DEBUG)
-COMPRESS_OFFLINE = not (DEBUG or KITCHENAI_DEBUG)
+COMPRESS_ENABLED = not (DEBUG or KITCHENAI_LOCAL)
+COMPRESS_OFFLINE = not (DEBUG or KITCHENAI_LOCAL)
 COMPRESS_FILTERS = {
     "css": [
         "compressor.filters.css_default.CssAbsoluteFilter",
@@ -469,7 +474,7 @@ Q_CLUSTER = {
 # sentry
 if env.bool("KITCHENAI_SENTRY", default=False):
     if (SENTRY_DSN := env.url("SENTRY_DSN", default=None)).scheme and not (
-        DEBUG or KITCHENAI_DEBUG
+        DEBUG or KITCHENAI_LOCAL
     ):
         sentry_sdk.init(
             dsn=SENTRY_DSN.geturl(),
@@ -495,13 +500,22 @@ ADMIN_URL = env.str("ADMIN_URL", default="kitchenai-admin/")
 
 # KITCHEN AI
 KITCHENAI_LLM_PROVIDER = env.str("KITCHENAI_LLM_PROVIDER", default="openai")
-KITCHENAI_LLM_MODEL = env.str("KITCHENAI_LLM_MODEL", default="gpt-4")
+KITCHENAI_LLM_MODEL = env.str("KITCHENAI_LLM_MODEL", default="gpt-4o")
 
+#main kitchenai settings
 KITCHENAI = {
     "bento": [],
     "plugins": [],
     "apps": [],
+    "settings": {
+        "auth": env.bool("KITCHENAI_AUTH", default=False),
+    },
 }
+
+KITCHENAI_JWT_SECRET = env.str("KITCHENAI_JWT_SECRET", default="")
+
+if KITCHENAI["settings"]["auth"] and (not KITCHENAI_JWT_SECRET):
+    raise ValueError("KITCHENAI_JWT_SECRET is required when auth is enabled")
 
 KITCHENAI_APP = "bento"
 

@@ -3,17 +3,20 @@
   <label for="my-drawer" class="drawer-overlay"></label>
   <!-- sidebar menu -->
   <nav class="flex min-h-screen w-64 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
-    <div class="mx-4 flex items-center gap-2 font-black">
-      <img src="{% static 'images/icon-logo.png' %}" alt="KitchenAI" class="h-10 w-15">
-      <span>KitchenAI</span>
+    <div class="mx-4 flex flex-col">
+      <div class="flex items-center gap-2 font-black">
+        <img src="{% static 'images/icon-logo.png' %}" alt="KitchenAI" class="h-10 w-15">
+        <span>KitchenAI</span>
+      </div>
+      <span class="text-sm text-base-content/70 mt-1 text-center w-full">{{ request.user.username }}</span>
     </div>
     
     <div class="divider"></div>
 
     <ul class="menu">
       <li>
-        <a href="{% url 'home' %}"
-           class="{% if 'home' in request.path %}active{% endif %}">
+        <a href="{% url 'dashboard:home' %}"
+           class="{% if request.path == '/dashboard/' %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/home.svg"
                class="h-5 w-5">
           </svg>

@@ -37,7 +37,7 @@ class Command(RunserverCommand):
         """Runs the server"""
         # Check if this is the main process
         if os.environ.get('RUN_MAIN') == 'true':
-            if settings.KITCHENAI_DEBUG or settings.DEBUG:
+            if settings.KITCHENAI_LOCAL or settings.DEBUG:
                 from kitchenai.api import api
                 from kitchenai.core.utils import setup
                 from kitchenai.bento.models import Bento
@@ -63,7 +63,7 @@ class Command(RunserverCommand):
                         self.stdout.write(self.style.ERROR(f"Error loading bento box: {e}"))
                         raise Exception(f"Error loading bento box: {e}")
             else:
-                raise Exception("KitchenAI is not in debug mode when running dev server. Please set KITCHENAI_DEBUG=True in your settings.py file.")
+                raise Exception("KitchenAI is not in debug mode when running dev server. Please set KITCHENAI_LOCAL=True in your settings.py file.")
 
         # Always call the parent run method to start the server
         super().run(*args, **options)

@@ -1,14 +1,14 @@
 from django.shortcuts import render
 
 # Create your views here.
-
-
 from django.shortcuts import render
 from django.template.response import TemplateResponse
 from falco_toolbox.types import HttpRequest
 from kitchenai_rag_simple_bento import get_available_env_vars
 import json
+from django.contrib.auth.decorators import login_required   
 # Create your views here.
+@login_required
 async def home(request: HttpRequest):
     from django.conf import settings
     loaded_bentos =  settings.KITCHENAI["bento"]
@@ -22,6 +22,7 @@ async def home(request: HttpRequest):
         }
     )
 
+@login_required
 async def settings_view(request, bento_name):
     from django.conf import settings
 

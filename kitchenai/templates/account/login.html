@@ -1,0 +1,53 @@
+{% extends "base_login.html" %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-base-200 flex items-center justify-center">
+  <div class="card w-96 bg-base-100 shadow-xl">
+    <figure class="px-10 pt-10">
+      <img src="{% static 'images/icon-logo.png' %}" alt="KitchenAI" class="h-20" />
+    </figure>
+    <div class="card-body items-center text-center">
+      <h2 class="card-title text-2xl font-bold">Welcome to KitchenAI</h2>
+      <p class="text-base-content/70 mb-6">Your AI-powered document management and chat platform. Organize, search and chat with your documents intelligently.</p>
+      
+      <form method="post" class="w-full" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Username or Email</span>
+          </label>
+          <input type="text" name="login" class="input input-bordered w-full" required />
+        </div>
+        
+        <div class="form-control w-full mt-4">
+          <label class="label">
+            <span class="label-text">Password</span>
+          </label>
+          <input type="password" name="password" class="input input-bordered w-full" required />
+        </div>
+
+        <div class="form-control mt-4">
+          <label class="label cursor-pointer">
+            <span class="label-text">Remember Me</span>
+            <input type="checkbox" name="remember" class="checkbox" />
+          </label>
+        </div>
+
+        {% if form.errors %}
+        <div class="alert alert-error mt-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span>{{ form.non_field_errors }}</span>
+        </div>
+        {% endif %}
+
+        <button class="btn btn-primary w-full mt-6" type="submit">Sign In</button>
+
+        {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

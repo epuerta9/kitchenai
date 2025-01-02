@@ -15,13 +15,14 @@ from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, QueryBaseRespons
 from kitchenai.core.api.query import query_handler
 from kitchenai.core.signals.query import QuerySignalSender, query_signal
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
+from django.contrib.auth.decorators import login_required
 
 
 from .bento import *
 
 logger = logging.getLogger(__name__)
 
-
+@login_required
 async def home(request: HttpRequest):
     kitchenai_settings = settings.KITCHENAI
     bentos = kitchenai_settings.get("bento", [])
@@ -52,6 +53,7 @@ async def home(request: HttpRequest):
     )
 
 
+@login_required
 async def file(request: HttpRequest):
     if request.method == "POST":
         file = request.FILES.get("file")
@@ -109,11 +111,13 @@ async def file(request: HttpRequest):
         },
     )
 
+@login_required
 async def delete_file(request: HttpRequest, file_id: int):
     await FileObject.objects.filter(id=file_id).adelete()
     return HttpResponse("")
 
 
+@login_required
 async def labels(request: HttpRequest):
     core_app = apps.get_app_config("core")
     if not core_app.kitchenai_app:
@@ -132,6 +136,7 @@ async def labels(request: HttpRequest):
     )
 
 
+@login_required
 async def embeddings(request: HttpRequest):
     # Default pagination parameters
     page = request.GET.get('page', 1)
@@ -201,11 +206,13 @@ async def embeddings(request: HttpRequest):
         },
     )
 
+@login_required
 async def delete_embedding(request: HttpRequest, embedding_id: int):
     await EmbedObject.objects.filter(id=embedding_id).adelete()
     return HttpResponse("")
 
 
+@login_required
 async def chat(request: HttpRequest):
     if request.method == "POST":
         mgmt = await KitchenAIManagement.objects.filter(
@@ -227,6 +234,7 @@ async def chat(request: HttpRequest):
     return TemplateResponse(request, "dashboard/pages/chat.html", {"chats": chats})
 
 
+@login_required
 async def chat_session(request: HttpRequest, chat_id: int):
     plugin_widgets = []
     plugins = settings.KITCHENAI.get("plugins", [])
@@ -257,11 +265,13 @@ async def chat_session(request: HttpRequest, chat_id: int):
         },
     )
 
+@login_required
 async def chat_delete(request: HttpRequest, chat_id: int):
     await Chat.objects.filter(id=chat_id).adelete()
     return HttpResponse("")
 
 
+@login_required
 async def aggregated_metrics(request: HttpRequest, chat_id: int):
     chat = await Chat.objects.aget(id=chat_id)
     try:
@@ -276,6 +286,7 @@ async def aggregated_metrics(request: HttpRequest, chat_id: int):
             request, "dashboard/htmx/aggregated_metrics.html", {"aggregated": None}
         )
     
+@login_required
 async def chat_settings(request: HttpRequest, chat_id: int):
     chat_type = request.POST.get("chat_type")
     selected_label = request.POST.get("selected_label")
@@ -301,6 +312,7 @@ async def chat_settings(request: HttpRequest, chat_id: int):
 
 
 
+@login_required
 async def chat_send(request: HttpRequest, chat_id: int):
     message = request.POST.get("message")
     # Fetch chat and chatsetting in one query using select_related

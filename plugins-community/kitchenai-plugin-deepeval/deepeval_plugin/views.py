@@ -1,8 +1,4 @@
-from django.shortcuts import render
-
-# Create your views here.
-
-
+from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 
 from falco_toolbox.types import HttpRequest
@@ -14,7 +10,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 # Create your views here.
-
+@login_required
 async def home(request: HttpRequest):
     return TemplateResponse(
         request,
@@ -22,6 +18,7 @@ async def home(request: HttpRequest):
     )
 
 
+@login_required
 async def chat_widget_for_source(request: HttpRequest, source_id: int):
     try:
         answer_relevance = await AnswerRelevance.objects.aget(data__source_id=source_id)

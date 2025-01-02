@@ -4,9 +4,10 @@ import aiohttp
 import json
 from django.conf import settings
 import logging
-
+from django.contrib.auth.decorators import login_required
 logger = logging.getLogger(__name__)
 
+@login_required
 async def bento_install(request: HttpRequest):
     API_BASE_URL = "https://raw.githubusercontent.com/epuerta9/kitchenai/main"
     kitchenai_settings = settings.KITCHENAI
