@@ -3,7 +3,7 @@
     <input type="checkbox" id="collapse-deepeval-{{ source_id }}" /> 
     <label for="collapse-deepeval-{{ source_id }}" class="collapse-title text-base font-medium flex items-center gap-2 cursor-pointer">
       <svg data-src="https://unpkg.com/heroicons/20/solid/check-circle.svg" class="h-5 w-5"></svg>
-      DeepEval Analysis: Relevance Score ({{ answer_relevance.score|floatformat:3 }})
+      DeepEval Analysis: Answer Relevance Score ({{ answer_relevance.score|floatformat:3 }})
     </label>
     <div class="collapse-content">
       <div class="overflow-x-auto">
@@ -32,7 +32,6 @@
                 {% endif %}
               </td>
               <td>
-                <!-- Modal trigger button -->
                 <label for="logs-modal-deepeval-{{ source_id }}-{{ answer_relevance.id }}" class="badge badge-ghost cursor-pointer">
                   View Logs
                 </label>
@@ -44,13 +43,13 @@
     </div>
   </div>
 
-  <!-- Modal dialog -->
+  <!-- Modal for logs -->
   <input type="checkbox" id="logs-modal-deepeval-{{ source_id }}-{{ answer_relevance.id }}" class="modal-toggle" />
   <div class="modal">
     <div class="modal-box">
       <h3 class="font-bold text-lg mb-4">DeepEval Logs</h3>
       <div class="bg-base-200 rounded-lg">
-        <pre class="max-h-96 overflow-y-auto font-mono text-sm p-4 whitespace-pre-wrap">{{ formatted_logs|safe }}</pre>
+        <pre class="max-h-96 overflow-y-auto font-mono text-sm p-4 whitespace-pre-wrap">{{ answer_relevance.verbose_logs|pprint }}</pre>
       </div>
       <div class="modal-action">
         <label for="logs-modal-deepeval-{{ source_id }}-{{ answer_relevance.id }}" class="btn">Close</label>
@@ -58,9 +57,255 @@
     </div>
     <label class="modal-backdrop" for="logs-modal-deepeval-{{ source_id }}-{{ answer_relevance.id }}">Close</label>
   </div>
-{% else %}
-<div class="flex items-center gap-2 p-4">
-  <div class="loading loading-spinner"></div>
-  <div class="font-medium">DeepEval Analysis not found...</div>
-</div>
+{% endif %}
+
+{% if faithfulness %}
+<div class="collapse bg-base-100">
+    <input type="checkbox" id="collapse-deepeval-faith-{{ source_id }}" /> 
+    <label for="collapse-deepeval-faith-{{ source_id }}" class="collapse-title text-base font-medium flex items-center gap-2 cursor-pointer">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/check-circle.svg" class="h-5 w-5"></svg>
+      DeepEval Analysis: Faithfulness Score ({{ faithfulness.score|floatformat:3 }})
+    </label>
+    <div class="collapse-content">
+      <div class="overflow-x-auto">
+        <table class="table table-xs">
+          <thead>
+            <tr>
+              <th>Statements</th>
+              <th>Verdicts</th>
+              <th>Score</th>
+              <th>Reason</th>
+              <th>Success</th>
+              <th>Logs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="whitespace-pre-wrap">{{ faithfulness.statements|join:", " }}</td>
+              <td class="whitespace-pre-wrap">{{ faithfulness.verdicts|join:", " }}</td>
+              <td>{{ faithfulness.score|floatformat:3 }}</td>
+              <td class="whitespace-pre-wrap">{{ faithfulness.reason }}</td>
+              <td>
+                {% if faithfulness.success %}
+                  <div class="badge badge-success">Pass</div>
+                {% else %}
+                  <div class="badge badge-error">Fail</div>
+                {% endif %}
+              </td>
+              <td>
+                <label for="logs-modal-deepeval-faith-{{ source_id }}" class="badge badge-ghost cursor-pointer">
+                  View Logs
+                </label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for logs -->
+  <input type="checkbox" id="logs-modal-deepeval-faith-{{ source_id }}" class="modal-toggle" />
+  <div class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-4">DeepEval Logs</h3>
+      <div class="bg-base-200 rounded-lg">
+        <pre class="max-h-96 overflow-y-auto font-mono text-sm p-4 whitespace-pre-wrap">{{ faithfulness.verbose_logs|pprint }}</pre>
+      </div>
+      <div class="modal-action">
+        <label for="logs-modal-deepeval-faith-{{ source_id }}" class="btn">Close</label>
+      </div>
+    </div>
+    <label class="modal-backdrop" for="logs-modal-deepeval-faith-{{ source_id }}">Close</label>
+  </div>
+{% endif %}
+
+{% if contextual_relevancy %}
+<div class="collapse bg-base-100">
+    <input type="checkbox" id="collapse-deepeval-ctx-{{ source_id }}" /> 
+    <label for="collapse-deepeval-ctx-{{ source_id }}" class="collapse-title text-base font-medium flex items-center gap-2 cursor-pointer">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/check-circle.svg" class="h-5 w-5"></svg>
+      DeepEval Analysis: Contextual Relevancy Score ({{ contextual_relevancy.score|floatformat:3 }})
+    </label>
+    <div class="collapse-content">
+      <div class="overflow-x-auto">
+        <table class="table table-xs">
+          <thead>
+            <tr>
+              <th>Statements</th>
+              <th>Verdicts</th>
+              <th>Score</th>
+              <th>Reason</th>
+              <th>Success</th>
+              <th>Logs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="whitespace-pre-wrap">{{ contextual_relevancy.statements|join:", " }}</td>
+              <td class="whitespace-pre-wrap">{{ contextual_relevancy.verdicts|join:", " }}</td>
+              <td>{{ contextual_relevancy.score|floatformat:3 }}</td>
+              <td class="whitespace-pre-wrap">{{ contextual_relevancy.reason }}</td>
+              <td>
+                {% if contextual_relevancy.success %}
+                  <div class="badge badge-success">Pass</div>
+                {% else %}
+                  <div class="badge badge-error">Fail</div>
+                {% endif %}
+              </td>
+              <td>
+                <label for="logs-modal-deepeval-ctx-{{ source_id }}" class="badge badge-ghost cursor-pointer">
+                  View Logs
+                </label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for logs -->
+  <input type="checkbox" id="logs-modal-deepeval-ctx-{{ source_id }}" class="modal-toggle" />
+  <div class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-4">DeepEval Logs</h3>
+      <div class="bg-base-200 rounded-lg">
+        <pre class="max-h-96 overflow-y-auto font-mono text-sm p-4 whitespace-pre-wrap">{{ contextual_relevancy.verbose_logs|pprint }}</pre>
+      </div>
+      <div class="modal-action">
+        <label for="logs-modal-deepeval-ctx-{{ source_id }}" class="btn">Close</label>
+      </div>
+    </div>
+    <label class="modal-backdrop" for="logs-modal-deepeval-ctx-{{ source_id }}">Close</label>
+  </div>
+{% endif %}
+
+{% if hallucination %}
+<div class="collapse bg-base-100">
+    <input type="checkbox" id="collapse-deepeval-hal-{{ source_id }}" /> 
+    <label for="collapse-deepeval-hal-{{ source_id }}" class="collapse-title text-base font-medium flex items-center gap-2 cursor-pointer">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/check-circle.svg" class="h-5 w-5"></svg>
+      DeepEval Analysis: Hallucination Score ({{ hallucination.score|floatformat:3 }})
+    </label>
+    <div class="collapse-content">
+      <div class="overflow-x-auto">
+        <table class="table table-xs">
+          <thead>
+            <tr>
+              <th>Statements</th>
+              <th>Verdicts</th>
+              <th>Score</th>
+              <th>Reason</th>
+              <th>Success</th>
+              <th>Logs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="whitespace-pre-wrap">{{ hallucination.statements|join:", " }}</td>
+              <td class="whitespace-pre-wrap">{{ hallucination.verdicts|join:", " }}</td>
+              <td>{{ hallucination.score|floatformat:3 }}</td>
+              <td class="whitespace-pre-wrap">{{ hallucination.reason }}</td>
+              <td>
+                {% if hallucination.success %}
+                  <div class="badge badge-success">Pass</div>
+                {% else %}
+                  <div class="badge badge-error">Fail</div>
+                {% endif %}
+              </td>
+              <td>
+                <label for="logs-modal-deepeval-hal-{{ source_id }}" class="badge badge-ghost cursor-pointer">
+                  View Logs
+                </label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for logs -->
+  <input type="checkbox" id="logs-modal-deepeval-hal-{{ source_id }}" class="modal-toggle" />
+  <div class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-4">DeepEval Logs</h3>
+      <div class="bg-base-200 rounded-lg">
+        <pre class="max-h-96 overflow-y-auto font-mono text-sm p-4 whitespace-pre-wrap">{{ hallucination.verbose_logs|pprint }}</pre>
+      </div>
+      <div class="modal-action">
+        <label for="logs-modal-deepeval-hal-{{ source_id }}" class="btn">Close</label>
+      </div>
+    </div>
+    <label class="modal-backdrop" for="logs-modal-deepeval-hal-{{ source_id }}">Close</label>
+  </div>
+{% endif %}
+
+{% if toxicity %}
+<div class="collapse bg-base-100">
+    <input type="checkbox" id="collapse-deepeval-tox-{{ source_id }}" /> 
+    <label for="collapse-deepeval-tox-{{ source_id }}" class="collapse-title text-base font-medium flex items-center gap-2 cursor-pointer">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/check-circle.svg" class="h-5 w-5"></svg>
+      DeepEval Analysis: Toxicity Score ({{ toxicity.score|floatformat:3 }})
+    </label>
+    <div class="collapse-content">
+      <div class="overflow-x-auto">
+        <table class="table table-xs">
+          <thead>
+            <tr>
+              <th>Statements</th>
+              <th>Verdicts</th>
+              <th>Score</th>
+              <th>Reason</th>
+              <th>Success</th>
+              <th>Logs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="whitespace-pre-wrap">{{ toxicity.statements|join:", " }}</td>
+              <td class="whitespace-pre-wrap">{{ toxicity.verdicts|join:", " }}</td>
+              <td>{{ toxicity.score|floatformat:3 }}</td>
+              <td class="whitespace-pre-wrap">{{ toxicity.reason }}</td>
+              <td>
+                {% if toxicity.success %}
+                  <div class="badge badge-success">Pass</div>
+                {% else %}
+                  <div class="badge badge-error">Fail</div>
+                {% endif %}
+              </td>
+              <td>
+                <label for="logs-modal-deepeval-tox-{{ source_id }}" class="badge badge-ghost cursor-pointer">
+                  View Logs
+                </label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for logs -->
+  <input type="checkbox" id="logs-modal-deepeval-tox-{{ source_id }}" class="modal-toggle" />
+  <div class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-4">DeepEval Logs</h3>
+      <div class="bg-base-200 rounded-lg">
+        <pre class="max-h-96 overflow-y-auto font-mono text-sm p-4 whitespace-pre-wrap">{{ toxicity.verbose_logs|pprint }}</pre>
+      </div>
+      <div class="modal-action">
+        <label for="logs-modal-deepeval-tox-{{ source_id }}" class="btn">Close</label>
+      </div>
+    </div>
+    <label class="modal-backdrop" for="logs-modal-deepeval-tox-{{ source_id }}">Close</label>
+  </div>
+{% endif %}
+
+{% if not answer_relevance and not faithfulness and not contextual_relevancy and not hallucination and not toxicity %}
+  <div class="flex items-center gap-2 p-4">
+    <svg data-src="https://unpkg.com/heroicons/20/solid/exclamation-circle.svg" class="h-5 w-5"></svg>
+    <div class="font-medium">DeepEval Analysis not found...</div>
+  </div>
 {% endif %}

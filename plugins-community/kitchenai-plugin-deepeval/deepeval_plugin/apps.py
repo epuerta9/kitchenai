@@ -8,7 +8,7 @@ class DeepevalPluginConfig(AppConfig):
     def ready(self):
         """Initialize KitchenAI app when Django starts"""
         from kitchenai.core.signals.query import query_signal, QuerySignalSender
-        from .signals import answer_relevance_post_save
+        from .signals import answer_relevance_post_save, hallucination_post_save
         from .plugin import DeepEvalPlugin
 
         self.plugin = DeepEvalPlugin(query_signal, QuerySignalSender.POST_DASHBOARD_QUERY, self.name)

@@ -25,7 +25,10 @@ def add(module: str = typer.Argument("app.kitchen:kitchen")):
 @app.command()
 def init(
     verbose: Annotated[int, typer.Option(help="verbosity level. default 0")] = 0,
-    collect_static: Annotated[bool, typer.Option("--collect-static/--no-collect-static", help="Collect static assets.")] = False,
+    collect_static: Annotated[bool, typer.Option("--collect-static/--no-collect-static", help="Collect static assets.")] = True,
+    bento: Annotated[bool, typer.Option("--bento/--no-bento", help="bento box setup.")] = True,
+    plugin: Annotated[bool, typer.Option("--plugin/--no-plugin", help="plugin setup.")] = True,
+    local: Annotated[bool, typer.Option("--local/--no-local", help="local setup.")] = False,
     ):
     django.setup()
     from django.core.management import execute_from_command_line
@@ -48,11 +51,33 @@ def init(
             with console.status("Collecting static assets", spinner="dots"):
                 execute_from_command_line(["manage", "collectstatic", "--no-input"])
     else:
+
+        if bento:
+            with console.status("Setting up bento box", spinner="dots"):
+                console.print("Installing default bento box: kitchenai_rag_simple_bento")
+                execute_from_command_line(["kitchenai", "bento", "select", "kitchenai_rag_simple_bento"])
+        if plugin:
+            from dynamicPip import DynamicPip
+            dynamic_pip = DynamicPip()
+            console.print("Installing default plugin: deepeval")
+            with console.status("Setting up plugin", spinner="dots"):
+                dynamic_pip.install("kitchenai_deepeval")
         execute_from_command_line(cmd)
         execute_from_command_line(["manage", "setup_periodic_tasks"])
         if collect_static:
             execute_from_command_line(["manage", "collectstatic", "--no-input"])
 
+        if local:
+            email = "admin@localhost"
+            password = "admin"
+            username = email.split("@")[0]
+
+            if password == "admin":
+                #set it
+                os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
+            execute_from_command_line(
+                ["manage", "createsuperuser", "--noinput", "--traceback", "--email", email, "--username", username]
+            )
 
     KitchenAIManagement.objects.all().delete()
     try:

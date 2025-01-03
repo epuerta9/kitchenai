@@ -27,7 +27,8 @@ class DeepEvalPlugin(QueryEvaluatorPlugin):
         Store the input to start building the dataset
         """
         if is_enabled():
-
+            if not input.metadata:
+                return QueryEvaluatorOutput()
             if input.metadata.get("dataset_id"):
                 dataset, created = await DataSet.objects.aget_or_create(id=input.metadata.get("dataset_id"))
             else:

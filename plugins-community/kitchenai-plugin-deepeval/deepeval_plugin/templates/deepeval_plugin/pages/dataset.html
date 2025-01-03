@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="p-4">
+  <!-- Dataset Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <div class="flex items-center gap-4">
+        <a href="{% url 'deepeval:home' %}" class="hover:text-primary">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/arrow-left.svg" class="h-6 w-6"></svg>
+        </a>
+        <h1 class="text-2xl font-bold">{{ dataset.name }}</h1>
+      </div>
+      <div class="badge {% if dataset.enabled %}badge-success{% else %}badge-error{% endif %} mt-2">
+        {{ dataset.enabled|yesno:"Active,Inactive" }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Dataset Entries Table -->
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex items-center gap-2 mb-4">
+        <svg data-src="https://unpkg.com/heroicons/20/solid/table-cells.svg" class="h-6 w-6 text-secondary"></svg>
+        <h3 class="text-lg font-bold">Dataset Entries</h3>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Source ID</th>
+              <th>Input</th>
+              <th>Output</th>
+              <th>Answer Relevance</th>
+              <th>Faithfulness</th>
+              <th>Contextual Relevancy</th>
+              <th>Hallucination</th>
+              <th>Toxicity</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in entries %}
+            <tr>
+              <td>{{ entry.source_id }}</td>
+              <td class="max-w-xs truncate">
+                <div class="tooltip" data-tip="{{ entry.input }}">
+                  {{ entry.input }}
+                </div>
+              </td>
+              <td class="max-w-xs truncate">
+                <div class="tooltip" data-tip="{{ entry.output }}">
+                  {{ entry.output }}
+                </div>
+              </td>
+              <td>
+                <label for="modal-{{ entry.source_id }}-answer" class="btn btn-sm">
+                  {% if entry.answer_relevance %}
+                    {{ entry.answer_relevance|floatformat:2 }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </label>
+                <input type="checkbox" id="modal-{{ entry.source_id }}-answer" class="modal-toggle" />
+                <div class="modal">
+                  <div class="modal-box max-w-3xl">
+                    <h3 class="font-bold text-xl mb-4">Answer Relevance Details</h3>
+                    <div class="space-y-4">
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Score:</p>
+                        <p class="text-lg">{{ entry.answer_relevance|floatformat:2|default:"-" }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Reason:</p>
+                        <p class="text-lg whitespace-pre-wrap">{{ entry.answer_relevance_reason }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Input:</p>
+                        <p class="text-lg">{{ entry.input }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Output:</p>
+                        <p class="text-lg">{{ entry.output }}</p>
+                      </div>
+                    </div>
+                    <div class="modal-action">
+                      <label for="modal-{{ entry.source_id }}-answer" class="btn">Close</label>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <label for="modal-{{ entry.source_id }}-faith" class="btn btn-sm">
+                  {% if entry.faithfulness %}
+                    {{ entry.faithfulness|floatformat:2 }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </label>
+                <input type="checkbox" id="modal-{{ entry.source_id }}-faith" class="modal-toggle" />
+                <div class="modal">
+                  <div class="modal-box max-w-3xl">
+                    <h3 class="font-bold text-xl mb-4">Faithfulness Details</h3>
+                    <div class="space-y-4">
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Score:</p>
+                        <p class="text-lg">{{ entry.faithfulness|floatformat:2|default:"-" }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Reason:</p>
+                        <p class="text-lg whitespace-pre-wrap">{{ entry.faithfulness_reason }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Input:</p>
+                        <p class="text-lg">{{ entry.input }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Output:</p>
+                        <p class="text-lg">{{ entry.output }}</p>
+                      </div>
+                    </div>
+                    <div class="modal-action">
+                      <label for="modal-{{ entry.source_id }}-faith" class="btn">Close</label>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <label for="modal-{{ entry.source_id }}-context" class="btn btn-sm">
+                  {% if entry.contextual_relevancy %}
+                    {{ entry.contextual_relevancy|floatformat:2 }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </label>
+                <input type="checkbox" id="modal-{{ entry.source_id }}-context" class="modal-toggle" />
+                <div class="modal">
+                  <div class="modal-box max-w-3xl">
+                    <h3 class="font-bold text-xl mb-4">Contextual Relevancy Details</h3>
+                    <div class="space-y-4">
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Score:</p>
+                        <p class="text-lg">{{ entry.contextual_relevancy|floatformat:2|default:"-" }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Reason:</p>
+                        <p class="text-lg whitespace-pre-wrap">{{ entry.contextual_relevancy_reason }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Input:</p>
+                        <p class="text-lg">{{ entry.input }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Output:</p>
+                        <p class="text-lg">{{ entry.output }}</p>
+                      </div>
+                    </div>
+                    <div class="modal-action">
+                      <label for="modal-{{ entry.source_id }}-context" class="btn">Close</label>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <label for="modal-{{ entry.source_id }}-hallucination" class="btn btn-sm">
+                  {% if entry.hallucination %}
+                    {{ entry.hallucination|floatformat:2 }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </label>
+                <input type="checkbox" id="modal-{{ entry.source_id }}-hallucination" class="modal-toggle" />
+                <div class="modal">
+                  <div class="modal-box max-w-3xl">
+                    <h3 class="font-bold text-xl mb-4">Hallucination Details</h3>
+                    <div class="space-y-4">
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Score:</p>
+                        <p class="text-lg">{{ entry.hallucination|floatformat:2|default:"-" }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Reason:</p>
+                        <p class="text-lg whitespace-pre-wrap">{{ entry.hallucination_reason }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Input:</p>
+                        <p class="text-lg">{{ entry.input }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Output:</p>
+                        <p class="text-lg">{{ entry.output }}</p>
+                      </div>
+                    </div>
+                    <div class="modal-action">
+                      <label for="modal-{{ entry.source_id }}-hallucination" class="btn">Close</label>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <label for="modal-{{ entry.source_id }}-toxicity" class="btn btn-sm">
+                  {% if entry.toxicity %}
+                    {{ entry.toxicity|floatformat:2 }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </label>
+                <input type="checkbox" id="modal-{{ entry.source_id }}-toxicity" class="modal-toggle" />
+                <div class="modal">
+                  <div class="modal-box max-w-3xl">
+                    <h3 class="font-bold text-xl mb-4">Toxicity Details</h3>
+                    <div class="space-y-4">
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Score:</p>
+                        <p class="text-lg">{{ entry.toxicity|floatformat:2|default:"-" }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Reason:</p>
+                        <p class="text-lg whitespace-pre-wrap">{{ entry.toxicity_reason }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Input:</p>
+                        <p class="text-lg">{{ entry.input }}</p>
+                      </div>
+                      <div class="bg-base-200 p-4 rounded-lg">
+                        <p class="font-semibold">Output:</p>
+                        <p class="text-lg">{{ entry.output }}</p>
+                      </div>
+                    </div>
+                    <div class="modal-action">
+                      <label for="modal-{{ entry.source_id }}-toxicity" class="btn">Close</label>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ entry.created_at|timesince }} ago</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex justify-center mt-4">
+        <div class="join">
+          {% if pagination.has_previous %}
+            <a href="?page=1" class="join-item btn">«</a>
+            <a href="?page={{ pagination.previous_page_number }}" class="join-item btn">‹</a>
+          {% endif %}
+          
+          <button class="join-item btn">Page {{ pagination.number }} of {{ pagination.paginator.num_pages }}</button>
+          
+          {% if pagination.has_next %}
+            <a href="?page={{ pagination.next_page_number }}" class="join-item btn">›</a>
+            <a href="?page={{ pagination.paginator.num_pages }}" class="join-item btn">»</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

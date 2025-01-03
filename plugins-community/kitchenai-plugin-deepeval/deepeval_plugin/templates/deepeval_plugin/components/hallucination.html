@@ -1,0 +1,78 @@
+<div class="collapse bg-base-100">
+  <input type="checkbox" id="collapse-deepeval-hallucination-{{ source_id }}" /> 
+  <label for="collapse-deepeval-hallucination-{{ source_id }}" class="collapse-title text-base font-medium flex items-center gap-2">
+    <svg data-src="https://unpkg.com/heroicons/20/solid/check-circle.svg" class="h-5 w-5 {% if success %}text-success{% else %}text-error{% endif %}"></svg>
+    DeepEval Analysis: Hallucination Score ({{ score|floatformat:3 }})
+  </label>
+  <div class="collapse-content">
+    <div class="overflow-x-auto">
+      <table class="table table-xs">
+        <tbody>
+          <tr>
+            <td class="font-medium">Score</td>
+            <td>{{ score|floatformat:3 }}</td>
+          </tr>
+          <tr>
+            <td class="font-medium">Status</td>
+            <td>
+              {% if success %}
+                <span class="text-success">Success</span>
+              {% else %}
+                <span class="text-error">Failed</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="font-medium">Reason</td>
+            <td class="flex items-center gap-2">
+              <span class="truncate max-w-md">{{ reason|truncatechars:100 }}</span>
+              {% if reason %}
+                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-reason-hal-{{ source_id }}').showModal()">
+                  <svg data-src="https://unpkg.com/heroicons/20/solid/eye.svg" class="h-4 w-4"></svg>
+                </button>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="font-medium">Statements</td>
+            <td class="flex items-center gap-2">
+              <span>{{ statements|length }} items</span>
+              {% if statements %}
+                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-statements-hal-{{ source_id }}').showModal()">
+                  <svg data-src="https://unpkg.com/heroicons/20/solid/list-bullet.svg" class="h-4 w-4"></svg>
+                </button>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="font-medium">Verdicts</td>
+            <td class="flex items-center gap-2">
+              <span>{{ verdicts|length }} items</span>
+              {% if verdicts %}
+                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-verdicts-hal-{{ source_id }}').showModal()">
+                  <svg data-src="https://unpkg.com/heroicons/20/solid/clipboard-document-check.svg" class="h-4 w-4"></svg>
+                </button>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="font-medium">Logs</td>
+            <td class="flex items-center gap-2">
+              <span>{{ verbose_logs|length }} entries</span>
+              {% if verbose_logs %}
+                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-logs-hal-{{ source_id }}').showModal()">
+                  <svg data-src="https://unpkg.com/heroicons/20/solid/document-text.svg" class="h-4 w-4"></svg>
+                </button>
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% include "deepeval_plugin/components/modal.html" with modal_id="modal-reason-hal-"|add:source_id|stringformat:"s" title="Hallucination Reason" content=reason %}
+{% include "deepeval_plugin/components/modal.html" with modal_id="modal-statements-hal-"|add:source_id|stringformat:"s" title="Hallucination Statements" content=statements content_type="json" %}
+{% include "deepeval_plugin/components/modal.html" with modal_id="modal-verdicts-hal-"|add:source_id|stringformat:"s" title="Hallucination Verdicts" content=verdicts content_type="json" %}
+{% include "deepeval_plugin/components/modal.html" with modal_id="modal-logs-hal-"|add:source_id|stringformat:"s" title="Hallucination Logs" content=verbose_logs content_type="json" %} 

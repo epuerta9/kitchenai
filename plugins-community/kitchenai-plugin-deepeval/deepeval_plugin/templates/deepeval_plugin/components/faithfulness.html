@@ -1,0 +1,78 @@
+<div class="collapse bg-base-100">
+  <input type="checkbox" id="collapse-deepeval-faithfulness-{{ source_id }}" /> 
+  <label for="collapse-deepeval-faithfulness-{{ source_id }}" class="collapse-title text-base font-medium flex items-center gap-2">
+    <svg data-src="https://unpkg.com/heroicons/20/solid/check-circle.svg" class="h-5 w-5 {% if success %}text-success{% else %}text-error{% endif %}"></svg>
+    DeepEval Analysis: Faithfulness Score ({{ score|floatformat:3 }})
+  </label>
+  <div class="collapse-content">
+    <div class="overflow-x-auto">
+      <table class="table table-xs">
+        <tbody>
+          <tr>
+            <td class="font-medium">Score</td>
+            <td>{{ score|floatformat:3 }}</td>
+          </tr>
+          <tr>
+            <td class="font-medium">Status</td>
+            <td>
+              {% if success %}
+                <span class="text-success">Success</span>
+              {% else %}
+                <span class="text-error">Failed</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="font-medium">Reason</td>
+            <td class="flex items-center gap-2">
+              <span class="truncate max-w-md">{{ reason|truncatechars:100 }}</span>
+              {% if reason %}
+                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-reason-faith-{{ source_id }}').showModal()">
+                  <svg data-src="https://unpkg.com/heroicons/20/solid/eye.svg" class="h-4 w-4"></svg>
+                </button>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="font-medium">Statements</td>
+            <td class="flex items-center gap-2">
+              <span>{{ statements|length }} items</span>
+              {% if statements %}
+                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-statements-faith-{{ source_id }}').showModal()">
+                  <svg data-src="https://unpkg.com/heroicons/20/solid/list-bullet.svg" class="h-4 w-4"></svg>
+                </button>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="font-medium">Verdicts</td>
+            <td class="flex items-center gap-2">
+              <span>{{ verdicts|length }} items</span>
+              {% if verdicts %}
+                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-verdicts-faith-{{ source_id }}').showModal()">
+                  <svg data-src="https://unpkg.com/heroicons/20/solid/clipboard-document-check.svg" class="h-4 w-4"></svg>
+                </button>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="font-medium">Logs</td>
+            <td class="flex items-center gap-2">
+              <span>{{ verbose_logs|length }} entries</span>
+              {% if verbose_logs %}
+                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-logs-faith-{{ source_id }}').showModal()">
+                  <svg data-src="https://unpkg.com/heroicons/20/solid/document-text.svg" class="h-4 w-4"></svg>
+                </button>
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% include "deepeval_plugin/components/modal.html" with modal_id="modal-reason-faith-"|add:source_id|stringformat:"s" title="Faithfulness Reason" content=reason %}
+{% include "deepeval_plugin/components/modal.html" with modal_id="modal-statements-faith-"|add:source_id|stringformat:"s" title="Faithfulness Statements" content=statements content_type="json" %}
+{% include "deepeval_plugin/components/modal.html" with modal_id="modal-verdicts-faith-"|add:source_id|stringformat:"s" title="Faithfulness Verdicts" content=verdicts content_type="json" %}
+{% include "deepeval_plugin/components/modal.html" with modal_id="modal-logs-faith-"|add:source_id|stringformat:"s" title="Faithfulness Logs" content=verbose_logs content_type="json" %} 
