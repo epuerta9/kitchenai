@@ -14,18 +14,23 @@ WORKDIR /app
 # Copy the user-provided requirements.txt
 COPY requirements.txt /app/requirements.txt
 
-# Install only filtered user dependencies into the virtual environment
-RUN python -m ensurepip && \
-    python -m pip freeze > /app/base_requirements.txt && \
-    grep -vFf /app/base_requirements.txt /app/requirements.txt > /app/user_requirements_filtered.txt && \
-    python -m pip install -r /app/user_requirements_filtered.txt
+# Get base KitchenAI requirements and filter user requirements
+RUN python -m pip freeze > /app/kitchenai_requirements.txt && \
+    echo "kitchenai" >> /app/kitchenai_requirements.txt && \
+    # Create filtered requirements (excluding kitchenai and its dependencies)
+    grep -vFf /app/kitchenai_requirements.txt /app/requirements.txt > /app/user_requirements_filtered.txt || true && \
+    # Install filtered requirements if any exist
+    if [ -s /app/user_requirements_filtered.txt ]; then \
+        python -m pip install -r /app/user_requirements_filtered.txt; \
+    fi
 
 # Copy the user-provided application code
 COPY app.py /app/app.py
 
 # Handle KitchenAI initialization with optional admin flag
 RUN . $VENV_PATH/bin/activate && \
-python kitchenai init {% if not admin %}--admin{% endif %}
+    python kitchenai init {% if not admin %}--admin{% endif %}
+
 # Expose the application port
 EXPOSE 8001
 

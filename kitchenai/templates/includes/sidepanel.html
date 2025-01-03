@@ -64,6 +64,21 @@
           </svg>
           Admin
         </a>
+        <a href="{% url 'dashboard:settings' %}"
+           class="{% if 'settings' in request.path %}active{% endif %}">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/adjustments-horizontal.svg"
+               class="h-5 w-5">
+          </svg>
+          Settings
+        </a>
+        <a href="https://docs.kitchenai.dev"
+           target="_blank"
+           class="{% if 'docs' in request.path %}active{% endif %}">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/book-open.svg"
+               class="h-5 w-5">
+          </svg>
+          Documentation
+        </a>
       </li>
     </ul>
   </nav>

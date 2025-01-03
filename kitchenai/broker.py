@@ -1,3 +1,3 @@
-from faststream.nats import NatsBroker
+# from faststream.nats import NatsBroker
 
-broker = NatsBroker()
+# broker = NatsBroker()

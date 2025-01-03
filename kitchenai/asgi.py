@@ -11,16 +11,16 @@ from starlette.applications import Starlette
 from starlette.routing import Mount
 
 from contextlib import asynccontextmanager
-from .broker import broker
+# from .broker import broker
 
 
-@asynccontextmanager
-async def broker_lifespan(app):
-    await broker.start()
-    try:
-        yield
-    finally:
-        await broker.close()
+# @asynccontextmanager
+# async def broker_lifespan(app):
+#     await broker.start()
+#     try:
+#         yield
+#     finally:
+#         await broker.close()
 
 
 app = Starlette(

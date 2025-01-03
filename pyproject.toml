@@ -62,12 +62,13 @@ dependencies = [
   "faststream[redis]", 
   "starlette",
   "django-eventstream",
-  "dynamic-pip", 
   "jupyterlab",
   "nest_asyncio",
   "django-model-utils",
   "kitchenai-py",
   "markdown2",
+  "aiohttp"
+
 ]
 
 scripts.kitchenai = "kitchenai.__main__:main"

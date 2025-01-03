@@ -1,0 +1,115 @@
+# ------------------------------------------------------------------------------
+# Django / KitchenAI Environment Variables
+# ------------------------------------------------------------------------------
+
+# General Django settings
+# ------------------------------------------------------------------------------
+# Enable / disable debug mode (development = True, production = False)
+DEBUG=false
+
+# Whether KitchenAI is running locally
+KITCHENAI_LOCAL=true
+
+# Allowed hosts (comma-separated)
+# e.g., ALLOWED_HOSTS=localhost,127.0.0.1,example.com
+ALLOWED_HOSTS=
+
+# Secret key for Django; required in production
+# Generate a secure random string in production!
+SECRET_KEY=django-insecure-change_me
+
+# ------------------------------------------------------------------------------
+# Database Settings
+# ------------------------------------------------------------------------------
+# Full database URL (e.g., Postgres, MySQL, or SQLite)
+# Examples:
+#   Postgres: "postgres://USER:PASSWORD@HOST:PORT/NAME"
+#   SQLite: "sqlite:///relative/path/to/db.sqlite3"
+#   SQLite default: sqlite:///PROJECT_PATH/.kitchenai/db.sqlite3
+DATABASE_URL=
+
+# Maximum connection age (in seconds) for persistent DB connections
+# Often used in production to improve performance.
+CONN_MAX_AGE=60
+
+# ------------------------------------------------------------------------------
+# Cache Settings
+# ------------------------------------------------------------------------------
+# If set, uses DiskCache for Django caching
+# e.g.: CACHE_LOCATION=/tmp/django_cache
+CACHE_LOCATION=
+
+# ------------------------------------------------------------------------------
+# AWS / S3 Settings (used if USE_S3=true)
+# ------------------------------------------------------------------------------
+# If using S3 or other object storage
+USE_S3=false
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_S3_REGION_NAME=
+AWS_STORAGE_BUCKET_NAME=
+
+# ------------------------------------------------------------------------------
+# Email Settings
+# ------------------------------------------------------------------------------
+# Default 'from' email address
+DEFAULT_FROM_EMAIL=example@example.com
+
+# Server email for error messages
+SERVER_EMAIL=example@example.com
+
+# If using Resend for email sending
+RESEND_API_KEY=
+
+# ------------------------------------------------------------------------------
+# Security & HTTPS Settings
+# ------------------------------------------------------------------------------
+# Enable Strict-Transport-Security in production (seconds)
+# e.g., 120 for 2 minutes, or 604800 for 1 week
+SECURE_HSTS_SECONDS=120
+
+# ------------------------------------------------------------------------------
+# Admin / URL Settings
+# ------------------------------------------------------------------------------
+# Path to Django admin
+ADMIN_URL=kitchenai-admin/
+
+# ------------------------------------------------------------------------------
+# Logging Levels
+# ------------------------------------------------------------------------------
+# Set Django’s log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+DJANGO_LOG_LEVEL=INFO
+
+# Set KitchenAI’s log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+KITCHENAI_LOG_LEVEL=DEBUG
+
+# ------------------------------------------------------------------------------
+# Sentry Settings
+# ------------------------------------------------------------------------------
+# Enable Sentry reporting
+KITCHENAI_SENTRY=false
+
+# DSN for Sentry (URL)
+SENTRY_DSN=
+
+# Environment for Sentry (development or production)
+SENTRY_ENV=development
+
+# ------------------------------------------------------------------------------
+# KitchenAI Settings
+# ------------------------------------------------------------------------------
+# Which LLM provider to use (e.g., openai, anthropic, etc.)
+KITCHENAI_LLM_PROVIDER=openai
+
+# Default LLM model
+KITCHENAI_LLM_MODEL=gpt-4o
+
+# Enable built-in KitchenAI auth system
+KITCHENAI_AUTH=false
+
+# JWT secret for KitchenAI
+KITCHENAI_JWT_SECRET=
+
+# Theme selection from the predefined list
+# e.g.: winter, dark, light, dracula, night, forest, cyberpunk, etc.
+KITCHENAI_THEME=winter

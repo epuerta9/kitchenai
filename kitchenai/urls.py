@@ -22,16 +22,11 @@ urlpatterns = [
     path(".well-known/security.txt", toolbox_views.security_txt),
     path("robots.txt", toolbox_views.robots_txt),
     path("", RedirectView.as_view(pattern_name="dashboard:home"), name="home"),
-    path(
-        "about/",
-        TemplateView.as_view(template_name="pages/about.html"),
-        name="about",
-    ),
     path("health/", MainView.as_view()),
     path(settings.ADMIN_URL, admin.site.urls),
     path("accounts/", include("allauth.urls")),
     path("dashboard/", include("kitchenai.dashboard.urls", namespace="dashboard")),
-    path("events/", include(django_eventstream.urls))
+    #path("events/", include(django_eventstream.urls)) #TODO: Uncomment this when we have a streaming endpoint
 ] + djp.urlpatterns()
 
 if settings.DEBUG:
