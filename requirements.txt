@@ -386,7 +386,7 @@ multidict==6.1.0
     # via
     #   aiohttp
     #   yarl
-nbclient==0.10.0
+nbclient==0.10.2
     # via nbconvert
 nbconvert==7.16.4
     # via
