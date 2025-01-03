@@ -12,6 +12,7 @@ from kitchenai.core.models import KitchenAIRootModule
 from django.conf import settings
 if TYPE_CHECKING:
     from ninja import NinjaAPI
+from django_q.tasks import async_task
 
 logger = logging.getLogger("kitchenai.core.utils")
 
@@ -173,3 +174,7 @@ def add_bento_box_to_core():
     else:
         logger.error("No bento box found")
         raise Exception("No bento box found")
+    
+
+def run_django_q_task(task_name: str, *args, **kwargs):
+    async_task(task_name, *args, **kwargs)

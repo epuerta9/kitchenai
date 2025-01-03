@@ -9,13 +9,14 @@ from django.conf import settings
 from rich.console import Console
 from typing import Annotated
 from kitchenai.bento.cli.bento import select as bento_select
+import subprocess
 
 app = typer.Typer()
 console = Console()
 
 
-
 logger = logging.getLogger(__name__)
+
 
 @app.command()
 def add(module: str = typer.Argument("app.kitchen:kitchen")):
@@ -23,97 +24,191 @@ def add(module: str = typer.Argument("app.kitchen:kitchen")):
 
     execute_from_command_line(["manage", "add_module", module])
 
+
 @app.command()
 def init(
     verbose: Annotated[int, typer.Option(help="verbosity level. default 0")] = 0,
-    collect_static: Annotated[bool, typer.Option("--collect-static/--no-collect-static", help="Collect static assets.")] = True,
-    bento: Annotated[bool, typer.Option("--bento/--no-bento", help="bento box setup.")] = True,
-    plugin: Annotated[bool, typer.Option("--plugin/--no-plugin", help="plugin setup.")] = True,
-    local: Annotated[bool, typer.Option("--local/--no-local", help="local setup.")] = False,
-    ):
+    collect_static: Annotated[
+        bool,
+        typer.Option(
+            "-s/--no-collect-static",
+            help="Don't collect static assets.",
+        ),
+    ] = False,
+    bento: Annotated[
+        str, typer.Option("--bento", help="Bento box to install")
+    ] = "kitchenai_rag_simple_bento",
+    plugin: Annotated[
+        str, typer.Option("--plugin", help="Plugin to install")
+    ] = "deepeval_plugin",
+    local: Annotated[
+        bool, typer.Option("--local/--no-local", help="local setup.")
+    ] = False,
+):
+    """Initialize KitchenAI with optional plugin installation."""
     django.setup()
     from django.core.management import execute_from_command_line
     from kitchenai.core.models import KitchenAIManagement
     from django.conf import settings
     import posthog
+    import warnings
 
     posthog.capture("init", "kitchenai_init")
-    cmd = ["manage", "migrate","--verbosity", f"{verbose}"]
+    cmd = ["manage", "migrate", "--verbosity", f"{verbose}"]
+    warnings.filterwarnings(
+        "ignore", category=Warning, module="django.contrib.staticfiles"
+    )
+    warnings.filterwarnings("ignore", category=Warning, module="django.contrib")
 
     if verbose != 1:
-        #execute_from_command_line(["kitchenai", "bento", "select", "kitchenai_rag_simple_bento"])
         with console.status("Applying migrations...", spinner="dots"):
             execute_from_command_line(cmd)
 
         with console.status("Setting up periodic tasks", spinner="dots"):
             execute_from_command_line(["manage", "setup_periodic_tasks"])
+
         if bento:
-            with console.status("Setting up bento box", spinner="dots"):
-                console.print("Installing default bento box: kitchenai_rag_simple_bento")
-                bento_select("kitchenai_rag_simple_bento")
-        
+            try:
+                with console.status(f"Installing {bento}", spinner="dots"):
+                    success, pkg_manager = _install_package(bento)
+                    if success:
+                        console.print(
+                            f"[green]Successfully installed plugin[/green] {bento} [dim](using {pkg_manager})[/dim]"
+                        )
+                        bento_select(bento)
+                    else:
+                        raise subprocess.CalledProcessError(
+                            1, f"Failed to install {bento}"
+                        )
+            except subprocess.CalledProcessError as e:
+                console.print(
+                    f"[red]ERROR:[/red] Failed to install {bento}. Details: {e}"
+                )
+                raise typer.Exit(code=1)
+
         if plugin:
-            from dynamicPip import DynamicPip
-            dynamic_pip = DynamicPip()
-            console.print("Installing default plugin: deepeval")
-            with console.status("Setting up plugin", spinner="dots"):
-                dynamic_pip.install("kitchenai_deepeval")
-        if collect_static:
+            try:
+                with console.status(f"Installing {plugin}", spinner="dots"):
+                    success, pkg_manager = _install_package(plugin)
+                    if success:
+                        console.print(
+                            f"[green]Successfully installed plugin[/green] {plugin} [dim](using {pkg_manager})[/dim]"
+                        )
+                    else:
+                        raise subprocess.CalledProcessError(
+                            1, f"Failed to install {plugin}"
+                        )
+            except subprocess.CalledProcessError as e:
+                console.print(
+                    f"[red]ERROR:[/red] Failed to install {plugin}. Details: {e}"
+                )
+                raise typer.Exit(code=1)
+
+        if not collect_static:
             with console.status("Collecting static assets", spinner="dots"):
                 execute_from_command_line(["manage", "collectstatic", "--no-input"])
-        
-        #apply migrations for the packages we just installed 
+
+        # Apply migrations for the packages we just installed
         execute_from_command_line(cmd)
 
-        
         if local:
-            email = "admin@localhost"
-            password = "admin"
-            username = email.split("@")[0]
+            try:
+                email = "admin@localhost"
+                password = "admin"
+                username = email.split("@")[0]
 
-            if password == "admin":
-                #set it
-                os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
-            execute_from_command_line(
-                ["manage", "createsuperuser", "--noinput", "--traceback", "--email", email, "--username", username]
-            )
+                if password == "admin":
+                    os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
+                    execute_from_command_line(
+                        [
+                            "manage",
+                            "createsuperuser",
+                            "--noinput",
+                            "--traceback",
+                            "--email",
+                            email,
+                            "--username",
+                            username,
+                        ]
+                    )
+            except Exception as e:
+                console.print(
+                    f"[red]ERROR:[/red] Failed to create superuser. Details: {e}"
+                )
+                return
     else:
         execute_from_command_line(cmd)
 
         if bento:
-            with console.status("Setting up bento box", spinner="dots"):
-                console.print("Installing default bento box: kitchenai_rag_simple_bento")
-                bento_select("kitchenai_rag_simple_bento")
+            try:
+                with console.status(f"Installing {bento}", spinner="dots"):
+                    success, pkg_manager = _install_package(bento)
+                    if success:
+                        console.print(
+                            f"[green]Successfully installed plugin[/green] {bento} [dim](using {pkg_manager})[/dim]"
+                        )
+                        bento_select(bento)
+                    else:
+                        raise subprocess.CalledProcessError(
+                            1, f"Failed to install {bento}"
+                        )
+            except subprocess.CalledProcessError as e:
+                console.print(
+                    f"[red]ERROR:[/red] Failed to install {bento}. Details: {e}"
+                )
+                raise typer.Exit(code=1)
         if plugin:
-            from dynamicPip import DynamicPip
-            dynamic_pip = DynamicPip()
-            console.print("Installing default plugin: deepeval")
-            with console.status("Setting up plugin", spinner="dots"):
-                dynamic_pip.install("kitchenai_deepeval")
+            try:
+                subprocess.check_call(
+                    [sys.executable, "-m", "pip", "install", "deepeval_plugin"]
+                )
+                console.print(
+                    f"[green]Successfully installed plugin:[/green] deepeval_plugin"
+                )
+            except subprocess.CalledProcessError as e:
+                console.print(
+                    f"[red]ERROR:[/red] Failed to install deepeval_plugin. Details: {e}"
+                )
+                raise typer.Exit(code=1)
+
         execute_from_command_line(["manage", "setup_periodic_tasks"])
-        if collect_static:
+        if not collect_static:
             execute_from_command_line(["manage", "collectstatic", "--no-input"])
-        
-        #apply migrations for the packages we just installed 
+
+        # apply migrations for the packages we just installed
         execute_from_command_line(cmd)
 
         if local:
-            email = "admin@localhost"
-            password = "admin"
-            username = email.split("@")[0]
+            try:
+                email = "admin@localhost"
+                password = "admin"
+                username = email.split("@")[0]
 
-            if password == "admin":
-                #set it
-                os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
-            execute_from_command_line(
-                ["manage", "createsuperuser", "--noinput", "--traceback", "--email", email, "--username", username]
-            )
+                if password == "admin":
+                    # set it
+                    os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
+                execute_from_command_line(
+                    [
+                        "manage",
+                        "createsuperuser",
+                        "--noinput",
+                        "--traceback",
+                        "--email",
+                        email,
+                        "--username",
+                        username,
+                    ]
+                )
+            except Exception as e:
+                console.print(
+                    f"[red]ERROR:[/red] Failed to create superuser. Details: {e}"
+                )
+                return
 
     KitchenAIManagement.objects.all().delete()
     try:
         mgmt = KitchenAIManagement.objects.create(
-            version = settings.VERSION,
-            project_name = "default"
+            version=settings.VERSION, project_name="default"
         )
     except Exception as e:
         logger.error(e)
@@ -124,6 +219,7 @@ def init(
 def qcluster() -> None:
     """Run Django-q cluster."""
     from django.core.management import execute_from_command_line
+
     # execute_from_command_line(["manage", "qcluster", *argv[2:]])
     execute_from_command_line(["manage", "qcluster"])
 
@@ -131,21 +227,23 @@ def qcluster() -> None:
 @app.command()
 def runserver(
     module: Annotated[str, typer.Option(help="Python module to load.")] = "",
-    address: Annotated[str, typer.Option(help="Address to run the server on.")] = "0.0.0.0:8001",
-    stream: Annotated[bool, typer.Option(help="Stream events to the event stream.")] = False,
-    ) -> None:
-    """Run Django runserver. If stream is true, it will run the uvicorn server. 
+    address: Annotated[
+        str, typer.Option(help="Address to run the server on.")
+    ] = "0.0.0.0:8001",
+    stream: Annotated[
+        bool, typer.Option(help="Stream events to the event stream.")
+    ] = False,
+) -> None:
+    """Run Django runserver. If stream is true, it will run the uvicorn server.
     If stream is false, it will run the dev runserver.
     """
-
-
 
     if stream:
         django.setup()
         from kitchenai.api import api
         from kitchenai.core.utils import setup
         from kitchenai.bento.models import Bento
-        
+
         if module:
             setup(api, module=module)
             console.print(f"[green]Successfully loaded module:[/green] {module}")
@@ -153,8 +251,12 @@ def runserver(
             try:
                 bento_box = Bento.objects.first()
                 if not bento_box:
-                    logger.error("No bento box loaded. Please run 'bento select' to select a bento box.")
-                    raise Exception("No bento box loaded. Please run 'bento select' to select a bento box.")
+                    logger.error(
+                        "No bento box loaded. Please run 'bento select' to select a bento box."
+                    )
+                    raise Exception(
+                        "No bento box loaded. Please run 'bento select' to select a bento box."
+                    )
                 bento_box.add_to_core()
             except Exception as e:
                 logger.error(f"Error loading bento box: {e}")
@@ -163,6 +265,7 @@ def runserver(
         _run_dev_uvicorn(sys.argv)
     else:
         from django.core.management import execute_from_command_line
+
         args = ["manage", "runserver"]
         args.append(address)
         if module:
@@ -171,14 +274,20 @@ def runserver(
 
         execute_from_command_line(args)
 
+
 @app.command()
-def run(module: Annotated[str, typer.Option(help="Python module to load.")] = os.environ.get("KITCHENAI_MODULE", "")) -> None:
+def run(
+    module: Annotated[
+        str, typer.Option(help="Python module to load.")
+    ] = os.environ.get("KITCHENAI_MODULE", "")
+) -> None:
     """Run Django runserver."""
     sys.argv = [sys.argv[0]]
     django.setup()
     from kitchenai.api import api
     from kitchenai.core.utils import setup
     from kitchenai.bento.models import Bento
+
     console = Console()
 
     if module:
@@ -189,19 +298,25 @@ def run(module: Annotated[str, typer.Option(help="Python module to load.")] = os
             bento_box = Bento.objects.first()
             bento_box.add_to_core()
         except Bento.DoesNotExist:
-            console.print("[red]Error:[/red] No bento box loaded. Please run 'bento select' to select a bento box.")
-            raise Exception("No bento box loaded. Please run 'bento select' to select a bento box.")
+            console.print(
+                "[red]Error:[/red] No bento box loaded. Please run 'bento select' to select a bento box."
+            )
+            raise Exception(
+                "No bento box loaded. Please run 'bento select' to select a bento box."
+            )
     _run_uvicorn(sys.argv)
 
 
 @app.command()
 def dev(
-    address: str ="0.0.0.0:8001", 
-    module: Annotated[str, typer.Option(help="Python module to load.")] = "", 
+    address: str = "0.0.0.0:8001",
+    module: Annotated[str, typer.Option(help="Python module to load.")] = "",
     tailwind: Annotated[bool, typer.Option(help="Tailwind servers.")] = False,
     jupyter: Annotated[bool, typer.Option(help="Jupyter Notebook servers.")] = False,
-    stream: Annotated[bool, typer.Option(help="Stream events to the event stream.")] = False,
-    ):
+    stream: Annotated[
+        bool, typer.Option(help="Stream events to the event stream.")
+    ] = False,
+):
     """
     Reads the kitchen config file, reads the application file and runs the KitchenAI server
     """
@@ -220,15 +335,17 @@ def dev(
         commands["server"] = commands["server"] + " --stream"
 
     if jupyter:
-        #user is running jupyter alongside kitchenai
+        # user is running jupyter alongside kitchenai
         from kitchenai.core.models import KitchenAIManagement
+
         mgmt = KitchenAIManagement.objects.filter(name="kitchenai_management").first()
         notebook_id = uuid.uuid4()
         mgmt.jupyter_token = notebook_id
         mgmt.save()
-        
-        commands["jupyter"] = f"jupyter lab --NotebookApp.token='{notebook_id}' --port=8888"
 
+        commands["jupyter"] = (
+            f"jupyter lab --NotebookApp.token='{notebook_id}' --port=8888"
+        )
 
     if tailwind:
         if "django_tailwind_cli" in settings.INSTALLED_APPS:
@@ -244,9 +361,10 @@ def dev(
     _run_with_honcho(commands)
 
 
-
 @app.command()
-def manage(args: list[str] = typer.Argument(None, help="Arguments for Django's manage.py")) -> None:
+def manage(
+    args: list[str] = typer.Argument(None, help="Arguments for Django's manage.py")
+) -> None:
     """
     Run Django's manage command with additional arguments.
     """
@@ -259,6 +377,7 @@ def manage(args: list[str] = typer.Argument(None, help="Arguments for Django's m
         sys.argv = ["manage"] + args
 
     execute_from_command_line(sys.argv)
+
 
 @app.command()
 def setup():
@@ -276,17 +395,29 @@ def setup():
     username = os.environ.get("DJANGO_SUPERUSER_USERNAME", email.split("@")[0])
 
     if password == "admin":
-        #set it
+        # set it
         os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
     execute_from_command_line(
-        ["manage", "createsuperuser", "--noinput", "--traceback", "--email", email, "--username", username]
+        [
+            "manage",
+            "createsuperuser",
+            "--noinput",
+            "--traceback",
+            "--email",
+            email,
+            "--username",
+            username,
+        ]
     )
+
 
 @app.command()
 def build(
     dir: str,
     module: str,
-    admin: Annotated[bool, typer.Option("--admin/--no-admin", help="Admin status (default is True)")] = False,
+    admin: Annotated[
+        bool, typer.Option("--admin/--no-admin", help="Admin status (default is True)")
+    ] = False,
 ):
     """
     Reads the kitchen config file, reads the application file and runs the KitchenAI server.
@@ -305,21 +436,20 @@ def build(
     module_name = module.split(":")[0]
 
     # Save the configuration to the database
-    template_name = 'build_templates/Dockerfile.tmpl'
+    template_name = "build_templates/Dockerfile.tmpl"
 
     # Check if requirements.txt and module file exist in the directory
-    requirements_file = base_dir / 'requirements.txt'
+    requirements_file = base_dir / "requirements.txt"
     module_path = base_dir / f"{module_name}.py"
 
     if not requirements_file.exists() or not module_path.exists():
-        console.print("[bold red]Error:[/bold red] Both requirements.txt and the module file must exist in the specified directory.")
+        console.print(
+            "[bold red]Error:[/bold red] Both requirements.txt and the module file must exist in the specified directory."
+        )
         raise typer.Exit(code=1)
 
     # Context data to pass into the template
-    context = {
-        'module': module,
-        "admin": admin
-    }
+    context = {"module": module, "admin": admin}
 
     try:
         # Load and render the template with the context data
@@ -327,14 +457,18 @@ def build(
         rendered_content = template.render(context)
 
         # Write the rendered Dockerfile to the specified directory
-        dockerfile_path = base_dir / 'Dockerfile'
-        with open(dockerfile_path, 'w') as dockerfile:
+        dockerfile_path = base_dir / "Dockerfile"
+        with open(dockerfile_path, "w") as dockerfile:
             dockerfile.write(rendered_content)
 
-        console.print(Text(f"Dockerfile successfully created at {dockerfile_path}", style="green"))
+        console.print(
+            Text(f"Dockerfile successfully created at {dockerfile_path}", style="green")
+        )
 
     except Exception as e:
-        console.print(f"[bold red]Error rendering template:[/bold red] {e}", style="bold red")
+        console.print(
+            f"[bold red]Error rendering template:[/bold red] {e}", style="bold red"
+        )
         raise typer.Exit(code=1)
 
     # Build the Docker image using the Dockerfile
@@ -368,18 +502,23 @@ def build(
             raise typer.Exit(code=1)
 
     except FileNotFoundError:
-        console.print("[bold red]Docker is not installed or not available in your PATH.[/bold red]")
+        console.print(
+            "[bold red]Docker is not installed or not available in your PATH.[/bold red]"
+        )
         raise typer.Exit(code=1)
     except Exception as e:
         console.print(f"[bold red]Error during Docker build:[/bold red] {e}")
         raise typer.Exit(code=1)
 
     except FileNotFoundError:
-        console.print("[bold red]Docker is not installed or not available in your PATH.[/bold red]")
+        console.print(
+            "[bold red]Docker is not installed or not available in your PATH.[/bold red]"
+        )
         raise typer.Exit(code=1)
     except Exception as e:
         console.print(f"[bold red]Error during Docker build:[/bold red] {e}")
         raise typer.Exit(code=1)
+
 
 @app.command()
 def new():
@@ -388,7 +527,6 @@ def new():
     """
 
     cookiecutter("https://github.com/epuerta9/cookiecutter-bento.git", output_dir=".")
-
 
 
 def _run_with_honcho(commands: dict):
@@ -401,7 +539,6 @@ def _run_with_honcho(commands: dict):
         manager.loop()
     finally:
         manager.terminate()
-
 
 
 def _run_uvicorn(argv: list) -> None:
@@ -468,3 +605,43 @@ def _run_dev_uvicorn(argv: list) -> None:
     argv.extend(gunicorn_args)
 
     wsgiapp.run()
+
+
+def _install_package(package_name: str) -> tuple[bool, str]:
+    """
+    Try to install a package using available package managers in order of preference:
+    1. UV (fastest)
+    2. Poetry (project-based)
+    3. Hatch (project-based)
+    4. Pip (fallback)
+
+    Returns:
+        tuple[bool, str]: (success, package_manager_used)
+    """
+    # Try UV first (fastest)
+    try:
+        subprocess.check_call(["uv", "pip", "install", package_name])
+        return True, "uv"
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    # Try Poetry
+    try:
+        subprocess.check_call(["poetry", "add", package_name])
+        return True, "poetry"
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    # Try Hatch
+    try:
+        subprocess.check_call(["hatch", "add", package_name])
+        return True, "hatch"
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    # Fallback to pip
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
+        return True, "pip"
+    except subprocess.CalledProcessError:
+        return False, ""
