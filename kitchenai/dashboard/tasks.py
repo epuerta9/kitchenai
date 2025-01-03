@@ -13,9 +13,10 @@ def update_aggregated_metrics(instance):
     all_metrics = ChatMetric.objects.filter(chat=instance.chat).all()
     
     # Calculate new aggregated values
-    metrics.avg_response_time = all_metrics.aggregate(avg=models.Avg('response_time'))['avg']
-    metrics.total_token_usage = all_metrics.aggregate(sum=models.Sum('token_usage'))['sum']
-    metrics.avg_confidence_score = all_metrics.aggregate(avg=models.Avg('confidence_score'))['avg']
+    metrics.embedding_tokens = all_metrics.aggregate(sum=models.Sum('embedding_tokens'))['sum'] or 0
+    metrics.llm_prompt_tokens = all_metrics.aggregate(sum=models.Sum('llm_prompt_tokens'))['sum'] or 0
+    metrics.llm_completion_tokens = all_metrics.aggregate(sum=models.Sum('llm_completion_tokens'))['sum'] or 0
+    metrics.total_llm_tokens = all_metrics.aggregate(sum=models.Sum('total_llm_tokens'))['sum'] or 0
     metrics.total_interactions = all_metrics.count()
     
     metrics.save()

@@ -27,3 +27,14 @@ class FileObject(TimeStamped):
 
     def __str__(self):
         return self.name
+    
+
+class StorageFunctionTokenCounts(models.Model):
+    file_object = models.ForeignKey(FileObject, on_delete=models.CASCADE)
+    embedding_tokens = models.IntegerField(default=0)
+    llm_prompt_tokens = models.IntegerField(default=0)
+    llm_completion_tokens = models.IntegerField(default=0)
+    total_llm_tokens = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.file_object.name} - {self.total_llm_tokens} tokens"

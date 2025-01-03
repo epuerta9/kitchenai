@@ -1,3 +1,5 @@
+{% load custom_filters %}
+
 {% if error %}
 <!-- Error message -->
 <div class="chat chat-start">
@@ -16,24 +18,33 @@
       <svg data-src="https://unpkg.com/heroicons/20/solid/user.svg" class="h-6 w-6 m-2 text-base-content"></svg>
     </div>
   </div>
-  <div class="chat-bubble">{{ metrics.input_text }}</div>
+  <div class="chat-bubble chat-bubble-primary prose text-primary-content">{{ metrics.input_text|markdown|safe }}</div>
 </div>
 
-<!-- AI output message in center -->
+<!-- AI output message on left -->
 <div class="chat chat-start">
   <div class="chat-image avatar">
     <div class="w-10 rounded-full bg-primary/10">
       <svg data-src="https://unpkg.com/heroicons/20/solid/cpu-chip.svg" class="h-6 w-6 m-2 text-primary"></svg>
     </div>
   </div>
-  <div class="chat-bubble">{{ metrics.output_text }}</div>
+  <div class="chat-bubble chat-bubble-secondary prose text-secondary-content">{{ metrics.output_text|markdown|safe }}</div>
 </div>
 
 <!-- Metrics display -->
 <div class="chat-metrics bg-base-200 rounded-lg p-4 text-sm space-y-2">
-  <div>Response Time: {{ metrics.response_time }}s</div>
-  <div>Token Usage: {{ metrics.token_usage }}</div>
-  <div>Confidence Score: {{ metrics.confidence_score }}</div>
+  {% if metrics.embedding_tokens %}
+  <div>Embedding Tokens: {{ metrics.embedding_tokens }}</div>
+  {% endif %}
+  {% if metrics.llm_prompt_tokens %}
+  <div>LLM Prompt Tokens: {{ metrics.llm_prompt_tokens }}</div>
+  {% endif %}
+  {% if metrics.llm_completion_tokens %}
+  <div>LLM Completion Tokens: {{ metrics.llm_completion_tokens }}</div>
+  {% endif %}
+  {% if metrics.total_llm_tokens %}
+  <div>Total LLM Tokens: {{ metrics.total_llm_tokens }}</div>
+  {% endif %}
   
   <!-- Collapsible Sources -->
   <div class="collapse bg-base-100">
@@ -85,6 +96,5 @@
     </div>
     {% endwith %}
   {% endfor %}
-
 </div>
 {% endif %}

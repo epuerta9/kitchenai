@@ -4,7 +4,9 @@ from .models import (
     EmbedObject,
     FileObject,
     KitchenAIManagement,
-    KitchenAIRootModule
+    KitchenAIRootModule,
+    EmbedFunctionTokenCounts,
+    StorageFunctionTokenCounts
 )
 
 
@@ -28,3 +30,11 @@ class KitchenAIRootModuleAdmin(admin.ModelAdmin):
     pass
 
 
+@admin.register(EmbedFunctionTokenCounts)
+class EmbedFunctionTokenCountsAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(StorageFunctionTokenCounts)
+class StorageFunctionTokenCountsAdmin(admin.ModelAdmin):
+    pass

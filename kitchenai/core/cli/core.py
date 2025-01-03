@@ -8,6 +8,7 @@ from cookiecutter.main import cookiecutter
 from django.conf import settings
 from rich.console import Console
 from typing import Annotated
+from kitchenai.bento.cli.bento import select as bento_select
 
 app = typer.Typer()
 console = Console()
@@ -37,35 +38,64 @@ def init(
     import posthog
 
     posthog.capture("init", "kitchenai_init")
-
     cmd = ["manage", "migrate","--verbosity", f"{verbose}"]
 
     if verbose != 1:
+        #execute_from_command_line(["kitchenai", "bento", "select", "kitchenai_rag_simple_bento"])
         with console.status("Applying migrations...", spinner="dots"):
             execute_from_command_line(cmd)
 
         with console.status("Setting up periodic tasks", spinner="dots"):
             execute_from_command_line(["manage", "setup_periodic_tasks"])
-
-        if collect_static:
-            with console.status("Collecting static assets", spinner="dots"):
-                execute_from_command_line(["manage", "collectstatic", "--no-input"])
-    else:
-
         if bento:
             with console.status("Setting up bento box", spinner="dots"):
                 console.print("Installing default bento box: kitchenai_rag_simple_bento")
-                execute_from_command_line(["kitchenai", "bento", "select", "kitchenai_rag_simple_bento"])
+                bento_select("kitchenai_rag_simple_bento")
+        
         if plugin:
             from dynamicPip import DynamicPip
             dynamic_pip = DynamicPip()
             console.print("Installing default plugin: deepeval")
             with console.status("Setting up plugin", spinner="dots"):
                 dynamic_pip.install("kitchenai_deepeval")
+        if collect_static:
+            with console.status("Collecting static assets", spinner="dots"):
+                execute_from_command_line(["manage", "collectstatic", "--no-input"])
+        
+        #apply migrations for the packages we just installed 
         execute_from_command_line(cmd)
+
+        
+        if local:
+            email = "admin@localhost"
+            password = "admin"
+            username = email.split("@")[0]
+
+            if password == "admin":
+                #set it
+                os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
+            execute_from_command_line(
+                ["manage", "createsuperuser", "--noinput", "--traceback", "--email", email, "--username", username]
+            )
+    else:
+        execute_from_command_line(cmd)
+
+        if bento:
+            with console.status("Setting up bento box", spinner="dots"):
+                console.print("Installing default bento box: kitchenai_rag_simple_bento")
+                bento_select("kitchenai_rag_simple_bento")
+        if plugin:
+            from dynamicPip import DynamicPip
+            dynamic_pip = DynamicPip()
+            console.print("Installing default plugin: deepeval")
+            with console.status("Setting up plugin", spinner="dots"):
+                dynamic_pip.install("kitchenai_deepeval")
         execute_from_command_line(["manage", "setup_periodic_tasks"])
         if collect_static:
             execute_from_command_line(["manage", "collectstatic", "--no-input"])
+        
+        #apply migrations for the packages we just installed 
+        execute_from_command_line(cmd)
 
         if local:
             email = "admin@localhost"

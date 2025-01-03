@@ -1,31 +1,38 @@
 
 
-{% if chat_metrics %}
+{% if aggregated %}
 <div class="space-y-4">
-  <div class="stats stats-vertical shadow">
-    {% for metric, value in chat_metrics.items %}
-    <div class="stat">
-      <div class="stat-title">{{ metric }}</div>
-      <div class="stat-value">
-        {% if metric == 'sources_used' %}
-          {{ value|length }}
-        {% else %}
-          {{ value }}
-        {% endif %}
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-
-  <div class="card bg-base-200">
-    <div class="card-body">
-      <h4 class="card-title text-sm">Sources Used</h4>
-      <ul class="list-disc list-inside text-sm">
-        {% for source in chat_metrics.sources_used %}
-        <li>{{ source }}</li>
-        {% endfor %}
-      </ul>
-    </div>
+  <div class="overflow-x-auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Embedding Tokens</td>
+          <td>{{ aggregated.embedding_tokens }}</td>
+        </tr>
+        <tr>
+          <td>LLM Prompt Tokens</td>
+          <td>{{ aggregated.llm_prompt_tokens }}</td>
+        </tr>
+        <tr>
+          <td>LLM Completion Tokens</td>
+          <td>{{ aggregated.llm_completion_tokens }}</td>
+        </tr>
+        <tr>
+          <td>Total LLM Tokens</td>
+          <td>{{ aggregated.total_llm_tokens }}</td>
+        </tr>
+        <tr>
+          <td>Total Interactions</td>
+          <td>{{ aggregated.total_interactions }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 {% else %}

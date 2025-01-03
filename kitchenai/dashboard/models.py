@@ -27,28 +27,32 @@ class ChatSetting(TimeStamped):
 class ChatMetric(TimeStamped):
     input_text = models.TextField(default="")
     output_text = models.TextField(default="")
-    response_time = models.FloatField(default=0)
-    token_usage = models.IntegerField(default=0)
-    confidence_score = models.IntegerField(default=0)
     sources_used = models.JSONField(default=list)
     metadata = models.JSONField(default=dict)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    embedding_tokens = models.IntegerField(default=0)
+    llm_prompt_tokens = models.IntegerField(default=0) 
+    llm_completion_tokens = models.IntegerField(default=0)
+    total_llm_tokens = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.chat.name} - {self.response_time}s"
-    
+        return f"{self.chat.name} - {self.created_at}"
+
 
 class AggregatedChatMetric(TimeStamped):
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
-    avg_response_time = models.FloatField(default=0)
-    total_token_usage = models.IntegerField(default=0) 
-    avg_confidence_score = models.FloatField(default=0)
+    embedding_tokens = models.IntegerField(default=0)
+    llm_prompt_tokens = models.IntegerField(default=0) 
+    llm_completion_tokens = models.IntegerField(default=0)
+    total_llm_tokens = models.IntegerField(default=0)
     total_interactions = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.chat.name} - {self.chat.created_at} - Total Tokens: {self.total_token_usage} "
+        return f"{self.chat.name} - {self.chat.created_at} - Total Tokens: {self.total_llm_tokens}"
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['chat_id'], name='unique_chat_metrics')
         ]
+
+

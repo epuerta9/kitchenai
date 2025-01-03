@@ -12,8 +12,8 @@ class QueryEvaluatorInput(QueryBaseResponseSchema):
 
 
 class QueryEvaluatorOutput(BaseModel):
-    query: str  # The modified query string
-    metadata: dict = {}  # Additional metadata
+    query: Optional[str] = None  # The modified query string
+    metadata: Optional[dict] = None  # Additional metadata
 
 
 class EvaluatorPluginMeta:

@@ -24,12 +24,18 @@ async def query(request, label: str, data: QuerySchema):
     """Create a new query"""
     """process file async function for core app using storage task"""
     try:
-        return await query_handler(label, data)
+        await query_signal.asend(sender=QuerySignalSender.PRE_API_QUERY, data=data)
+        result = await query_handler(label, data)
+        if not result.sources:
+            await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result, error=True)
+        else:
+            await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result)
+        return result
     except QueryHandlerBadRequestError as e:
         logger.error(f"QueryHandlerBadRequestError raised: {e}")
         raise HttpError(400, e.message)
     except Exception as e:
-        logger.error(f"Error in query: {e}")
+        logger.error(f"Error in <api/query>: {e}")
         raise HttpError(500, "query function not found")
 
 
@@ -46,7 +52,6 @@ async def query_handler(label: str, data: QuerySchema) -> QueryResponseSchema:
             raise QueryHandlerBadRequestError(message=f"Query function not found for {label}")
         
         #Signal the start of the query. Generic signals
-        await query_signal.asend(sender=QuerySignalSender.PRE_API_QUERY, data=data)
         if data.stream:
             if not data.stream_id:
                 logger.error("stream_id is required for streaming requests")
@@ -60,28 +65,8 @@ async def query_handler(label: str, data: QuerySchema) -> QueryResponseSchema:
                     raise QueryHandlerBadRequestError(message="Internal streaming error")
                 
                 async for text in results.stream_gen:
-                    # Yield each chunk of text as it arrives
-                    # Buffer for incomplete words
-                    logger.debug(f"streaming text: {text}")
-                    buffer = ""
-                    for chunk in text.split():
-                        logger.debug(f"streaming chunk text split: {chunk}")
-                        if buffer:
-                            # Combine buffer with current chunk
-                            chunk = buffer + chunk
-                            buffer = ""
-                        if not chunk[-1].isalnum() and chunk[-1] not in {".", ",", "!", "?"}:
-                            # If the chunk ends with an incomplete word, buffer it
-                            buffer = chunk
-                        else:
-                            logger.debug(f"streaming chunk: {chunk}")
-                            # Send complete word
-                            send_event(data.stream_id, "message", {"output": chunk})
-                    if buffer:
-                        # Send remaining buffer as a word
-                        send_event(data.stream_id, "message", {"output": buffer})
 
-
+                    send_event(data.stream_id, "message", {"output": text})
                 send_event(data.stream_id, "stream-end", {"output": "Stream complete"})
 
                 metadata = KitchenAIMetadata(stream_id=data.stream_id, stream=data.stream)
@@ -94,7 +79,6 @@ async def query_handler(label: str, data: QuerySchema) -> QueryResponseSchema:
         #Signal the end of the query
         metadata = KitchenAIMetadata(stream=data.stream)
         extended_result = QueryResponseSchema(**result.dict(), kitchenai_metadata=metadata)
-        await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=extended_result)
         return extended_result
     except Exception as e:
         logger.error(f"Error in query handler: {e}")

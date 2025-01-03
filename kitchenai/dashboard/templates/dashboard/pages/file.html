@@ -136,6 +136,29 @@
                                         <a href="{{ file.file.url }}" class="btn btn-sm btn-outline btn-info">
                                             Download
                                         </a>
+                                        {% if file.metadata %}
+                                        <button 
+                                            class="btn btn-sm btn-outline btn-primary"
+                                            onclick="document.getElementById('metadata-modal-{{ file.id }}').showModal()">
+                                            Metadata
+                                        </button>
+                                        <dialog id="metadata-modal-{{ file.id }}" class="modal">
+                                            <div class="modal-box">
+                                                <h3 class="font-bold text-lg mb-4">Metadata for {{ file.name }}</h3>
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    {% for key, value in file.metadata.items %}
+                                                    <div class="text-base-content/70">{{ key }}:</div>
+                                                    <div>{{ value }}</div>
+                                                    {% endfor %}
+                                                </div>
+                                                <div class="modal-action">
+                                                    <form method="dialog">
+                                                        <button class="btn">Close</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </dialog>
+                                        {% endif %}
                                         <button 
                                             class="btn btn-sm btn-outline btn-error"
                                             hx-delete="{% url 'dashboard:delete_file' file.id %}"

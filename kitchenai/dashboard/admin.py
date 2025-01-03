@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Chat, ChatMetric, AggregatedChatMetric
+from .models import Chat, ChatMetric, AggregatedChatMetric, ChatSetting
 
 @admin.register(Chat)
 class ChatAdmin(admin.ModelAdmin):
@@ -11,4 +11,8 @@ class ChatMetricAdmin(admin.ModelAdmin):
 
 @admin.register(AggregatedChatMetric)
 class AggregatedChatMetricAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(ChatSetting)
+class ChatSettingAdmin(admin.ModelAdmin):
     pass

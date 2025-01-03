@@ -352,16 +352,28 @@ async def chat_send(request: HttpRequest, chat_id: int):
         }
         for source in (result.retrieval_context or [])
     ]
-    
-    metric = await ChatMetric.objects.acreate(
-        input_text=result.input, 
-        output_text=result.output, 
+    metadata = result.metadata or {}
+    metric = ChatMetric(
+        input_text=result.input,
+        output_text=result.output,
         chat=chat,
-        metadata=result.metadata,
+        metadata=metadata,
         sources_used=sources
     )
 
-    await query_signal.asend(QuerySignalSender.POST_DASHBOARD_QUERY, **result.model_dump(), source_id=metric.id)
+    if result.token_counts:
+        metric.embedding_tokens = result.token_counts.embedding_tokens
+        metric.llm_prompt_tokens = result.token_counts.llm_prompt_tokens 
+        metric.llm_completion_tokens = result.token_counts.llm_completion_tokens
+        metric.total_llm_tokens = result.token_counts.total_llm_tokens
+
+    await metric.asave()
+
+    #check if the response is empty and if so, send a signal to whoever is handling the query
+    if not sources:
+        await query_signal.asend(QuerySignalSender.POST_DASHBOARD_QUERY, **result.model_dump(), source_id=metric.id, error=True)
+    else:
+        await query_signal.asend(QuerySignalSender.POST_DASHBOARD_QUERY, **result.model_dump(), source_id=metric.id)
 
     return TemplateResponse(
         request,

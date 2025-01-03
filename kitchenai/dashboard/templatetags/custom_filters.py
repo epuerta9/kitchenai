@@ -1,6 +1,7 @@
 from django import template
 import json
 import logging
+import markdown2
 
 logger = logging.getLogger(__name__)
 register = template.Library()
@@ -77,3 +78,13 @@ def format_logs(log_text):
         logger.error(f"Top-level error in format_deepeval_logs: {str(e)}")
         logger.error(f"Input was: {log_text}")
         return str(log_text)  # Return the original text if formatting fails
+    
+
+
+
+
+
+
+@register.filter(name='markdown')
+def markdown_format(text):
+    return markdown2.markdown(text, extras=['fenced-code-blocks', 'tables', 'break-on-newline'])

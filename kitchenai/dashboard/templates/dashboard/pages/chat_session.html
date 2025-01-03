@@ -24,7 +24,7 @@
               <svg data-src="https://unpkg.com/heroicons/20/solid/user.svg" class="h-6 w-6 m-2 text-base-content"></svg>
             </div>
           </div>
-          <div class="chat-bubble">{{ message.input_text }}</div>
+          <div class="chat-bubble chat-bubble-primary prose text-primary-content">{{ message.input_text|markdown|safe }}</div>
         </div>
 
         <!-- AI output message on left -->
@@ -34,13 +34,22 @@
               <svg data-src="https://unpkg.com/heroicons/20/solid/cpu-chip.svg" class="h-6 w-6 m-2 text-primary"></svg>
             </div>
           </div>
-          <div class="chat-bubble">{{ message.output_text }}</div>
+          <div class="chat-bubble chat-bubble-secondary prose text-secondary-content">{{ message.output_text|markdown|safe }}</div>
           
           <!-- Metrics display -->
           <div class="chat-metrics bg-base-200 rounded-lg p-4 text-sm space-y-2">
-            <div>Response Time: {{ message.response_time }}s</div>
-            <div>Token Usage: {{ message.token_usage }}</div>
-            <div>Confidence Score: {{ message.confidence_score }}</div>
+            {% if message.embedding_tokens %}
+            <div>Embedding Tokens: {{ message.embedding_tokens }}</div>
+            {% endif %}
+            {% if message.llm_prompt_tokens %}
+            <div>LLM Prompt Tokens: {{ message.llm_prompt_tokens }}</div>
+            {% endif %}
+            {% if message.llm_completion_tokens %}
+            <div>LLM Completion Tokens: {{ message.llm_completion_tokens }}</div>
+            {% endif %}
+            {% if message.total_llm_tokens %}
+            <div>Total LLM Tokens: {{ message.total_llm_tokens }}</div>
+            {% endif %}
             
             <!-- Collapsible Sources -->
             <div class="collapse bg-base-100">
@@ -233,7 +242,8 @@
             hx-swap="beforeend"
             hx-target-2="#metrics-panel"
             hx-swap-2="innerHTML"
-            hx-indicator="#loading-indicator">
+            hx-indicator="#loading-indicator"
+            hx-on::after-request="this.reset()">
         <input type="text" 
                placeholder="Type your message here..." 
                class="input input-bordered flex-1" 
@@ -273,9 +283,19 @@
 
 {% block inline_javascript %}
 <script>
-  document.body.addEventListener('htmx:afterSwap', function() {
+  // Scroll to bottom on initial page load
+  document.addEventListener('DOMContentLoaded', function() {
     const messagesDiv = document.getElementById('chat-messages');
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  });
+
+  // Scroll to bottom after HTMX swaps
+  document.body.addEventListener('htmx:afterSwap', function(event) {
+    // Only scroll if the swap target was the chat-messages div
+    if (event.detail.target.id === 'chat-messages') {
+      const messagesDiv = document.getElementById('chat-messages');
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
   });
 </script>
 {% endblock inline_javascript %}

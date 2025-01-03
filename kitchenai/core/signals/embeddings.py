@@ -5,12 +5,21 @@ from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django_q.tasks import async_task
-from kitchenai.contrib.kitchenai_sdk.tasks import embed_task_core, delete_embed_task_core
 import posthog
 from ..models import EmbedObject
+from django.dispatch import Signal
 
 logger = logging.getLogger(__name__)
 
+embed_signal = Signal()
+from enum import StrEnum
+
+
+class EmbedSignalSender(StrEnum):
+    POST_EMBED_PROCESS = "post_embed_process"
+    PRE_EMBED_PROCESS = "pre_embed_process"
+    POST_EMBED_DELETE = "post_embed_delete"
+    PRE_EMBED_DELETE = "pre_embed_delete"
 
 
 @receiver(post_save, sender=EmbedObject)
@@ -28,7 +37,7 @@ def embed_object_created(sender, instance, created, **kwargs):
             f = core_app.kitchenai_app.embeddings.get_task(instance.ingest_label)
             if f:
                 #TODO: add hook
-                async_task(embed_task_core, instance)
+                async_task("kitchenai.contrib.kitchenai_sdk.tasks.embed_task_core", instance)
             else:
                 logger.warning(f"No embed task found for {instance.ingest_label}")
         else:
@@ -43,7 +52,7 @@ def embed_object_deleted(sender, instance, **kwargs):
         f = core_app.kitchenai_app.embeddings.get_hook(instance.ingest_label, "on_delete")
         if f:
             #TODO: add hook
-            async_task(delete_embed_task_core, instance)
+            async_task("kitchenai.contrib.kitchenai_sdk.tasks.delete_embed_task_core", instance)
         else:
             logger.warning(f"No embed delete task found for {instance.ingest_label}")
     else:

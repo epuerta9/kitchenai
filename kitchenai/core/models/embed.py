@@ -19,3 +19,14 @@ class EmbedObject(TimeStamped):
 
     def __str__(self):
         return self.text
+
+
+class EmbedFunctionTokenCounts(models.Model):
+    embed_object = models.ForeignKey(EmbedObject, on_delete=models.CASCADE)
+    embedding_tokens = models.IntegerField(default=0)
+    total_llm_tokens = models.IntegerField(default=0)
+    llm_prompt_tokens = models.IntegerField(default=0)
+    llm_completion_tokens = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.embed_object.text} - {self.total_llm_tokens} tokens"

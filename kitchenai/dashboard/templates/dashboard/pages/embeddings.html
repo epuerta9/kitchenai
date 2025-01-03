@@ -107,14 +107,39 @@
                                 </td>
                                 <td>{{ embed.created_at|date:"Y-m-d H:i" }}</td>
                                 <td>
-                                    <button 
-                                        class="btn btn-sm btn-outline btn-error"
-                                        hx-delete="{% url 'dashboard:delete_embedding' embed.id %}"
-                                        hx-confirm="Are you sure you want to delete this embedding?"
-                                        hx-target="closest tr"
-                                        hx-swap="outerHTML">
-                                        Delete
-                                    </button>
+                                    <div class="flex gap-2">
+                                        {% if embed.metadata %}
+                                        <button 
+                                            class="btn btn-sm btn-outline btn-primary"
+                                            onclick="document.getElementById('metadata-modal-{{ embed.id }}').showModal()">
+                                            Metadata
+                                        </button>
+                                        <dialog id="metadata-modal-{{ embed.id }}" class="modal">
+                                            <div class="modal-box">
+                                                <h3 class="font-bold text-lg mb-4">Metadata for Embedding</h3>
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    {% for key, value in embed.metadata.items %}
+                                                    <div class="text-base-content/70">{{ key }}:</div>
+                                                    <div>{{ value }}</div>
+                                                    {% endfor %}
+                                                </div>
+                                                <div class="modal-action">
+                                                    <form method="dialog">
+                                                        <button class="btn">Close</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </dialog>
+                                        {% endif %}
+                                        <button 
+                                            class="btn btn-sm btn-outline btn-error"
+                                            hx-delete="{% url 'dashboard:delete_embedding' embed.id %}"
+                                            hx-confirm="Are you sure you want to delete this embedding?"
+                                            hx-target="closest tr"
+                                            hx-swap="outerHTML">
+                                            Delete
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             {% empty %}
