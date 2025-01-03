@@ -1,0 +1,18 @@
+default:
+    @just --list
+
+# Generate full changelog using hatch
+changelog:
+    cd ../../ && hatch run dev:git-cliff --config bento-community/kitchenai-bento-rag-simple/cliff.toml --output bento-community/kitchenai-bento-rag-simple/CHANGELOG.md
+
+# Generate changelog for unreleased changes only
+changelog-unreleased:
+    cd ../../ && hatch run dev:git-cliff --config bento-community/kitchenai-bento-rag-simple/cliff.toml --unreleased --output bento-community/kitchenai-bento-rag-simple/CHANGELOG.md
+
+# Preview changelog without writing to file
+changelog-preview:
+    cd ../../ && hatch run dev:git-cliff --config bento-community/kitchenai-bento-rag-simple/cliff.toml
+
+# Generate changelog for a specific version (usage: just changelog-version v0.1.0)
+changelog-version VERSION:
+    cd ../../ && hatch run dev:git-cliff --config bento-community/kitchenai-bento-rag-simple/cliff.toml --tag {{VERSION}} --output bento-community/kitchenai-bento-rag-simple/CHANGELOG.md

@@ -4,7 +4,7 @@ requires = ["hatchling"]
 
 [project]
 name = "kitchenai_rag_simple_bento"
-version = "0.1.1"
+dynamic = ["version"]
 description = ""
 readme = "README.md"
 authors = [
@@ -205,23 +205,21 @@ conventional_commits = true
 filter_unconventional = true
 split_commits = false
 commit_parsers = [
-  { message = "^feat", group = "<!-- 0 -->🚀 Features" },
-  { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
-  { message = "^doc|^docs", group = "<!-- 3 -->📚 Documentation" },
-  { message = "^perf", group = "<!-- 4 -->⚡ Performance" },
-  { message = "^refactor", group = "<!-- 2 -->🚜 Refactor" },
-  { message = "^style", group = "<!-- 5 -->🎨 Styling" },
-  { message = "^test", group = "<!-- 6 -->🧪 Testing" },
-  { message = "^build", group = "<!-- 7 -->📦 Build" },
-  { message = "^chore\\(release\\): prepare for", skip = true },
-  { message = "^chore\\(deps.*\\)", skip = true },
-  { message = "^chore\\(pr\\)", skip = true },
-  { message = "^chore\\(pull\\)", skip = true },
-  { message = "^chore|^ci", group = "<!-- 8 -->⚙️ Miscellaneous Tasks" },
-  { body = ".*security", group = "<!-- 9 -->🛡️ Security" },
-  { message = "^revert", group = "<!-- 10 -->◀️ Revert" },
+  { message = "^bento\\(simple-rag:feat\\)", group = "<!-- 0 -->🚀 Simple-RAG Features" },
+  { message = "^bento\\(simple-rag:fix\\)", group = "<!-- 1 -->🐛 Simple-RAG Fixes" },
+  { message = "^bento\\(simple-rag:refactor\\)", group = "<!-- 2 -->🚜 Simple-RAG Refactor" },
+  { message = "^bento\\(simple-rag:docs\\)", group = "<!-- 3 -->📚 Simple-RAG Documentation" },
+  { message = "^bento\\(simple-rag:perf\\)", group = "<!-- 4 -->⚡ Simple-RAG Performance" },
+  { message = "^bento\\(simple-rag:style\\)", group = "<!-- 5 -->🎨 Simple-RAG Styling" },
+  { message = "^bento\\(simple-rag:test\\)", group = "<!-- 6 -->🧪 Simple-RAG Testing" },
+  { message = "^bento\\(simple-rag:build\\)", group = "<!-- 7 -->📦 Simple-RAG Build" },
+  { message = "^bento\\(simple-rag:chore\\)", group = "<!-- 8 -->⚙️ Simple-RAG Tasks" },
+  { message = "^bento\\(simple-rag:security\\)", group = "<!-- 9 -->🛡️ Simple-RAG Security" }
 ]
 protect_breaking_commits = false
 filter_commits = false
 topo_order = false
 sort_commits = "oldest"
+
+[tool.hatch.version]
+path = "kitchenai_rag_simple_bento/__version__.py"

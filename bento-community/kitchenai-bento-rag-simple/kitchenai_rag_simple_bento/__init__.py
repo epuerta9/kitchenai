@@ -10,6 +10,8 @@ from pydantic import ValidationError
 from kitchenai.core.schema.base import validate_bento_config
 from kitchenai.core.types import EnvVars, ModelType, ModelName, VectorStore
 
+from .__version__ import __version__
+
 def get_available_env_vars():
     """
     Returns information about all available environment variables and their configurations.
@@ -56,6 +58,7 @@ def settings(current_settings):
         "description": "a simple RAG starter that covers majority of cases",
         "namespace": "simple_rag",
         "home": "home",
+        "version": __version__,
         "tags": ["rag-simple", "bento", "kitchenai_rag_simple_bento", "kitchenai-bento-rag-simple"],
     }
 
