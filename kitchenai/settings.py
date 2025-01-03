@@ -334,6 +334,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "kitchenai.context_processors.theme_context"
             ],
             "builtins": [
                 "template_partials.templatetags.partials",
@@ -514,11 +515,34 @@ KITCHENAI = {
 
 KITCHENAI_JWT_SECRET = env.str("KITCHENAI_JWT_SECRET", default="")
 
-if KITCHENAI["settings"]["auth"] and (not KITCHENAI_JWT_SECRET):
-    raise ValueError("KITCHENAI_JWT_SECRET is required when auth is enabled")
-
 KITCHENAI_APP = "bento"
 
+# Theme settings
+KITCHENAI_THEMES = [
+    "cupcake",    # Light, cute
+    "dark",       # Dark mode
+    "light",      # Light mode
+    "dracula",    # Dark purple
+    "night",      # Dark blue
+    "winter",     # Light blue
+    "forest",     # Dark green
+    "sunset",     # Orange/pink
+    "business",   # Professional light
+    "cyberpunk",  # Neon
+    "synthwave",  # Retro dark
+    "retro",      # Vintage light
+    "valentine",  # Pink theme
+    "garden",
+    "wireframe",    # Nature green
+    "aqua",       # Light blue
+]
+
+# Default theme (can be overridden by env var)
+KITCHENAI_THEME = env.str("KITCHENAI_THEME", default="winter")
+
+# Validate theme setting
+if KITCHENAI_THEME not in KITCHENAI_THEMES:
+    KITCHENAI_THEME = "cupcake"  # Fallback to default if invalid theme specified
 
 # WEBHOOKS
 # DJANGO_WEBHOOK = dict(MODELS=["core.TestObject"])
