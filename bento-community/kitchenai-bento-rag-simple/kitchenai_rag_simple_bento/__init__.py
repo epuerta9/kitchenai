@@ -9,8 +9,7 @@ from kitchenai.core.schema.rag import RAGConfigSchema
 from pydantic import ValidationError
 from kitchenai.core.schema.base import validate_bento_config
 from kitchenai.core.types import EnvVars, ModelType, ModelName, VectorStore
-
-from .__version__ import __version__
+from kitchenai_rag_simple_bento.__version__ import __version__
 
 def get_available_env_vars():
     """
@@ -52,7 +51,6 @@ def settings(current_settings):
     
     # Use the validated config
     settings = rag_config.model_dump()
-    
     config = {
         "name": "kitchenai_rag_simple_bento",
         "description": "a simple RAG starter that covers majority of cases",
