@@ -18,6 +18,7 @@ def settings_view(request):
     # Extract configurable environment variables
     env_settings = {
         "Core Settings": {
+            "VERSION": settings.VERSION,
             "DEBUG": settings.DEBUG,
             "KITCHENAI_LOCAL": settings.KITCHENAI_LOCAL,
             "ALLOWED_HOSTS": settings.ALLOWED_HOSTS,

@@ -25,6 +25,10 @@ class BentoConfigSchema(BaseModel):
         description="List of tags associated with the package",
         min_items=1
     )
+    version: str = Field(
+        ...,
+        description="The version of the package"
+    )
     settings: Optional[Dict[str, Any]] = Field(
         default=None,
         description="Optional settings specific to this bento"

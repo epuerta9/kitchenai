@@ -13,9 +13,9 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 
 # 0. Setup
 # --------------------------------------------------------------------------------------------
+from kitchenai import __version__ 
 
-
-VERSION = "0.0.1"
+VERSION = __version__
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
@@ -334,7 +334,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "kitchenai.context_processors.theme_context"
+                "kitchenai.context_processors.theme_context",
+                "kitchenai.context_processors.version_context",
             ],
             "builtins": [
                 "template_partials.templatetags.partials",

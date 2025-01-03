@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "kitchenai"
-version = "0.12.2"
+dynamic = ["version"]
 description = ""
 readme = "README.md"
 authors = [ { name = "epuerta", email = "esteban_puerta@rhinosearch.io" } ]
@@ -288,3 +288,6 @@ sort_commits = "oldest"
 
 [tool.uv.workspace]
 members = ["python_libraries/kitchenai-llama"]
+
+[tool.hatch.version]
+path = "kitchenai/__version__.py"

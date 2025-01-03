@@ -1,4 +1,5 @@
 from kitchenai.contrib.kitchenai_sdk.schema import StorageSchema
+from kitchenai.contrib.kitchenai_sdk.schema import StorageResponseSchema
 
 
 storage_data = StorageSchema(
@@ -13,7 +14,10 @@ def {{func_name}}(data: StorageSchema, **kwargs):
     Args:
         data: StorageSchema
     """
-    pass
+    
+    return StorageResponseSchema(
+        metadata={"status": "success"},
+    )
 
 
 result = {{func_name}}(storage_data)

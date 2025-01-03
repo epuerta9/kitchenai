@@ -1,4 +1,5 @@
 from kitchenai.contrib.kitchenai_sdk.schema import EmbedSchema
+from kitchenai.contrib.kitchenai_sdk.schema import EmbedResponseSchema
 
 
 embed_data = EmbedSchema(
@@ -16,11 +17,12 @@ def {{func_name}}(data: EmbedSchema):
         data: EmbedSchema
 
     Response:
-        dict:
-           Any
+    class EmbedResponseSchema(Schema):
+        metadata: dict[str, Any] | None = None
+        token_counts: TokenCountSchema | None = None
     """
 
-    pass
+    return EmbedResponseSchema(metadata={"status": "success"})
 
 
 
