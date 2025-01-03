@@ -2,6 +2,89 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.13.0] - 2025-01-03
+
+### 🚀 Applications
+
+- *(playground)* First commit on kitchenai playground
+- *(playground)* Readme update
+- *(playground)* Playground has updated hooks
+
+### 🚀 Features
+
+- *(webhooks)* Added support for django webhooks
+- *(bento)* Bento cli can now list and select bento boxes. Dev server loads selected bento as kitchenai app
+- *(bento)* Initial bento box llama index starter kit
+- *(bento)* Copy remote bento's to local
+- *(plugin)* Plugin framework for kitchenai
+- *(notebooks)* Templates for jupyter for various functions
+- *(notebooks)* Cell and line commands that register previous cells and create templates
+- *(bento)* First bento box iteration for simple rag
+- *(dashboard)* File and embedding pages
+- *(dashboard)* Chat session pages
+- *(dashboard)* Plugin chat widget, pagination on file and embeddings, plugin signals and evaluator class, schema update
+- *(core)* Require login and jwt for api
+- *(dashboard)* Plugin tests interactively update when responses come in
+- *(streaming)* Added async streaming instead of SSE endpoint
+
+### 🚀 Plugins
+
+- *(deepeval)* Relevancy metric integration
+- *(deepeval)* Ui and application for deepeval. datasets, ui, settings, dashboard
+- *(deepeval)* Chat integration with background workers. Sync signal listeners.
+
+### 🚜 Refactor
+
+- *(structure)* Modular, streaming enabled with django eventstream, api change, runserver
+- *(bento)* Refactored the bento notebook sdk so the imports are correct
+- *(signals)* Split the core signals and updated queryparams for the main query api
+- *(sdk)* Refactored schemas
+- *(lib)* Adding a python lib for specific frameworks. Helper utils
+- *(core)* Bento vs module addition, qcluster improvements
+- *(query)* Streaming function still wip but streaming with events
+- *(dashboard)* Dashboard for kitchenai runtime, plugin wip, bento model update
+- *(sdk)* Removed default label
+
+### 📚 Documentation
+
+- *(readme)* Updated readme
+
+### 📦 Build
+
+- *(deps)* Updated dependencies, added uvicorn"
+
+### ⚙️ Miscellaneous Tasks
+
+- *(pyproject)* Pyproject toml updated dependencies
+- *(build)* Dependency deps
+- *(settings)* Static files and updated theme settings
+- *(settings)* Updated dependencies, version, template updates to match schema
+
+### Bento
+
+- *(rag)* Improvements over vector adding logging
+- *(rag)* Streaming query now has llm and parity with non streaming query
+- *(rag)* New init, options, and home page plus settings
+- *(rag)* Dependency manager
+- *(views)* Home page
+- *(simple-rag:chore)* Changelog, version, pyproject toml
+
+### Patch
+
+- *(plugin)* Added metadata to all plugin inputs
+
+### Plugin
+
+- *(deepeval)* Created registered plugin and migrations
+- *(deepeval:chore)* Changelog creation, clifftoml, version
+
+### Wip
+
+- Plugin deepeval
+- Event stream
+- Chat html
+- Broken, handlers are not registering correctly
+
 ## [0.12.2] - 2024-12-11
 
 ### 📚 Documentation
