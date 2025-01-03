@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col items-center p-8 space-y-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between w-full max-w-2xl mb-4">
+    <a href="{% url 'dashboard:home' %}" class="btn btn-ghost btn-circle">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </a>
+    <div class="text-center flex-1">
+      <h1 class="text-3xl font-bold mb-2">KitchenAI Settings</h1>
+      <p class="text-base-content/60">Configure your KitchenAI instance settings</p>
+    </div>
+    <div class="w-10"></div>
+  </div>
+
+  <!-- System Settings Card -->
+  <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex items-center gap-2 mb-4">
+        <svg data-src="https://unpkg.com/heroicons/20/solid/cog.svg" class="h-6 w-6 text-primary"></svg>
+        <h2 class="card-title">System Settings</h2>
+      </div>
+
+      {% for section_name, settings in env_settings.items %}
+      <div class="mb-6">
+        <h3 class="font-semibold text-lg mb-3">{{ section_name }}</h3>
+        <div class="mockup-code">
+          <pre><code>{% for key, value in settings.items %}{{ key }}: {{ value }}
+{% endfor %}</code></pre>
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="mockup-code">
+        <pre><code>AUTH_ENABLED: {{ kitchenai_settings.settings.auth }}
+JWT_SECRET: {{ kitchenai_settings.jwt_secret }}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Components Card -->
+  <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex items-center gap-2 mb-4">
+        <svg data-src="https://unpkg.com/heroicons/20/solid/puzzle-piece.svg" class="h-6 w-6 text-secondary"></svg>
+        <h2 class="card-title">Installed Components</h2>
+      </div>
+      
+      <!-- Bento Section -->
+      <div class="mb-4">
+        <h3 class="font-semibold mb-2">Bento Models</h3>
+        {% if kitchenai_settings.bento %}
+          <div class="card bg-base-200 p-4">
+            {% for bento in kitchenai_settings.bento %}
+              <div class="mb-4">
+                <h4 class="font-medium text-lg">{{ bento.name }}</h4>
+                <p class="text-base-content/70 mb-2">{{ bento.description }}</p>
+                <div class="flex flex-wrap gap-2 mb-2">
+                  {% for tag in bento.tags %}
+                    <span class="badge badge-primary">{{ tag }}</span>
+                  {% endfor %}
+                </div>
+                <div class="text-sm">
+                  <p><span class="font-medium">Namespace:</span> {{ bento.namespace }}</p>
+                  <p><span class="font-medium">Home:</span> {{ bento.home }}</p>
+                  <div class="mt-2">
+                    <p class="font-medium">Settings:</p>
+                    <ul class="list-disc list-inside pl-4">
+                      {% for key, value in bento.settings.items %}
+                        <li>{{ key }}: {{ value }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-base-content/60">No Bento models installed</p>
+        {% endif %}
+      </div>
+
+      <!-- Plugins Section -->
+      <div class="mb-4">
+        <h3 class="font-semibold mb-2">Plugins</h3>
+        {% if kitchenai_settings.plugins %}
+          <div class="card bg-base-200 p-4">
+            {% for plugin in kitchenai_settings.plugins %}
+              <div class="mb-4">
+                <h4 class="font-medium text-lg">{{ plugin.name }}</h4>
+                <p class="text-base-content/70 mb-2">{{ plugin.description }}</p>
+                <div class="flex flex-wrap gap-2 mb-2">
+                  {% for tag in plugin.tags %}
+                    <span class="badge badge-secondary">{{ tag }}</span>
+                  {% endfor %}
+                </div>
+                <div class="text-sm">
+                  <p><span class="font-medium">Namespace:</span> {{ plugin.namespace }}</p>
+                  <p><span class="font-medium">Home:</span> {{ plugin.home }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-base-content/60">No plugins installed</p>
+        {% endif %}
+      </div>
+
+      <!-- Apps Section -->
+      <div>
+        <h3 class="font-semibold mb-2">Apps</h3>
+        {% if kitchenai_settings.apps %}
+          <ul class="list-disc list-inside">
+            {% for app in kitchenai_settings.apps %}
+              <li>{{ app }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-base-content/60">No apps installed</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

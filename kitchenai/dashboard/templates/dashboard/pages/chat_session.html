@@ -90,7 +90,8 @@
               {% for widget in plugin_widgets %}
                 <div hx-get="{% url widget message.id %}"
                      hx-trigger="load"
-                     hx-swap="outerHTML"></div>
+                     hx-swap="outerHTML">
+                </div>
               {% endfor %}
             {% endif %}
           </div>

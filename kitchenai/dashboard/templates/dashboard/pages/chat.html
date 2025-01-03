@@ -37,7 +37,7 @@
                 <form method="POST" action="{% url 'dashboard:chat' %}" class="w-full flex justify-center">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary gap-2 text-center">
-                        <svg data-src="{% static 'icons/plus.svg' %}" class="w-5 h-5"></svg>
+                        <svg data-src="https://unpkg.com/heroicons/20/solid/plus.svg" class="w-5 h-5"></svg>
                         Start New Session
                     </button>
                 </form>

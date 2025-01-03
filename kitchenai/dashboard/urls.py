@@ -18,4 +18,5 @@ urlpatterns = [
     path("chat/<int:chat_id>/delete", views.chat_delete, name="chat_delete"),
     path("chat/<int:chat_id>/settings", views.chat_settings, name="chat_settings"),
     path("bento/install", views.bento_install, name="bento_install"),
+    path("settings", views.settings_view, name="settings"),
 ]

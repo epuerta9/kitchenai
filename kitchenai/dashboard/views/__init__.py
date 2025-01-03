@@ -19,6 +19,7 @@ from django.contrib.auth.decorators import login_required
 
 
 from .bento import *
+from .settings import *
 
 logger = logging.getLogger(__name__)
 
