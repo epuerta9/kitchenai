@@ -4,7 +4,7 @@ requires = ["hatchling"]
 
 [project]
 name = "kitchenai_rag_simple_bento"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 readme = "README.md"
 authors = [

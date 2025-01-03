@@ -1,9 +1,7 @@
-from django.shortcuts import render
 from django.template.response import TemplateResponse
 from falco_toolbox.types import HttpRequest
 from django.contrib.auth.decorators import login_required
 import inspect
-from django.apps import apps
 import json
 from kitchenai_rag_simple_bento import get_available_env_vars
 

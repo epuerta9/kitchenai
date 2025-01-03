@@ -52,12 +52,10 @@ async def kitchenai_bento_simple_rag_vjnk(data: QuerySchema, llm, vector_store) 
             MetadataFilter(key=key, value=value)
             for key, value in (data.metadata or {}).items()
         ]
-
     filters = MetadataFilters(filters=filter_list)
     index = VectorStoreIndex.from_vector_store(vector_store)
     query_engine = index.as_query_engine(chat_mode="best", filters=filters, llm=llm, verbose=True)
     response = await query_engine.aquery(data.query)
-
     token_counts = TokenCountSchema(
         embedding_tokens=token_counter.total_embedding_token_count,
         llm_prompt_tokens=token_counter.prompt_llm_token_count,
@@ -129,7 +127,7 @@ def simple_rag_bento_vagh(data: EmbedSchema, vector_store) -> EmbedResponseSchem
         documents, storage_context=storage_context, show_progress=True,
             transformations=[TokenTextSplitter(), TitleExtractor(),QuestionsAnsweredExtractor()]
     )
-    
+
     token_counts = TokenCountSchema(
         embedding_tokens=token_counter.total_embedding_token_count,
         llm_prompt_tokens=token_counter.prompt_llm_token_count,
