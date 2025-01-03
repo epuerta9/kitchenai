@@ -1,0 +1,13 @@
+{% for test_name, enabled in enabled_tests.items %}
+  {% if enabled %}
+    <div class="collapse bg-base-100"
+         hx-get="{% url 'deepeval:check_results' source_id test_name %}"
+         hx-trigger="load"
+         hx-swap="outerHTML">
+      <div class="flex items-center gap-2 p-4">
+        <div class="loading loading-spinner"></div>
+        <div class="font-medium">{{ test_name|title }} Analysis</div>
+      </div>
+    </div>
+  {% endif %}
+{% endfor %}

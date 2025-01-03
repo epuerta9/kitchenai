@@ -10,9 +10,12 @@ from .models import (
     DataSet, Data, AnswerRelevance, Faithfulness, 
     ContextualRelevancy, Hallucination, Toxicity, Settings
 )
+from django.http import HttpResponse
 
 from falco_toolbox.types import HttpRequest
-import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def home(request: HttpRequest):
@@ -233,6 +236,10 @@ def dataset(request, dataset_id: int):
 
 @login_required
 async def chat_widget_for_source(request: HttpRequest, source_id: int):
+    # Check if this is a chat send event
+    #this means the user has sent a message and we need to run the tests. we now know which tests we need to poll for
+    is_chat_send = request.GET.get('event') == 'chat_send'
+
     # Get settings and create a map of enabled tests
     settings = await Settings.objects.aget_or_create(defaults={'name': 'Default Settings'})
     settings = settings[0]
@@ -252,8 +259,19 @@ async def chat_widget_for_source(request: HttpRequest, source_id: int):
             "deepeval_plugin/widgets/disabled_widget.html",
             {}
         )
-
-    # Get results for enabled tests
+    
+    if is_chat_send:
+        #send back the htmx poller for that specific test
+        #find the enabled tests only
+        enabled_tests = {k: v for k, v in enabled_tests.items() if v}
+        return TemplateResponse(
+            request,
+            "deepeval_plugin/htmx/evaluation_test.html",
+            {
+                "source_id": source_id,
+                "enabled_tests": enabled_tests,
+            }
+        )
     results = {
         "source_id": source_id,
         "enabled_tests": enabled_tests,
@@ -268,4 +286,40 @@ async def chat_widget_for_source(request: HttpRequest, source_id: int):
         request,
         "deepeval_plugin/widgets/chat_widget.html",
         results
+    )
+@login_required
+def check_results(request: HttpRequest, source_id: int, test_name: str):
+    # a poller will check this endpoint and return the test result for that section
+    # if the test result is not ready, it will return a loading message
+    # if the test result is ready, it will return the test result
+
+    # get the data instance
+    data = Data.objects.filter(source_id=source_id).first()
+
+    if not data:
+        return HttpResponse("")
+    
+    evaluation = data.get_test_result(test_name)
+
+
+    if evaluation is None:
+        return TemplateResponse(
+            request,
+            "deepeval_plugin/htmx/check_results.html",
+            {
+                "source_id": source_id,
+                "test_name": test_name,
+                "evaluation": None,
+            }
+        )
+    component_name = data.get_component_name(test_name)
+
+    return TemplateResponse(
+        request,
+        component_name,
+        {
+            "source_id": source_id,
+            "test_name": test_name,
+            "evaluation": evaluation,
+        }
     )

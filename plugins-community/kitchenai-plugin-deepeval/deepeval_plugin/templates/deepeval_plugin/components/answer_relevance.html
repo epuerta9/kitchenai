@@ -1,90 +1,82 @@
 <div class="collapse bg-base-100">
-  <input type="checkbox" id="collapse-deepeval-answer-{{ source_id }}" /> 
-  <label for="collapse-deepeval-answer-{{ source_id }}" class="collapse-title text-base font-medium flex items-center gap-2">
-    <svg data-src="https://unpkg.com/heroicons/20/solid/check-circle.svg" class="h-5 w-5 {% if success %}text-success{% else %}text-error{% endif %}"></svg>
-    DeepEval Analysis: Answer Relevance Score ({{ score|floatformat:3 }})
-  </label>
-  <div class="collapse-content">
-    <div class="overflow-x-auto">
-      <table class="table table-xs">
-        <tbody>
-          <tr>
-            <td class="font-medium">Score</td>
-            <td>{{ score|floatformat:3 }}</td>
-          </tr>
-          <tr>
-            <td class="font-medium">Status</td>
-            <td>
-              {% if success %}
-                <span class="text-success">Success</span>
-              {% else %}
-                <span class="text-error">Failed</span>
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <td class="font-medium">Reason</td>
-            <td class="flex items-center gap-2">
-              <span class="truncate max-w-md">{{ reason|truncatechars:100 }}</span>
-              {% if reason %}
-                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-reason-ar-{{ source_id }}').showModal()">
-                  <svg data-src="https://unpkg.com/heroicons/20/solid/eye.svg" class="h-4 w-4"></svg>
-                </button>
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <td class="font-medium">Statements</td>
-            <td class="flex items-center gap-2">
-              <span>{{ statements|length }} items</span>
-              {% if statements %}
-                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-statements-ar-{{ source_id }}').showModal()">
-                  <svg data-src="https://unpkg.com/heroicons/20/solid/list-bullet.svg" class="h-4 w-4"></svg>
-                </button>
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <td class="font-medium">Verdicts</td>
-            <td class="flex items-center gap-2">
-              <span>{{ verdicts|length }} items</span>
-              {% if verdicts %}
-                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-verdicts-ar-{{ source_id }}').showModal()">
-                  <svg data-src="https://unpkg.com/heroicons/20/solid/clipboard-document-check.svg" class="h-4 w-4"></svg>
-                </button>
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <td class="font-medium">Logs</td>
-            <td class="flex items-center gap-2">
-              <span>{{ verbose_logs|length }} entries</span>
-              {% if verbose_logs %}
-                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-logs-ar-{{ source_id }}').showModal()">
-                  <svg data-src="https://unpkg.com/heroicons/20/solid/document-text.svg" class="h-4 w-4"></svg>
-                </button>
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <td class="font-medium">Metadata</td>
-            <td class="flex items-center gap-2">
-              <span>{{ metadata|length }} fields</span>
-              {% if metadata %}
-                <button class="btn btn-xs btn-ghost" onclick="document.getElementById('modal-metadata-ar-{{ source_id }}').showModal()">
-                  <svg data-src="https://unpkg.com/heroicons/20/solid/information-circle.svg" class="h-4 w-4"></svg>
-                </button>
-              {% endif %}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <input type="checkbox" id="collapse-deepeval-answer-relevance-{{ source_id }}" /> 
+    <label for="collapse-deepeval-answer-relevance-{{ source_id }}" class="collapse-title text-base font-medium flex items-center gap-2 cursor-pointer">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/check-circle.svg" class="h-5 w-5"></svg>
+      DeepEval Analysis: Answer Relevance Score ({{ evaluation.score|floatformat:3 }})
+    </label>
+    <div class="collapse-content">
+      <div class="overflow-x-auto">
+        <table class="table table-xs">
+          <thead>
+            <tr>
+              <th>Score</th>
+              <th>Reason</th>
+              <th>Success</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{ evaluation.score|floatformat:3 }}</td>
+              <td class="whitespace-pre-wrap">{{ evaluation.reason }}</td>
+              <td>
+                {% if evaluation.success %}
+                  <div class="badge badge-success">Pass</div>
+                {% else %}
+                  <div class="badge badge-error">Fail</div>
+                {% endif %}
+              </td>
+              <td>
+                <label for="logs-modal-deepeval-answer-relevance-{{ source_id }}-{{ evaluation.id }}" class="badge badge-ghost cursor-pointer">
+                  View Details
+                </label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-</div>
 
-{% include "deepeval_plugin/components/modal.html" with modal_id="modal-reason-ar-"|add:source_id|stringformat:"s" title="Answer Relevance Reason" content=reason %}
-{% include "deepeval_plugin/components/modal.html" with modal_id="modal-statements-ar-"|add:source_id|stringformat:"s" title="Answer Relevance Statements" content=statements content_type="json" %}
-{% include "deepeval_plugin/components/modal.html" with modal_id="modal-verdicts-ar-"|add:source_id|stringformat:"s" title="Answer Relevance Verdicts" content=verdicts content_type="json" %}
-{% include "deepeval_plugin/components/modal.html" with modal_id="modal-logs-ar-"|add:source_id|stringformat:"s" title="Answer Relevance Logs" content=verbose_logs content_type="json" %}
-{% include "deepeval_plugin/components/modal.html" with modal_id="modal-metadata-ar-"|add:source_id|stringformat:"s" title="Answer Relevance Metadata" content=metadata content_type="json" %} 
+  <!-- Modal for logs -->
+  <input type="checkbox" id="logs-modal-deepeval-answer-relevance-{{ source_id }}-{{ evaluation.id }}" class="modal-toggle" />
+  <div class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-4">DeepEval Analysis Details</h3>
+      <div class="bg-base-200 rounded-lg mb-4">
+        <div class="p-4">
+          <h4 class="font-bold mb-2">Statements:</h4>
+          <ul class="list-disc pl-4 space-y-2">
+            {% for statement in evaluation.statements %}
+              <li>{{ statement }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="bg-base-200 rounded-lg mb-4">
+        <div class="p-4">
+          <h4 class="font-bold mb-2">Verdicts:</h4>
+          <ul class="list-disc pl-4 space-y-2">
+            {% for verdict in evaluation.verdicts %}
+              <li>
+                {{ verdict.verdict }}
+                {% if verdict.reason %}
+                  - {{ verdict.reason }}
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="bg-base-200 rounded-lg">
+        <div class="p-4">
+          <h4 class="font-bold mb-2">Logs:</h4>
+          <pre class="max-h-96 overflow-y-auto font-mono text-sm whitespace-pre-wrap">{{ evaluation.verbose_logs|pprint }}</pre>
+        </div>
+      </div>
+      <div class="modal-action">
+        <label for="logs-modal-deepeval-answer-relevance-{{ source_id }}-{{ evaluation.id }}" class="btn">Close</label>
+      </div>
+    </div>
+    <label class="modal-backdrop" for="logs-modal-deepeval-answer-relevance-{{ source_id }}-{{ evaluation.id }}">Close</label>
+  </div>

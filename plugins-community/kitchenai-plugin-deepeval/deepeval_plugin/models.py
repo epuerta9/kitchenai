@@ -1,6 +1,8 @@
 from django.db import models
 from falco_toolbox.models import TimeStamped
+import logging
 
+logger = logging.getLogger(__name__)
 
 # Create your models here.
 class DataSet(TimeStamped):
@@ -41,6 +43,76 @@ class Data(TimeStamped):
     output = models.TextField()
     retrieval_context = models.JSONField(default=list)
     dataset = models.ForeignKey(DataSet, on_delete=models.CASCADE)
+
+    def get_test_result(self, test_name: str):
+        """
+        Get test result for a given test name.
+        Args:
+            test_name: Name of the test (answer_relevance, faithfulness, contextual_relevancy, hallucination, toxicity)
+        Returns:
+            Test result model instance or None if not found
+        """
+        test_map = {
+            'answer_relevance': AnswerRelevance,
+            'faithfulness': Faithfulness, 
+            'contextual_relevancy': ContextualRelevancy,
+            'hallucination': Hallucination,
+            'toxicity': Toxicity
+        }
+        
+        if test_name not in test_map:
+            return None
+            
+        model_class = test_map[test_name]
+        return model_class.objects.filter(data=self).first()
+    
+
+    
+    def get_component_name(self, test_name: str):
+
+        """
+        Get the component template name for a given test type.
+        Args:
+            test_name: Name of the test (answer_relevance, faithfulness, contextual_relevancy, hallucination, toxicity)
+        Returns:
+            Component template name or None if not found
+        """
+        component_map = {
+            'answer_relevance': 'deepeval_plugin/components/answer_relevance.html',
+            'faithfulness': 'deepeval_plugin/components/faithfulness.html',
+            'contextual_relevancy': 'deepeval_plugin/components/contextual_relevancy.html',
+            'hallucination': 'deepeval_plugin/components/hallucination.html', 
+            'toxicity': 'deepeval_plugin/components/toxicity.html'
+        }
+    
+        return component_map.get(test_name)
+
+
+    async def aget_test_result(self, test_name: str):
+        """
+        Async version of get_test_result.
+        Args:
+            test_name: Name of the test (answer_relevance, faithfulness, contextual_relevancy, hallucination, toxicity)
+        Returns:
+            Test result model instance or None if not found
+        """
+        test_map = {
+            'answer_relevance': AnswerRelevance,
+            'faithfulness': Faithfulness,
+            'contextual_relevancy': ContextualRelevancy,
+            'hallucination': Hallucination,
+            'toxicity': Toxicity
+        }
+        
+        if test_name not in test_map:
+            logger.error(f"Test name {test_name} not found in test map")
+            return None
+            
+        model_class = test_map[test_name]
+        logger.info(f"Getting test result for {test_name} for source {self.source_id}")
+        result = await model_class.objects.filter(data=self).afirst()
+        logger.info(f"Test after async get for {test_name} for source {self.source_id}: {result}")
+        return result
 
 
 class AnswerRelevance(TimeStamped):

@@ -1,0 +1,10 @@
+<div
+  hx-get="{% url 'deepeval:check_results' source_id=source_id test_name=test_name %}"
+  hx-trigger="every 3s"
+  hx-swap="outerHTML"
+>
+  <div class="flex items-center gap-2 p-4">
+    <span class="loading loading-spinner loading-sm"></span>
+    <div class="font-medium">Analyzing {{ test_name }}...</div>
+  </div>
+</div>

@@ -4,7 +4,7 @@ requires = ["hatchling"]
 
 [project]
 name = "deepeval_plugin"
-version = "0.0.1"
+version = "0.1.1"
 description = ""
 readme = "README.md"
 authors = [
