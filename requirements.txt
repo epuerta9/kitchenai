@@ -35,6 +35,7 @@
 # - honcho
 # - jupyterlab
 # - kitchenai-py
+# - markdown2
 # - nbconvert
 # - nbformat
 # - nest-asyncio
@@ -349,6 +350,8 @@ kitchenai-python-sdk==1.4.0
     # via kitchenai-py
 markdown-it-py==3.0.0
     # via rich
+markdown2==2.5.2
+    # via hatch.envs.default
 markupsafe==3.0.2
     # via
     #   jinja2
