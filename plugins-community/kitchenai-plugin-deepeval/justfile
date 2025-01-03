@@ -1,0 +1,18 @@
+default:
+    @just --list
+
+# Generate full changelog
+changelog:
+    cd ../../ && hatch run dev:git-cliff --config plugins-community/kitchenai-plugin-deepeval/cliff.toml --output plugins-community/kitchenai-plugin-deepeval/CHANGELOG.md
+
+# Generate changelog for unreleased changes only
+changelog-unreleased:
+    cd ../../ && hatch run dev:git-cliff --config plugins-community/kitchenai-plugin-deepeval/cliff.toml --unreleased --output plugins-community/kitchenai-plugin-deepeval/CHANGELOG.md
+
+# Preview changelog without writing to file
+changelog-preview:
+    cd ../../ && hatch run dev:git-cliff --config plugins-community/kitchenai-plugin-deepeval/cliff.toml
+
+# Generate changelog for a specific version (usage: just changelog-version v0.1.0)
+changelog-version VERSION:
+    cd ../../ && hatch run dev:git-cliff --config plugins-community/kitchenai-plugin-deepeval/cliff.toml --tag {{VERSION}} --output plugins-community/kitchenai-plugin-deepeval/CHANGELOG.md

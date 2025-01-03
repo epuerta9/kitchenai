@@ -4,7 +4,7 @@ requires = ["hatchling"]
 
 [project]
 name = "deepeval_plugin"
-version = "0.1.1"
+dynamic = ["version"]
 description = ""
 readme = "README.md"
 authors = [
@@ -201,23 +201,21 @@ conventional_commits = true
 filter_unconventional = true
 split_commits = false
 commit_parsers = [
-  { message = "^feat", group = "<!-- 0 -->🚀 Features" },
-  { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
-  { message = "^doc|^docs", group = "<!-- 3 -->📚 Documentation" },
-  { message = "^perf", group = "<!-- 4 -->⚡ Performance" },
-  { message = "^refactor", group = "<!-- 2 -->🚜 Refactor" },
-  { message = "^style", group = "<!-- 5 -->🎨 Styling" },
-  { message = "^test", group = "<!-- 6 -->🧪 Testing" },
-  { message = "^build", group = "<!-- 7 -->📦 Build" },
-  { message = "^chore\\(release\\): prepare for", skip = true },
-  { message = "^chore\\(deps.*\\)", skip = true },
-  { message = "^chore\\(pr\\)", skip = true },
-  { message = "^chore\\(pull\\)", skip = true },
-  { message = "^chore|^ci", group = "<!-- 8 -->⚙️ Miscellaneous Tasks" },
-  { body = ".*security", group = "<!-- 9 -->🛡️ Security" },
-  { message = "^revert", group = "<!-- 10 -->◀️ Revert" },
+    { message = "^plugin\\(deepeval:feat\\)", group = "<!-- 0 -->🚀 Features" },
+    { message = "^plugin\\(deepeval:fix\\)", group = "<!-- 1 -->🐛 Bug Fixes" },
+    { message = "^plugin\\(deepeval:refactor\\)", group = "<!-- 2 -->🚜 Refactor" },
+    { message = "^plugin\\(deepeval:docs\\)", group = "<!-- 3 -->📚 Documentation" },
+    { message = "^plugin\\(deepeval:perf\\)", group = "<!-- 4 -->⚡ Performance" },
+    { message = "^plugin\\(deepeval:style\\)", group = "<!-- 5 -->🎨 Styling" },
+    { message = "^plugin\\(deepeval:test\\)", group = "<!-- 6 -->🧪 Testing" },
+    { message = "^plugin\\(deepeval:build\\)", group = "<!-- 7 -->📦 Build" },
+    { message = "^plugin\\(deepeval:chore\\)", group = "<!-- 8 -->⚙️ Tasks" },
+    { message = "^plugin\\(deepeval:security\\)", group = "<!-- 9 -->🛡️ Security" }
 ]
 protect_breaking_commits = false
-filter_commits = false
+filter_commits = true
 topo_order = false
 sort_commits = "oldest"
+
+[tool.hatch.version]
+path = "deepeval_plugin/__version__.py"

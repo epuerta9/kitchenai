@@ -1,6 +1,7 @@
 from django.urls import path, include
 from django.conf import settings
 import djp
+from .__version__ import __version__
 
 @djp.hookimpl
 def installed_apps():
@@ -24,6 +25,7 @@ def settings(current_settings):
         "namespace": "deepeval",
         "home": "home",
         "tags": ["deepeval", "plugin", "deepeval_plugin", "kitchenai-plugin-deepeval"],
+        "version": __version__,
     })
 
     current_settings["DEEPEVAL_PLUGIN"] = {
