@@ -166,7 +166,7 @@ tests = [ "tests", "*/kitchenai/tests" ]
 exclude_lines = [ "no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:" ]
 
 [tool.bumpversion]
-current_version = "0.12.2"
+current_version = "0.13.0"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = [
   "{major}.{minor}.{patch}",
