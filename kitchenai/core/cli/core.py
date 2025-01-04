@@ -10,7 +10,7 @@ from rich.console import Console
 from typing import Annotated
 from kitchenai.bento.cli.bento import select as bento_select
 import subprocess
-
+import time
 app = typer.Typer()
 console = Console()
 
@@ -75,7 +75,12 @@ def init(
                         console.print(
                             f"[green]Successfully installed plugin[/green] {bento} [dim](using {pkg_manager})[/dim]"
                         )
+                        #needed so that the installed package is available to the bento_select command
+                        time.sleep(1)
+                        console.print("[INFO] Selecting bento box")
                         bento_select(bento)
+
+                        console.print("[INFO] Added to core")
                     else:
                         raise subprocess.CalledProcessError(
                             1, f"Failed to install {bento}"
