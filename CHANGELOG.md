@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.13.1] - 2025-01-04
+## [0.13.3] - 2025-01-04
+
+### Bug
+
+- *(cli)* Moved selected bento boxes from init into runserver. if user has not selected it will install the first installed one from settings
+
+## [0.13.0] - 2025-01-04
 
 ### 🚀 Applications
 
