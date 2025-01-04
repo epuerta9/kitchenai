@@ -56,9 +56,18 @@ class Command(RunserverCommand):
                     try:
                         bento_box = Bento.objects.first()
                         if not bento_box:
-                            self.stdout.write(self.style.ERROR("No bento box loaded. Please run 'bento select' to select a bento box."))
-                            raise Exception("No bento box loaded. Please run 'bento select' to select a bento box.")
-                        bento_box.add_to_core()
+                            #check if any bento boxes are installed. Load the first one from settings.KITCHENAI["bento"]
+                            bento_boxes = settings.KITCHENAI["bento"] 
+                            if bento_boxes:
+                                installed_bento_box = bento_boxes[0]["name"]
+                                bento_box = Bento.objects.create(name=installed_bento_box)
+                                bento_box.add_to_core()
+                                self.stdout.write(self.style.SUCCESS(f"Loaded bento box: {installed_bento_box}"))
+                            else:
+                                self.stdout.write(self.style.ERROR("No bento box loaded. Please run 'bento select' to select a bento box."))
+                                raise Exception("No bento box loaded. Please run 'bento select' to select a bento box.")
+                        else:
+                            bento_box.add_to_core()
                     except Exception as e:
                         self.stdout.write(self.style.ERROR(f"Error loading bento box: {e}"))
                         raise Exception(f"Error loading bento box: {e}")

@@ -76,9 +76,9 @@ def init(
                             f"[green]Successfully installed plugin[/green] {bento} [dim](using {pkg_manager})[/dim]"
                         )
                         #needed so that the installed package is available to the bento_select command
-                        time.sleep(1)
-                        console.print("[INFO] Selecting bento box")
-                        bento_select(bento)
+                        # time.sleep(1)
+                        # console.print("[INFO] Selecting bento box")
+                        # bento_select(bento)
 
                         console.print("[INFO] Added to core")
                     else:
@@ -152,7 +152,7 @@ def init(
                         console.print(
                             f"[green]Successfully installed plugin[/green] {bento} [dim](using {pkg_manager})[/dim]"
                         )
-                        bento_select(bento)
+                        # bento_select(bento)
                     else:
                         raise subprocess.CalledProcessError(
                             1, f"Failed to install {bento}"
