@@ -4,17 +4,6 @@ All notable changes to this project will be documented in this file.
 
 ## [0.13.1] - 2025-01-04
 
-### Bento
-
-- *(simple-rag:bug)* Fixed but on __version__ and BaseBentoConfig
-- *(simple-rag:chore)* Bump
-
-### Patch
-
-- *(cli)* Fix bento boxes not being selected with init
-
-## [0.13.0] - 2025-01-03
-
 ### 🚀 Applications
 
 - *(playground)* First commit on kitchenai playground
@@ -79,10 +68,13 @@ All notable changes to this project will be documented in this file.
 - *(rag)* Dependency manager
 - *(views)* Home page
 - *(simple-rag:chore)* Changelog, version, pyproject toml
+- *(simple-rag:bug)* Fixed but on __version__ and BaseBentoConfig
+- *(simple-rag:chore)* Bump
 
 ### Patch
 
 - *(plugin)* Added metadata to all plugin inputs
+- *(cli)* Fix bento boxes not being selected with init
 
 ### Plugin
 
