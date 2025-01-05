@@ -397,7 +397,7 @@ if DEBUG:
     STATICFILES_DIRS = [APPS_DIR / "static"]
 else:
     # Production/Package mode: use pre-collected staticfiles
-    STATICFILES_DIRS = []
+    STATICFILES_DIRS = [BASE_DIR / "staticfiles"]
 
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -443,8 +443,9 @@ if not (DEBUG or KITCHENAI_LOCAL):
         EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # django-compressor
-COMPRESS_ENABLED = not (DEBUG or KITCHENAI_LOCAL)
-COMPRESS_OFFLINE = not (DEBUG or KITCHENAI_LOCAL)
+COMPRESS_ENABLED = not DEBUG
+COMPRESS_OFFLINE = not DEBUG
+
 COMPRESS_FILTERS = {
     "css": [
         "compressor.filters.css_default.CssAbsoluteFilter",
