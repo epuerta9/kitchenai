@@ -391,7 +391,13 @@ STATIC_ROOT = APPS_DIR / "staticfiles"
 
 STATIC_URL = "/static/"
 
-STATICFILES_DIRS = [APPS_DIR / "static"]
+# Conditional static files configuration based on DEBUG and package installation
+if DEBUG:
+    # Development mode: use static directory for source files
+    STATICFILES_DIRS = [APPS_DIR / "static"]
+else:
+    # Production/Package mode: use pre-collected staticfiles
+    STATICFILES_DIRS = []
 
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
