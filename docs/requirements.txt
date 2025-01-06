@@ -497,7 +497,7 @@ fqdn==1.5.1
     #   jsonschema
 furo==2024.8.6
     # via hatch.envs.docs
-git-cliff==2.6.1
+git-cliff==2.7.0
     # via hatch.envs.docs
 gitdb==4.0.11
     # via gitpython

@@ -494,7 +494,7 @@ frozenlist==1.5.0
     #   -c requirements.txt
     #   aiohttp
     #   aiosignal
-git-cliff==2.6.1
+git-cliff==2.7.0
     # via hatch.envs.dev
 gitdb==4.0.11
     # via gitpython
