@@ -66,7 +66,7 @@ async def query(request, label: str, data: QuerySchema):
             return response
         else:
             result = await query_handler(label, data)
-            if not result.sources:
+            if not result.retrieval_context:
                 await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result, error=True)
             else:
                 await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result)
