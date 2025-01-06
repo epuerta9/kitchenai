@@ -25,7 +25,7 @@ import logging
 from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
 from llama_index.core import Settings
 from kitchenai.contrib.kitchenai_sdk.schema import TokenCountSchema, StorageResponseSchema, EmbedResponseSchema
-
+from kitchenai_rag_simple_bento import get_available_env_vars
 import tiktoken
 token_counter = TokenCountingHandler(
     tokenizer=tiktoken.encoding_for_model(ModelName.GPT4O).encode
@@ -33,13 +33,19 @@ token_counter = TokenCountingHandler(
 
 Settings.callback_manager = CallbackManager([token_counter])
 
-Settings.llm = LiteLLM(ModelName.GROQ_LLAMA3_70B_VERSATILE)
+config = get_available_env_vars()
+
+print(config)
+
+
+Settings.llm = LiteLLM(config.llm_name)
 
 chroma_client = chromadb.PersistentClient(path="chroma_db")
 chroma_collection = chroma_client.get_or_create_collection("quickstart")
 
+
 dependency_manager = DependencyManager.get_instance("kitchenai_rag_simple_bento")
-dependency_manager.register_dependency(DependencyType.LLM, LiteLLM(ModelName.GROQ_LLAMA3_70B_VERSATILE))
+dependency_manager.register_dependency(DependencyType.LLM, LiteLLM(config.llm_name))
 dependency_manager.register_dependency(DependencyType.VECTOR_STORE, ChromaVectorStore(chroma_collection))
 
 app = KitchenAIApp(namespace="kitchenai_rag_simple_bento", manager=dependency_manager)
