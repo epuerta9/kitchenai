@@ -33,7 +33,7 @@ token_counter = TokenCountingHandler(
 
 Settings.callback_manager = CallbackManager([token_counter])
 
-
+Settings.llm = LiteLLM(ModelName.GROQ_LLAMA3_70B_VERSATILE)
 
 chroma_client = chromadb.PersistentClient(path="chroma_db")
 chroma_collection = chroma_client.get_or_create_collection("quickstart")

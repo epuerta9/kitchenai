@@ -130,7 +130,6 @@ createsuperuser EMAIL="admin@localhost" PASSWORD="admin":
 
 # Collect static files
 @collectstatic:
-    just dj tailwind --skip-checks build
     just dj collectstatic --no-input --skip-checks
     just dj compress
 
@@ -198,6 +197,7 @@ bumpver VERSION:
 build-wheel:
     #!/usr/bin/env bash
     set -euo pipefail
+    just dj tailwind --skip-checks build
     export DEBUG="False"
     just collectstatic
     hatch build
