@@ -308,7 +308,11 @@ STORAGES = {
         },
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if DEBUG
+            else "whitenoise.storage.CompressedStaticFilesStorage"
+        ),
     },
 }
 if (DEBUG or KITCHENAI_LOCAL) and not env.bool("USE_S3", default=False):
@@ -391,13 +395,7 @@ STATIC_ROOT = APPS_DIR / "staticfiles"
 
 STATIC_URL = "/static/"
 
-# Conditional static files configuration based on DEBUG and package installation
-if DEBUG:
-    # Development mode: use static directory for source files
-    STATICFILES_DIRS = [APPS_DIR / "static"]
-else:
-    # Production/Package mode: use pre-collected staticfiles
-    STATICFILES_DIRS = [BASE_DIR / "staticfiles"]
+STATICFILES_DIRS = [APPS_DIR / "static"] if DEBUG else []
 
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
