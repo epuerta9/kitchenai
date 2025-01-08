@@ -40,7 +40,7 @@ print(config)
 
 Settings.llm = LiteLLM(config.llm_name)
 
-chroma_client = chromadb.PersistentClient(path="chroma_db")
+chroma_client = chromadb.HttpClient(host='localhost', port=8000)
 chroma_collection = chroma_client.get_or_create_collection("quickstart")
 
 
