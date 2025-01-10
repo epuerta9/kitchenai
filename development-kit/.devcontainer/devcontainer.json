@@ -1,0 +1,45 @@
+{
+    "name": "KitchenAI Dev Container (Compose",
+    // Point to the main docker-compose.yml (which is one folder up, ../)
+    "dockerComposeFile": [
+      "../docker-compose.all-in-one.yml"
+    ],
+  
+    // Which service from docker-compose.yml should VS Code 'attach' to?
+    "service": "kitchenai-local",
+  
+    // The folder inside the container that VS Code uses as the workspace root
+    "workspaceFolder": "/app/kitchenai/dynamic",
+  
+    // (Optional) Stop all containers when you close VS Code
+    "shutdownAction": "stopCompose",
+
+    "containerEnv": {
+      "PYTHONPATH": "/app",
+      "VIRTUAL_ENV": "/opt/pysetup/.venv",
+      "PATH": "/opt/pysetup/.venv/bin:${PATH}"
+    },
+  
+    // Ports to forward from the container to your local machine
+    // If your kitchenai-local service runs on 8001, you can forward 8001
+    "forwardPorts": [8001, 8002, 9001, 9000, 6379],
+  
+    // Run this command inside the container after it's up (optional)
+    //"postCreateCommand": "pip install -r requirements.txt",
+  
+    // Automatically install VS Code extensions inside the container
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "ms-python.python",
+          "ms-python.vscode-pylance"
+        ],
+        "settings": {
+          "python.defaultInterpreterPath": "/opt/pysetup/.venv/bin/python3",
+          "python.analysis.extraPaths": ["/app"],
+          "python.venvPath": "/opt/pysetup"
+        }
+      }
+    }
+  }
+  
