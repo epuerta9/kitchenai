@@ -177,4 +177,19 @@ def add_bento_box_to_core():
     
 
 def run_django_q_task(task_name: str, *args, **kwargs):
+    if settings.KITCHENAI_LOCAL:
+        # Split task name into module path and function name
+        # e.g. 'deepeval_plugin.tasks.run_contextual_relevancy' ->
+        # module_path='deepeval_plugin.tasks', function_name='run_contextual_relevancy'
+        module_path, function_name = task_name.rsplit('.', 1)
+        
+        # Import the module dynamically
+        module = __import__(module_path, fromlist=[function_name])
+        
+        # Get the function from the module
+        task_func = getattr(module, function_name)
+        
+        # Execute the function directly with provided args
+        result = task_func(*args, **kwargs)
+        return result
     async_task(task_name, *args, **kwargs)

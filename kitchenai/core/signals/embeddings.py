@@ -10,6 +10,7 @@ from ..models import EmbedObject
 from django.dispatch import Signal
 
 logger = logging.getLogger(__name__)
+from django.conf import settings
 
 embed_signal = Signal()
 from enum import StrEnum
@@ -36,8 +37,11 @@ def embed_object_created(sender, instance, created, **kwargs):
         if core_app.kitchenai_app:
             f = core_app.kitchenai_app.embeddings.get_task(instance.ingest_label)
             if f:
-                #TODO: add hook
-                async_task("kitchenai.contrib.kitchenai_sdk.tasks.embed_task_core", instance)
+                if settings.KITCHENAI_LOCAL:
+                    from kitchenai.contrib.kitchenai_sdk.tasks import embed_task_core
+                    embed_task_core(instance)
+                else:
+                    async_task("kitchenai.contrib.kitchenai_sdk.tasks.embed_task_core", instance)
             else:
                 logger.warning(f"No embed task found for {instance.ingest_label}")
         else:
@@ -51,8 +55,11 @@ def embed_object_deleted(sender, instance, **kwargs):
     if core_app.kitchenai_app:
         f = core_app.kitchenai_app.embeddings.get_hook(instance.ingest_label, "on_delete")
         if f:
-            #TODO: add hook
-            async_task("kitchenai.contrib.kitchenai_sdk.tasks.delete_embed_task_core", instance)
+            if settings.KITCHENAI_LOCAL:
+                from kitchenai.contrib.kitchenai_sdk.tasks import delete_embed_task_core
+                delete_embed_task_core(instance)
+            else:
+                async_task("kitchenai.contrib.kitchenai_sdk.tasks.delete_embed_task_core", instance)
         else:
             logger.warning(f"No embed delete task found for {instance.ingest_label}")
     else:

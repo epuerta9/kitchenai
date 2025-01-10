@@ -55,7 +55,7 @@ class QueryBaseResponseSchema(BaseModel):
         )
     
     @classmethod
-    def from_response_stream(cls, data, response, stream_gen, metadata=None, token_counts: TokenCountSchema | None = None):
+    def from_response_stream(cls, data, response, stream_gen, metadata: dict[str, Any] | None = {}, token_counts: TokenCountSchema | None = None):
         source_nodes = []
         if hasattr(response, 'source_nodes'):
             for node in response.source_nodes:
@@ -72,6 +72,16 @@ class QueryBaseResponseSchema(BaseModel):
             retrieval_context=source_nodes,
             metadata=response.metadata,
             stream_gen=stream_gen,
+            token_counts=token_counts
+        )
+    
+    @classmethod
+    def with_string_retrieval_context(cls, data, response: str, retrieval_context: List[str], metadata: dict[str, Any] | None = {}, token_counts: TokenCountSchema | None = None):
+        return cls(
+            input=data.query,
+            output=response.response,
+            retrieval_context=[SourceNodeSchema(text=context, metadata=metadata, score=1.0) for context in retrieval_context],
+            metadata=response.metadata,
             token_counts=token_counts
         )
 

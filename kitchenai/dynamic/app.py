@@ -1,5 +1,6 @@
 from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
 from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, QueryBaseResponseSchema, EmbedSchema, StorageSchema
+from kitchenai.contrib.kitchenai_sdk.schema import TokenCountSchema, StorageResponseSchema, EmbedResponseSchema
 from kitchenai_llama.storage.llama_parser import Parser
 from llama_index.llms.litellm import LiteLLM
 from llama_index.core import VectorStoreIndex, StorageContext
@@ -30,7 +31,7 @@ async def kitchenai_bento_simple_rag_vjnk(data: QuerySchema):
     )
     query_engine = index.as_query_engine(chat_mode="best", llm=llm, verbose=True)
     response = await query_engine.aquery(data.query)
-    return QueryBaseResponseSchema(output=response.response)
+    return QueryBaseResponseSchema(input=data.query, output=response.response, metadata=response.metadata)
 
 @kitchen.embeddings.handler("kitchenai-bento-simple-rag")
 def simple_rag_bento_vagh(data: EmbedSchema):
@@ -41,6 +42,7 @@ def simple_rag_bento_vagh(data: EmbedSchema):
         documents, storage_context=storage_context, show_progress=True,
             transformations=[TokenTextSplitter(), TitleExtractor(),QuestionsAnsweredExtractor()]
     )
+    return EmbedResponseSchema(metadata=data.metadata)
 
 @kitchen.storage.handler("kitchenai-bento-simple-rag")
 def simple_storage(data: StorageSchema, **kwargs):
@@ -52,3 +54,4 @@ def simple_storage(data: StorageSchema, **kwargs):
         response["documents"], storage_context=storage_context, show_progress=True,
             transformations=[TokenTextSplitter(), TitleExtractor(),QuestionsAnsweredExtractor()]
     )
+    return StorageResponseSchema(metadata=data.metadata)

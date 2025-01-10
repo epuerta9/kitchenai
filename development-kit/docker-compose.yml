@@ -1,0 +1,149 @@
+services:
+
+
+  kitchenai-local:
+    image: kitchenai-bundle:latest
+    ports:
+      - "8002:8002"
+    volumes:
+      - sqlite_data:/app/kitchenai/.kitchenai
+      - dynamic_bento:/app/kitchenai/dynamic
+      - chroma_data:/app/kitchenai/chroma_db
+    network_mode: host
+    env_file:
+      - .env
+    environment:
+      - KITCHENAI_LOCAL=True
+      - SIMPLE_RAG_VECTOR_STORE_ENDPOINT=chroma_db
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: >
+      sh -c "python kitchenai/ init --local &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8002 --module kitchenai.dynamic.app:kitchen"
+
+
+  # kitchenai-stream:
+  #   image: kitchenai-bundle:latest
+  #   ports:
+  #     - "8001:8001"
+  #   volumes:
+  #     - dynamic_bento:/app/kitchenai/dynamic
+  #   network_mode: host
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - KITCHENAI_LOCAL=False
+  #     - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+  #     - SIMPLE_RAG_VECTOR_STORE_ENDPOINT=localhost
+  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
+  #   command: python kitchenai/ run --module kitchenai.dynamic.app:kitchen
+  #   depends_on:
+  #     kitchenai-setup:
+  #       condition: service_completed_successfully
+
+
+  # kitchenai-qcluster:
+  #   image: kitchenai-bundle:latest
+  #   volumes:
+  #     - dynamic_bento:/app/kitchenai/dynamic
+  #   network_mode: host
+  #   depends_on:
+  #     kitchenai-setup:
+  #       condition: service_completed_successfully
+  #   environment:
+  #     - KITCHENAI_LOCAL=False
+  #     - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+  #     - SIMPLE_RAG_VECTOR_STORE_ENDPOINT=localhost
+  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
+  #   env_file:
+  #     - .env
+  #   command: python manage.py qcluster
+
+  # kitchenai-setup:
+  #   image: kitchenai-bundle:latest
+  #   network_mode: host
+  #   command: >
+  #     sh -c "python kitchenai/ init --local &&
+  #            python manage.py migrate"    
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   environment:
+  #     - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+  #     - KITCHENAI_LOCAL=False
+  #   env_file:
+  #     - .env
+
+  # postgres:
+  #   image: pgvector/pgvector:pg17
+  #   container_name: postgres
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: postgres
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   network_mode: host
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 5
+
+  # chroma:
+  #   image: chromadb/chroma:latest
+  #   volumes:
+  #     - chroma_data:/chroma/chroma
+  #   ports:
+  #     - "8000:8000"
+  #   network_mode: host
+  #   environment:
+  #     - CHROMA_SERVER_HOST=0.0.0.0
+  #     - CHROMA_SERVER_HTTP_PORT=8000
+  #     - ALLOW_RESET=true
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    network_mode: host
+    command: redis-server --appendonly yes
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: "minioadmin"
+      MINIO_ROOT_PASSWORD: "minioadmin"
+      MINIO_DEFAULT_BUCKETS: "my-bucket:public"
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    network_mode: host
+    command: server /data --console-address ":9001"
+
+
+
+
+volumes:
+  redis_data:
+  minio_data:
+  chroma_data:
+  sqlite_data:
+  dynamic_bento:
+  postgres_data:
+

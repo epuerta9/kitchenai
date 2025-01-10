@@ -65,12 +65,10 @@ class Command(RunserverCommand):
                                 self.stdout.write(self.style.SUCCESS(f"Loaded bento box: {installed_bento_box}"))
                             else:
                                 self.stdout.write(self.style.ERROR("No bento box loaded. Please run 'bento select' to select a bento box."))
-                                raise Exception("No bento box loaded. Please run 'bento select' to select a bento box.")
                         else:
                             bento_box.add_to_core()
                     except Exception as e:
                         self.stdout.write(self.style.ERROR(f"Error loading bento box: {e}"))
-                        raise Exception(f"Error loading bento box: {e}")
             else:
                 raise Exception("KitchenAI is not in debug mode when running dev server. Please set KITCHENAI_LOCAL=True in your settings.py file.")
 

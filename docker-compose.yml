@@ -1,26 +1,55 @@
 services:
-  #for local development we don't need the image directly.Uncomment if you want to use the image you built and choose local as env
-  llama_index_starter_bento:
-    image: llama_index_starter_bento
+
+  kitchenai:
+    image: kitchenai-bundle:latest
     ports:
-    - "8000:8000"
-    volumes:
-      - $HOME/.aws/credentials:/root/.aws/credentials:ro
+      - "8001:8001"
     network_mode: host
     env_file:
-      - .env   
+      - .env
+    environment:
+      - KITCHENAI_LOCAL=False
+      - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+      - SIMPLE_RAG_VECTOR_STORE_ENDPOINT=localhost
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: python kitchenai/ run --module kitchenai.dynamic.app:kitchen
+    depends_on:
+      kitchenai-setup:
+        condition: service_completed_successfully
 
-  redis:
-    image: redis:latest
-    container_name: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
+
+  kitchenai-qcluster:
+    image: kitchenai-bundle:latest
+    network_mode: host
+    depends_on:
+      kitchenai-setup:
+        condition: service_completed_successfully
+    environment:
+      - KITCHENAI_LOCAL=False
+      - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+      - SIMPLE_RAG_VECTOR_STORE_ENDPOINT=localhost
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    env_file:
+      - .env
+    command: python manage.py qcluster
+
+  kitchenai-setup:
+    image: kitchenai-bundle:latest
+    network_mode: host
+    command: >
+      sh -c "python kitchenai/ init --local &&
+             python manage.py migrate"    
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+      - KITCHENAI_LOCAL=False
+    env_file:
+      - .env
 
   postgres:
-    image: postgres:latest
+    image: pgvector/pgvector:pg17
     container_name: postgres
     environment:
       POSTGRES_USER: postgres
@@ -30,24 +59,40 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    network_mode: host
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector
-    command: ["--config=/etc/otel-collector-config.yaml"]
+  chroma:
+    image: chromadb/chroma:latest
     volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - chroma_data:/chroma/chroma
     ports:
-      - "4317:4317"   # OTLP gRPC receiver
-      - "4318:4318"   # OTLP http receiver
-      - "8888:8888"   # Prometheus metrics exposed by the collector
-      - "8889:8889"   # Prometheus exporter metrics
-      - "13133:13133" # health_check extension
-      - "55679:55679" # zpages extension
-    depends_on:
-      - redis
-      - postgres
-    restart: unless-stopped
+      - "8000:8000"
+    network_mode: host
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8000
+      - ALLOW_RESET=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    network_mode: host
+    command: redis-server --appendonly yes
 
 
 
@@ -55,21 +100,21 @@ services:
     image: minio/minio:latest
     container_name: minio
     environment:
-      MINIO_ROOT_USER: "minioadmin"       # Default username
-      MINIO_ROOT_PASSWORD: "minioadmin"   # Default password (use a stronger password in production)
+      MINIO_ROOT_USER: "minioadmin"
+      MINIO_ROOT_PASSWORD: "minioadmin"
+      MINIO_DEFAULT_BUCKETS: "my-bucket:public"
     volumes:
-      - minio_data:/data                  # Persist data
+      - minio_data:/data
     ports:
-      - "9000:9000"                        # MinIO console port
-      - "9001:9001"                        # Optional: MinIO API port for admin console
+      - "9000:9000"
+      - "9001:9001"
+    network_mode: host
     command: server /data --console-address ":9001"
-  
-  # Optionally add other services here, for example an app that connects to MinIO
+
+
 
 volumes:
-  minio_data:
-    driver: local
   redis_data:
-    driver: local
   postgres_data:
-    driver: local
+  minio_data:
+  chroma_data:

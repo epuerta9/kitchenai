@@ -28,6 +28,11 @@ class FileObject(TimeStamped):
     def __str__(self):
         return self.name
     
+    async def adelete(self, *args, **kwargs):
+        if self.file:
+            await self.file.adelete()  # Delete file from MinIO
+        await super().adelete(*args, **kwargs)  # Delete database record
+    
 
 class StorageFunctionTokenCounts(models.Model):
     file_object = models.ForeignKey(FileObject, on_delete=models.CASCADE)

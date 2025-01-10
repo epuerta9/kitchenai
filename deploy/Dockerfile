@@ -8,12 +8,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYSETUP_PATH="/opt/pysetup" \
     VENV_PATH="/opt/pysetup/.venv" \
     TAILWIND_CLI_PATH="/opt/tailwind" \
-    S6_KILL_GRACETIME=0 \
-    S6_OVERLAY_VERSION=3.1.6.2 \
-    S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0 \
-    S6_SYNC_DISKS=1 \
     PYTHONPATH="/app"
-
 
 ENV PATH="$VENV_PATH/bin:$PATH"
 
@@ -26,36 +21,50 @@ COPY ./requirements.txt ./
 RUN pip install --upgrade pip uv \
  && python -m uv venv $VENV_PATH && uv pip install -r requirements.txt
 
+# install plugins 
+RUN uv pip install "deepeval_plugin>=0.2.1"
 
-# Install s6-overlay
-RUN apt-get update && apt-get install -y xz-utils --no-install-recommends
-RUN apt-get install build-essential nodejs npm -y
+#install bento boxes
+RUN uv pip install "kitchenai_rag_simple_bento>=0.1.10"
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz /tmp
-RUN mkdir /s6-install
-RUN tar -C /s6-install -Jxpf /tmp/s6-overlay-noarch.tar.xz \
- && tar -C /s6-install -Jxpf /tmp/s6-overlay-x86_64.tar.xz
+# Create base requirements file
+RUN uv pip list > "$VENV_PATH/base-requirements.txt"
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y build-essential nodejs npm --no-install-recommends \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Build static files
 COPY . /app
 WORKDIR /app
+
+# Create necessary directories
+RUN mkdir -p /app/kitchenai/static /app/kitchenai/staticfiles
+
 RUN npm install -D daisyui
-RUN python manage.py tailwind --skip-checks build \
- && python manage.py collectstatic --no-input --skip-checks --clear \
- && python manage.py compress
+RUN python manage.py tailwind build
+RUN python manage.py collectstatic --no-input --skip-checks --clear
+RUN python manage.py compress
 
 # Stage 3: Run service
 FROM python-base as production
 
-COPY --from=builder-base /s6-install /
+# Install uv in the production stage
+RUN pip install --upgrade pip uv
+
+# Copy files from builder
 COPY --from=builder-base $VENV_PATH $VENV_PATH
 COPY --from=builder-base /app/kitchenai/staticfiles /app/kitchenai/staticfiles
-COPY deploy/etc/s6-overlay  /etc/s6-overlay
+COPY --from=builder-base /app/kitchenai/static /app/kitchenai/static
 COPY kitchenai /app/kitchenai
 COPY manage.py /app/manage.py
-RUN rm -r /app/kitchenai/static/
+
+WORKDIR /app
 
 EXPOSE 8001
-ENTRYPOINT ["/init"]
-# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://0.0.0.0:8000/health
+
+# Add entrypoint script
+COPY deploy/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]

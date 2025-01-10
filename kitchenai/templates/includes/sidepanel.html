@@ -6,12 +6,20 @@
     <div class="mx-4 flex flex-col">
       <div class="flex items-center gap-2 font-black">
         <img src="{% static 'images/icon-logo.png' %}" alt="KitchenAI" class="h-10 w-15">
-        <span>KitchenAI</span>
+        <span>KitchenAI </span>
       </div>
+
       <span class="text-sm text-base-content/70 mt-1 text-center w-full">{{ request.user.username }}</span>
     </div>
-    
     <div class="divider"></div>
+
+      {% if KITCHENAI_LOCAL %}
+        <div class="flex justify-center">
+          <div class="badge badge-warning badge-lg text-xs font-medium px-4 py-2">
+            DEVELOPMENT SERVER
+          </div>
+        </div>
+      {% endif %}
 
     <ul class="menu">
       <li>

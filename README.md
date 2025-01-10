@@ -211,3 +211,15 @@ Notable project: [Falco Project](https://github.com/Tobi-De/falco). Thanks to th
 KitchenAI collects **anonymous usage data** to improve the framework—no PII or sensitive data is collected.  
 
 > Your feedback and support shape KitchenAI. Let's build the future of AI development together!  
+
+## 🔧 **Quick Install**
+
+You can quickly install KitchenAI Development Kit using this one-liner:
+
+
+`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/epuerta9/kitchenai/main/scripts/install.sh)"`
+
+
+You can also install the bundle with docker and docker-compose:
+
+`curl -sSL https://raw.githubusercontent.com/epuerta9/kitchenai/main/scripts/install-bundle.sh | bash`

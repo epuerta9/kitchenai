@@ -19,6 +19,7 @@
 # - django-ninja
 # - django-q-registry
 # - django-q2
+# - django-redis
 # - django-storages[s3]
 # - django-tailwind-cli
 # - django-template-partials
@@ -43,6 +44,7 @@
 # - posthog
 # - psycopg[binary]
 # - pyyaml
+# - redis
 # - refreshcss
 # - rich
 # - sentry-sdk
@@ -175,6 +177,7 @@ django==5.1.2
     #   django-picklefield
     #   django-q-registry
     #   django-q2
+    #   django-redis
     #   django-storages
     #   django-tailwind-cli
     #   django-template-partials
@@ -224,6 +227,8 @@ django-q2==1.7.3
     # via
     #   hatch.envs.default
     #   django-q-registry
+django-redis==5.4.0
+    # via hatch.envs.default
 django-storages==1.14.4
     # via hatch.envs.default
 django-tailwind-cli==2.18.1
@@ -500,7 +505,10 @@ pyzmq==26.2.0
 rcssmin==1.1.2
     # via django-compressor
 redis==5.2.1
-    # via faststream
+    # via
+    #   hatch.envs.default
+    #   django-redis
+    #   faststream
 referencing==0.35.1
     # via
     #   jsonschema

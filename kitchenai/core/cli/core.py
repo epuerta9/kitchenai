@@ -18,11 +18,11 @@ console = Console()
 logger = logging.getLogger(__name__)
 
 
-@app.command()
-def add(module: str = typer.Argument("app.kitchen:kitchen")):
-    from django.core.management import execute_from_command_line
+# @app.command()
+# def add(module: str = typer.Argument("app.kitchen:kitchen")):
+#     from django.core.management import execute_from_command_line
 
-    execute_from_command_line(["manage", "add_module", module])
+#     execute_from_command_line(["manage", "add_module", module])
 
 
 @app.command()
@@ -67,52 +67,6 @@ def init(
         with console.status("Setting up periodic tasks", spinner="dots"):
             execute_from_command_line(["manage", "setup_periodic_tasks"])
 
-        if bento:
-            try:
-                with console.status(f"Installing {bento}", spinner="dots"):
-                    success, pkg_manager = _install_package(bento)
-                    if success:
-                        console.print(
-                            f"[green]Successfully installed plugin[/green] {bento} [dim](using {pkg_manager})[/dim]"
-                        )
-                        #needed so that the installed package is available to the bento_select command
-                        # time.sleep(1)
-                        # console.print("[INFO] Selecting bento box")
-                        # bento_select(bento)
-
-                        console.print("[INFO] Added to core")
-                    else:
-                        raise subprocess.CalledProcessError(
-                            1, f"Failed to install {bento}"
-                        )
-            except subprocess.CalledProcessError as e:
-                console.print(
-                    f"[red]ERROR:[/red] Failed to install {bento}. Details: {e}"
-                )
-                raise typer.Exit(code=1)
-
-        if plugin:
-            try:
-                with console.status(f"Installing {plugin}", spinner="dots"):
-                    success, pkg_manager = _install_package(plugin)
-                    if success:
-                        console.print(
-                            f"[green]Successfully installed plugin[/green] {plugin} [dim](using {pkg_manager})[/dim]"
-                        )
-                    else:
-                        raise subprocess.CalledProcessError(
-                            1, f"Failed to install {plugin}"
-                        )
-            except subprocess.CalledProcessError as e:
-                console.print(
-                    f"[red]ERROR:[/red] Failed to install {plugin}. Details: {e}"
-                )
-                raise typer.Exit(code=1)
-
-        if not collect_static:
-            with console.status("Collecting static assets", spinner="dots"):
-                execute_from_command_line(["manage", "collectstatic", "--no-input"])
-
         # Apply migrations for the packages we just installed
         execute_from_command_line(cmd)
 
@@ -144,41 +98,7 @@ def init(
     else:
         execute_from_command_line(cmd)
 
-        if bento:
-            try:
-                with console.status(f"Installing {bento}", spinner="dots"):
-                    success, pkg_manager = _install_package(bento)
-                    if success:
-                        console.print(
-                            f"[green]Successfully installed plugin[/green] {bento} [dim](using {pkg_manager})[/dim]"
-                        )
-                        # bento_select(bento)
-                    else:
-                        raise subprocess.CalledProcessError(
-                            1, f"Failed to install {bento}"
-                        )
-            except subprocess.CalledProcessError as e:
-                console.print(
-                    f"[red]ERROR:[/red] Failed to install {bento}. Details: {e}"
-                )
-                raise typer.Exit(code=1)
-        if plugin:
-            try:
-                subprocess.check_call(
-                    [sys.executable, "-m", "pip", "install", "deepeval_plugin"]
-                )
-                console.print(
-                    f"[green]Successfully installed plugin:[/green] deepeval_plugin"
-                )
-            except subprocess.CalledProcessError as e:
-                console.print(
-                    f"[red]ERROR:[/red] Failed to install deepeval_plugin. Details: {e}"
-                )
-                raise typer.Exit(code=1)
-
         execute_from_command_line(["manage", "setup_periodic_tasks"])
-        if not collect_static:
-            execute_from_command_line(["manage", "collectstatic", "--no-input"])
 
         # apply migrations for the packages we just installed
         execute_from_command_line(cmd)
@@ -265,7 +185,6 @@ def runserver(
                 bento_box.add_to_core()
             except Exception as e:
                 logger.error(f"Error loading bento box: {e}")
-                raise Exception(f"Error loading bento box: {e}")
         sys.argv = [sys.argv[0]]
         _run_dev_uvicorn(sys.argv)
     else:
@@ -292,6 +211,7 @@ def run(
     from kitchenai.api import api
     from kitchenai.core.utils import setup
     from kitchenai.bento.models import Bento
+    from kitchenai.core.models import KitchenAIManagement
 
     console = Console()
 
@@ -299,7 +219,24 @@ def run(
         setup(api, module=module)
         console.print(f"[green]Successfully loaded module:[/green] {module}")
     else:
+        mgmt = KitchenAIManagement.objects.filter(name="kitchenai_management").first()
+        mgmt.module_path = "bento"
+        mgmt.save()
         try:
+            bento_box = Bento.objects.first()
+            if not bento_box:
+                #check if any bento boxes are installed. Load the first one from settings.KITCHENAI["bento"]
+                bento_boxes = settings.KITCHENAI["bento"] 
+                if bento_boxes:
+                    installed_bento_box = bento_boxes[0]["name"]
+                    bento_box = Bento.objects.create(name=installed_bento_box)
+                    bento_box.add_to_core()
+                    console.print(f"[green]Loaded bento box:[/green] {installed_bento_box}")
+                else:
+                    console.print("[red]Error:[/red] No bento box loaded. Please run 'bento select' to select a bento box.")
+            else:
+                bento_box.add_to_core()
+
             bento_box = Bento.objects.first()
             bento_box.add_to_core()
         except Bento.DoesNotExist:
@@ -330,12 +267,12 @@ def dev(
     import uuid
 
     django.setup()
-    commands = {"server": "kitchenai runserver"}
+    commands = {"server": "python kitchenai/ runserver"}
 
     posthog.capture("init", "kitchenai_dev")
 
     if module:
-        commands["server"] = f"kitchenai runserver --module {module}"
+        commands["server"] = f"python kitchenai/ runserver --module {module}"
     if stream:
         commands["server"] = commands["server"] + " --stream"
 
@@ -358,7 +295,7 @@ def dev(
         if "tailwind" in settings.INSTALLED_APPS:
             commands["tailwind"] = "django-admin tailwind start"
     if "django_q" in settings.INSTALLED_APPS:
-        commands["qcluster"] = "kitchenai qcluster"
+        commands["qcluster"] = "python kitchenai/ qcluster"
 
     typer.echo(f"[INFO] starting development server on {address}")
 
