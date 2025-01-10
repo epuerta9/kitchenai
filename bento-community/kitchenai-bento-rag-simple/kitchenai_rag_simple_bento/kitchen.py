@@ -35,12 +35,20 @@ Settings.callback_manager = CallbackManager([token_counter])
 
 config = get_available_env_vars()
 
-print(config)
+
 
 
 Settings.llm = LiteLLM(config.llm_name)
 
-chroma_client = chromadb.HttpClient(host='localhost', port=8000)
+def get_chroma_client():
+    #must do this to build build client at runtime
+    if config.vector_store_endpoint == "chroma_db":
+        chroma_client = chromadb.PersistentClient(path="chroma_db")
+    else:
+        chroma_client = chromadb.HttpClient(host=config.vector_store_endpoint, port=8000)
+    return chroma_client
+
+chroma_client = get_chroma_client()
 chroma_collection = chroma_client.get_or_create_collection("quickstart")
 
 
