@@ -2,13 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.13.3] - 2025-01-04
+## [0.14.0] - 2025-01-10
+
+### 🐛 Bug Fixes
+
+- *(cli)* Added migration after plugin install
+
+### 🚜 Refactor
+
+- *(core)* Added local non background worker capabilities
+
+### 📦 Build
+
+- *(settings)* Building whitenoise static files without manifest. good for packages
+
+### ⚙️ Miscellaneous Tasks
+
+- *(build)* Dependencies
+
+### Bento
+
+- *(rag-simple:fix)* Dependency manager uses env config set during init
+- *(rag-simple:feat)* Chromadb server client
 
 ### Bug
 
-- *(cli)* Moved selected bento boxes from init into runserver. if user has not selected it will install the first installed one from settings
+- *(api)* Query response schema now has retrieval_context and not sources
 
-## [0.13.0] - 2025-01-04
+### Plugin
+
+- *(deepeval:bug)* If no retrieved context is found then it will just not process the tests. It will also not process if kitchenai is local and not running background workers
+
+### Rag-simple
+
+- Bump
+
+## [0.13.3] - 2025-01-04
 
 ### 🚀 Applications
 
@@ -76,6 +105,10 @@ All notable changes to this project will be documented in this file.
 - *(simple-rag:chore)* Changelog, version, pyproject toml
 - *(simple-rag:bug)* Fixed but on __version__ and BaseBentoConfig
 - *(simple-rag:chore)* Bump
+
+### Bug
+
+- *(cli)* Moved selected bento boxes from init into runserver. if user has not selected it will install the first installed one from settings
 
 ### Patch
 
