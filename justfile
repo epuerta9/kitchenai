@@ -262,6 +262,16 @@ push-docker-image:
     docker push "epuerta18/${image_name}:${current_version}"
     echo "Pushed docker image epuerta18/${image_name}:${current_version}"
 
+push-docker-image-slim:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    current_version=$(hatch version)
+    image_name="kitchenai-slim"
+    docker tag "${image_name}:${current_version}" "${image_name}:latest"
+    docker push "epuerta18/${image_name}:latest"
+    docker push "epuerta18/${image_name}:${current_version}"
+    echo "Pushed docker image epuerta18/${image_name}:${current_version}"
+
 
 prune-docker:
     # Stop and remove containers, networks, volumes, and images
