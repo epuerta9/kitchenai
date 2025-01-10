@@ -759,7 +759,7 @@ mypy-extensions==1.0.0
     # via
     #   black
     #   mypy
-nbclient==0.10.0
+nbclient==0.10.2
     # via
     #   -c requirements.txt
     #   nbconvert
