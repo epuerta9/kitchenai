@@ -2,6 +2,8 @@ import multiprocessing
 import os
 from email.utils import parseaddr
 from pathlib import Path
+import warnings
+import logging
 
 import djp
 import sentry_sdk
@@ -34,6 +36,13 @@ env.read_env(Path(BASE_DIR, ".env").as_posix())
 DEBUG = env.bool("DEBUG", default=False)
 KITCHENAI_LOCAL = env.bool("KITCHENAI_LOCAL", default=True)
 
+# Suppress specific warnings
+warnings.filterwarnings("ignore", message="You are using deepeval version")
+
+# Configure logging to reduce noise
+logging.getLogger("litellm").setLevel(logging.WARNING)
+logging.getLogger("chromadb").setLevel(logging.WARNING)
+
 # 1. Django Core Settings
 # -----------------------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/4.0/ref/settings/
@@ -57,6 +66,16 @@ if "CACHE_LOCATION" in os.environ:
             "SHARDS": 8,
             "DATABASE_TIMEOUT": 0.010,  # 10 milliseconds
             "OPTIONS": {"size_limit": 2**30},  # 1 gigabyte
+        }
+    }
+elif env.bool("KITCHENAI_REDIS_CACHE", default=False):
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": env.str("REDIS_LOCATION", default="redis://127.0.0.1:6379/1"),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
         }
     }
 
@@ -83,8 +102,6 @@ DEFAULT_FROM_EMAIL = env.str(
 
 EMAIL_BACKEND = (
     "django.core.mail.backends.console.EmailBackend"
-    if (DEBUG or KITCHENAI_LOCAL)
-    else "anymail.backends.resend.EmailBackend"
 )
 
 DJANGO_APPS = [
@@ -238,11 +255,12 @@ MEDIA_URL = "/media/"
 # https://docs.djangoproject.com/en/dev/topics/http/middleware/
 # https://docs.djangoproject.com/en/dev/ref/middleware/#middleware-ordering
 MIDDLEWARE = [
-    # should be first
-    "django.middleware.cache.UpdateCacheMiddleware",
+    # Cache middleware - commented out to prevent unwanted caching
+    # "django.middleware.cache.UpdateCacheMiddleware",  # Cache middleware start
+    
+    # Standard middleware
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    # order doesn't matter
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -251,13 +269,15 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
-    # should be last
-    "django.middleware.cache.FetchFromCacheMiddleware",
+    "kitchenai.core.middleware.HtmxNoCacheMiddleware",
+    
+    # Cache middleware end - commented out
+    # "django.middleware.cache.FetchFromCacheMiddleware",
 ]
 
-if DEBUG or KITCHENAI_LOCAL:
-    MIDDLEWARE.remove("django.middleware.cache.UpdateCacheMiddleware")
-    MIDDLEWARE.remove("django.middleware.cache.FetchFromCacheMiddleware")
+# if DEBUG or KITCHENAI_LOCAL:
+#     MIDDLEWARE.remove("django.middleware.cache.UpdateCacheMiddleware")
+#     MIDDLEWARE.remove("django.middleware.cache.FetchFromCacheMiddleware")
 
 if DEBUG:
     MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
@@ -297,14 +317,19 @@ SERVER_EMAIL = env.str(
 
 SESSION_COOKIE_SECURE = not (DEBUG or KITCHENAI_LOCAL)
 
+# S3/MinIO Storage Settings
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3.S3Storage",
         "OPTIONS": {
             "access_key": env.str("AWS_ACCESS_KEY_ID", default=None),
-            "bucket_name": env.str("AWS_STORAGE_BUCKET_NAME", default=None),
-            "region_name": env.str("AWS_S3_REGION_NAME", default=None),
             "secret_key": env.str("AWS_SECRET_ACCESS_KEY", default=None),
+            "bucket_name": env.str("AWS_STORAGE_BUCKET_NAME", default=None),
+            "endpoint_url": env.str("AWS_S3_ENDPOINT_URL", default=None),
+            "region_name": env.str("AWS_DEFAULT_REGION", default="us-east-1"),
+            "verify": env.bool("AWS_S3_VERIFY", default=False),
+            "addressing_style": env.str("AWS_S3_ADDRESSING_STYLE", default="path"),
+            "use_ssl": env.bool("AWS_S3_USE_SSL", default=False),
         },
     },
     "staticfiles": {
@@ -315,6 +340,8 @@ STORAGES = {
         ),
     },
 }
+
+# Only use local storage if not using S3 and in debug/local mode
 if (DEBUG or KITCHENAI_LOCAL) and not env.bool("USE_S3", default=False):
     STORAGES["default"] = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -340,6 +367,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "kitchenai.context_processors.theme_context",
                 "kitchenai.context_processors.version_context",
+                "kitchenai.context_processors.local_context",
             ],
             "builtins": [
                 "template_partials.templatetags.partials",
@@ -395,7 +423,9 @@ STATIC_ROOT = APPS_DIR / "staticfiles"
 
 STATIC_URL = "/static/"
 
-STATICFILES_DIRS = [APPS_DIR / "static"] if DEBUG else []
+# STATICFILES_DIRS = [APPS_DIR / "static"] if DEBUG else []
+STATICFILES_DIRS = [APPS_DIR / "static"]
+
 
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
