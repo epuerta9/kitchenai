@@ -21,19 +21,8 @@ COPY ./requirements.txt ./
 RUN pip install --upgrade pip uv \
  && python -m uv venv $VENV_PATH && uv pip install -r requirements.txt
 
-# install plugins 
-RUN uv pip install "deepeval_plugin>=0.2.1"
-
-#install bento boxes
-RUN uv pip install "kitchenai_rag_simple_bento>=0.1.10"
-
-# Create base requirements file
-RUN uv pip list > "$VENV_PATH/base-requirements.txt"
-
 # Install build dependencies
-RUN apt-get update && apt-get install -y build-essential nodejs npm --no-install-recommends \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y build-essential nodejs npm --no-install-recommends
 
 # Build static files
 COPY . /app
@@ -53,7 +42,6 @@ FROM python-base as production
 # Install uv in the production stage
 RUN pip install --upgrade pip uv
 
-# Copy files from builder
 COPY --from=builder-base $VENV_PATH $VENV_PATH
 COPY --from=builder-base /app/kitchenai/staticfiles /app/kitchenai/staticfiles
 COPY --from=builder-base /app/kitchenai/static /app/kitchenai/static
