@@ -67,7 +67,9 @@ dependencies = [
   "django-model-utils",
   "kitchenai-py",
   "markdown2",
-  "aiohttp"
+  "aiohttp",
+  "redis",
+  "django-redis"
 
 ]
 

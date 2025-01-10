@@ -229,24 +229,50 @@ build-linux-bin:
 
 # Build docker image
 build-docker-image:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    current_version=$(hatch version)
-    image_name="kitchenai"
-    just install
-    docker build -t "${image_name}:${current_version}" -f deploy/Dockerfile .
-    docker tag "${image_name}:${current_version}" "${image_name}:latest"
-    docker tag "${image_name}:${current_version}" "epuerta18/${image_name}:latest"
-    docker tag "${image_name}:${current_version}" "epuerta18/${image_name}:${current_version}"
+    #!/bin/bash
+    current_version=$(hatch version) && \
+    image_name="kitchenai-bundle" && \
+    just install && \
+    docker build -t "${image_name}:${current_version}" --no-cache -f deploy/Dockerfile . && \
+    docker tag "${image_name}:${current_version}" "${image_name}:latest" && \
+    docker tag "${image_name}:${current_version}" "epuerta18/${image_name}:latest" && \
+    docker tag "${image_name}:${current_version}" "epuerta18/${image_name}:${current_version}" && \
     echo "Built docker image ${image_name}:${current_version}"
+
+# Build slim docker image
+build-docker-image-slim:
+    #!/bin/bash
+    current_version=$(hatch version) && \
+    image_name="kitchenai-slim" && \
+    just install && \
+    docker build -t "${image_name}:${current_version}" --no-cache -f deploy/Dockerfile.slim . && \
+    docker tag "${image_name}:${current_version}" "${image_name}:latest" && \
+    docker tag "${image_name}:${current_version}" "epuerta18/${image_name}:latest" && \
+    docker tag "${image_name}:${current_version}" "epuerta18/${image_name}:${current_version}" && \
+    echo "Built slim docker image ${image_name}:${current_version}"
 
 
 push-docker-image:
     #!/usr/bin/env bash
     set -euo pipefail
     current_version=$(hatch version)
-    image_name="kitchenai"
+    image_name="kitchenai-bundle"
     docker tag "${image_name}:${current_version}" "${image_name}:latest"
     docker push "epuerta18/${image_name}:latest"
     docker push "epuerta18/${image_name}:${current_version}"
     echo "Pushed docker image epuerta18/${image_name}:${current_version}"
+
+
+prune-docker:
+    # Stop and remove containers, networks, volumes, and images
+    docker compose down --volumes --rmi all --remove-orphans
+
+    # To be extra thorough, you can also:
+    # Remove all unused volumes
+    docker volume prune -f
+
+    # Remove all unused containers
+    docker container prune -f
+
+    # Remove all unused images
+    docker image prune -a -f
