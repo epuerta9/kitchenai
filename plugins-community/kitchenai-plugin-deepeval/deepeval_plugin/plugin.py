@@ -34,8 +34,12 @@ class DeepEvalPlugin(QueryEvaluatorPlugin):
             else:
                 dataset, created = await DataSet.objects.aget_or_create(name="default")
             if dataset.enabled:
+                if input.retrieval_context:
                     retrieval_context = [source.model_dump() for source in input.retrieval_context]
                     data = Data(input=input.input, source_id=input.source_id, output=input.output, retrieval_context=retrieval_context, dataset=dataset)
+                    await data.asave()
+                else:
+                    data = Data(input=input.input, source_id=input.source_id, output=input.output, dataset=dataset)
                     await data.asave()
 
         else:

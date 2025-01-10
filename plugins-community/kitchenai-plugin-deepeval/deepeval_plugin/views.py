@@ -110,18 +110,22 @@ def settings(request):
         
         settings.save()
         
-        # Add success message
-        messages.success(request, "Settings updated successfully!")
-        
         # If it's an HTMX request, return a success response
         if request.headers.get('HX-Request'):
-            return TemplateResponse(
+            response = TemplateResponse(
                 request,
                 'deepeval_plugin/components/toast.html',
                 {'message': 'Settings updated successfully!'}
             )
+            # Clear any existing messages
+            storage = messages.get_messages(request)
+            for _ in storage:
+                pass  # Iterate through to mark messages as used
+            storage.used = True
+            return response
         
-        # Otherwise redirect back to settings page
+        # For regular requests, add message and redirect
+        messages.success(request, "Settings updated successfully!")
         return redirect('deepeval:settings')
 
     # GET request handling
