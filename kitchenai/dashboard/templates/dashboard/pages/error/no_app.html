@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <div class="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
+        <!-- Warning Icon -->
+        <div class="mb-4">
+            <svg class="h-16 w-16 text-yellow-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+        </div>
+
+        <!-- Error Message -->
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">No KitchenAI App Loaded</h1>
+        <p class="text-gray-600 mb-6">Please load a KitchenAI app or Bento box to continue.</p>
+
+    </div>
+</div>
+{% endblock %}

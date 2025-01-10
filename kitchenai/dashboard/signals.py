@@ -8,6 +8,7 @@ from .models import ChatMetric
 import logging
 from django_q.tasks import async_task
 logger = logging.getLogger(__name__)
+from django.conf import settings
 
 @receiver(post_save, sender=ChatMetric)
 def chat_metric_created(sender, instance, created, **kwargs):
@@ -17,5 +18,9 @@ def chat_metric_created(sender, instance, created, **kwargs):
     """
     if created:
         logger.info(f"ChatMetric created: {instance.pk}")
-        async_task("kitchenai.dashboard.tasks.update_aggregated_metrics", instance)
+        if settings.KITCHENAI_LOCAL:
+            from kitchenai.dashboard.tasks import update_aggregated_metrics
+            update_aggregated_metrics(instance)
+        else:
+            async_task("kitchenai.dashboard.tasks.update_aggregated_metrics", instance)
 

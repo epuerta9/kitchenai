@@ -25,8 +25,8 @@ class ChatSetting(TimeStamped):
     metadata = models.JSONField(default=dict)
 
 class ChatMetric(TimeStamped):
-    input_text = models.TextField(default="")
-    output_text = models.TextField(default="")
+    input_text = models.TextField(default="n/a")
+    output_text = models.TextField(default="n/a")
     sources_used = models.JSONField(default=list)
     metadata = models.JSONField(default=dict)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)

@@ -49,11 +49,23 @@
                 {% endfor %}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                {% if bento.installed %}
-                  <button class="btn btn-disabled btn-sm">Loaded</button>
+                <span class="badge badge-neutral">Loaded</span>
+                {% comment %} {% if bento.installed %}
+                  <span class="badge badge-neutral">Loaded</span>
                 {% else %}
-                  <button class="btn btn-primary btn-sm" onclick="installBento('{{ bento.name }}')">Install</button>
-                {% endif %}
+                  <form method="POST" action="?bento={{ bento.name }}" class="inline"
+                        hx-post="?bento={{ bento.name }}"
+                        hx-trigger="submit"
+                        hx-indicator="#loading-{{ bento.name }}">
+                    {% csrf_token %}
+                    <button type="submit" class="badge badge-primary flex items-center justify-center gap-2" id="install-btn-{{ bento.name }}">
+                      <div class="flex items-center justify-center">    
+                        Install
+                        <span class="htmx-indicator loading loading-spinner loading-sm" id="loading-{{ bento.name }}"></span>
+                      </div>
+                    </button>
+                  </form>
+                {% endif %} {% endcomment %}
               </td>
             </tr>
             {% empty %}
@@ -70,3 +82,24 @@
   </section>
 </div>
 {% endblock content %}
+
+{% block inline_javascript %}
+<script>
+document.querySelectorAll('form').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    const button = this.querySelector('button[type="submit"]');
+    const normalState = button.querySelector('.normal-state');
+    const loadingState = button.querySelector('.loading-state');
+    
+    // Disable button and show loading state
+    button.disabled = true;
+    button.classList.add('loading');
+    normalState.classList.add('hidden');
+    loadingState.classList.remove('hidden');
+    
+    // Optional: Add loading cursor to whole page
+    document.body.style.cursor = 'wait';
+  });
+});
+</script>
+{% endblock %}

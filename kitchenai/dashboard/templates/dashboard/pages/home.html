@@ -2,6 +2,40 @@
 {% load partials static %}
 
 {% block content %}
+<!-- Add toast container for messages -->
+<div class="toast toast-top toast-end z-50">
+  {% if messages %}
+    {% for message in messages %}
+      {% if forloop.last %}  {# Only show the last message #}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} shadow-lg">
+          <div>
+            {% if message.tags == 'success' %}
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            {% elif message.tags == 'error' %}
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            {% else %}
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            {% endif %}
+            <span>{{ message }}</span>
+          </div>
+          <div class="flex-none">
+            <button onclick="this.parentElement.remove()" class="btn btn-ghost btn-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+</div>
 
 <div
   class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
@@ -85,18 +119,13 @@
                </div>
              </div>
             {% endfor %}
-            <div class="flex items-center justify-center h-full">
-              <a href="{% url 'dashboard:bento_install' %}" class="btn btn-circle btn-lg bg-transparent border-2 border-base-300 hover:bg-base-200 flex flex-col items-center justify-center w-24 h-24">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-              </a>
-            </div>
          {% else %}
             <div class="col-span-3 flex flex-col items-center justify-center p-8 text-center">
               <svg data-src="https://unpkg.com/heroicons/24/outline/squares-2x2.svg" class="h-12 w-12 text-gray-400"></svg>
               <h3 class="mt-2 text-sm font-semibold text-gray-900">No bentos</h3>
-              <p class="mt-1 text-sm text-gray-500">Get started by creating some bentos</p>
+              <div class="mt-1 flex items-center gap-2">
+                <p class="text-sm text-gray-500">Get started by installing some bentos</p>
+              </div>
             </div>
          {% endif %}
       </div>
