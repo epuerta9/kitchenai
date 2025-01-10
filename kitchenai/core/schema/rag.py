@@ -21,6 +21,10 @@ class RAGConfigSchema(BaseModel):
         default=VectorStore.CHROMA,
         description="Vector store backend to use"
     )
+    vector_store_endpoint: str = Field(
+        default="db",
+        description="Endpoint URL for the vector store service"
+    )
     chunk_size: int = Field(
         default=1024,
         description="Size of text chunks for processing",

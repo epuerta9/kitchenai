@@ -15,6 +15,7 @@ from ..models import FileObject
 
 from django.dispatch import Signal
 from enum import StrEnum
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -45,9 +46,15 @@ def file_object_created(sender, instance, created, **kwargs):
         if core_app.kitchenai_app:
             f = core_app.kitchenai_app.storage.get_task(instance.ingest_label)
             if f:
-                async_task(
-                    "kitchenai.contrib.kitchenai_sdk.tasks.process_file_task_core", instance, hook=process_file_hook_core
-                )
+                if settings.KITCHENAI_LOCAL:
+                    from kitchenai.contrib.kitchenai_sdk.tasks import process_file_task_core
+                    result = process_file_task_core(instance)
+                    if result:
+                        process_file_hook_core({"ingest_label": instance.ingest_label, "result": result})
+                else:
+                    async_task(
+                        "kitchenai.contrib.kitchenai_sdk.tasks.process_file_task_core", instance, hook=process_file_hook_core
+                    )
             else:
                 logger.warning(
                     f"No on create handler found for {instance.ingest_label}"
@@ -64,11 +71,17 @@ def file_object_deleted(sender, instance, **kwargs):
     if core_app.kitchenai_app:
         f = core_app.kitchenai_app.storage.get_hook(instance.ingest_label, "on_delete")
         if f:
-            async_task(
-                "kitchenai.contrib.kitchenai_sdk.tasks.delete_file_task_core",
-                instance,
-                hook=delete_file_hook_core,
-            )
+            if settings.KITCHENAI_LOCAL:
+                from kitchenai.contrib.kitchenai_sdk.tasks import delete_file_task_core
+                result = delete_file_task_core(instance)
+                if result:
+                    delete_file_hook_core({"ingest_label": instance.ingest_label, "result": result})
+            else:
+                async_task(
+                    "kitchenai.contrib.kitchenai_sdk.tasks.delete_file_task_core",
+                    instance,
+                    hook=delete_file_hook_core,
+                )
         else:
             logger.warning(f"No on delete task found for {instance.ingest_label}")
     else:
