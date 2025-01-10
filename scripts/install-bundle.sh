@@ -27,22 +27,28 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Copy necessary files to current directory
-echo -e "${BLUE}Copying configuration files...${NC}"
-cp "$TMP_DIR/docker-compose.yml" .
-cp "$TMP_DIR/.env.template" .env
+# Copy development-kit directory contents to current location
+echo -e "${BLUE}Copying development kit files...${NC}"
+cp -r "$TMP_DIR/development-kit/." .
 
-# Create necessary directories
+# Clean up temporary directory
+rm -rf "$TMP_DIR"
+
+# Create .env from template if it doesn't exist
+if [ ! -f ".env" ] && [ -f ".env.template" ]; then
+    echo -e "${BLUE}Creating .env file from template...${NC}"
+    cp .env.template .env
+fi
+
+# Create necessary directories if they don't exist
 mkdir -p .kitchenai
 mkdir -p dynamic
 mkdir -p chroma_db
 
-# Copy helper scripts
-cp "$TMP_DIR/scripts/restart-stream.sh" .
-chmod +x restart-stream.sh
-
-# Clean up temporary directory
-rm -rf "$TMP_DIR"
+# Make scripts executable
+if [ -f "restart-stream.sh" ]; then
+    chmod +x restart-stream.sh
+fi
 
 # Check if installation was successful
 if [ -f "docker-compose.yml" ] && [ -f ".env" ]; then

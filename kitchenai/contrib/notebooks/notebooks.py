@@ -591,3 +591,85 @@ class NotebookMagics(Magics):
         ipython = get_ipython()
         # If no matching cell is found, create a new one
         ipython.set_next_input(rendered_code)
+
+    @line_magic
+    def kitchenai_help(line):
+        """Display help for KitchenAI magic commands"""
+        from rich.console import Console
+        from rich.table import Table
+
+        console = Console()
+        table = Table(title="KitchenAI Magic Commands")
+        
+        # Add columns
+        table.add_column("Command", style="cyan", no_wrap=True)
+        table.add_column("Type", style="magenta")
+        table.add_column("Description", style="green")
+        table.add_column("Example", style="yellow")
+
+        # Add rows
+        table.add_row(
+            "%load_env", 
+            "Line", 
+            "Load environment variables from .env file",
+            "%load_env"
+        )
+        table.add_row(
+            "%connect_db", 
+            "Line", 
+            "Connect to the database specified in environment",
+            "%connect_db"
+        )
+        table.add_row(
+            "%%sql", 
+            "Cell", 
+            "Execute SQL query and return results as DataFrame",
+            "%%sql\nSELECT * FROM users"
+        )
+        table.add_row(
+            "%sql", 
+            "Line", 
+            "Execute single line SQL query",
+            "%sql SELECT count(*) FROM users"
+        )
+        table.add_row(
+            "%%rag", 
+            "Cell", 
+            "Execute RAG query with custom prompt",
+            "%%rag\nFind documents about machine learning"
+        )
+        table.add_row(
+            "%rag", 
+            "Line", 
+            "Quick RAG query with default prompt",
+            "%rag What are the latest sales figures?"
+        )
+        table.add_row(
+            "%kitchenai_config", 
+            "Line", 
+            "Display current KitchenAI configuration",
+            "%kitchenai_config"
+        )
+        table.add_row(
+            "%upload_file", 
+            "Line", 
+            "Upload file to KitchenAI storage",
+            "%upload_file path/to/file.pdf"
+        )
+        table.add_row(
+            "%list_files", 
+            "Line", 
+            "List all files in KitchenAI storage",
+            "%list_files"
+        )
+        table.add_row(
+            "%embed", 
+            "Line", 
+            "Create embeddings for a file",
+            "%embed file_id"
+        )
+
+        # Print the table
+        console.print(table)
+
+        return None
