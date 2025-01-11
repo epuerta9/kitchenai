@@ -1,9 +1,8 @@
-# 🍽️ **KitchenAI**  
-
 <p align="center">
   <img src="docs/_static/images/logo.png" alt="KitchenAI" width="100" height="100">
 </p>
 
+# **KitchenAI: Integrate Advanced AI Implementations in Minutes**  
 **Simplify AI Development with KitchenAI: Your AI Backend and LLMOps Toolkit**  
 
 [![Docs](https://img.shields.io/badge/Docs-kitchenai.dev-blue)](https://docs.kitchenai.dev)  
@@ -12,214 +11,216 @@
 
 ---
 
-**[Documentation](https://docs.kitchenai.dev)**
-**[KitchenAI Cloud](#-get-early-access)**
 
 ## 🚀 **What is KitchenAI?**  
 
-KitchenAI is an open-source toolkit that simplifies AI complexities by acting as your **AI backend** and **LLMOps solution**—from experimentation to production.  
+**KitchenAI** is an **open-source AI runtime and backend** that streamlines **complex AI agent** workflows. We provide a **plug-and-play** suite of **Bento Box** AI implementations (e.g., specialized “Sales Agency,” “TrendSpotter,” “Document Summarizer,” etc.)—all **pre-optimized** for popular use cases. 
 
-It empowers **developers** to focus on delivering results without getting stuck in the weeds of AI infrastructure, observability, or deployment.  
 
-### **Key Goals**:  
-1. **Simplify AI Integration**: Easily turn AI experiments into production-ready APIs.  
-2. **Provide an AI Backend**: Handle the entire AI lifecycle—experimentation, observability, and scaling.  
-3. **Empower Developers**: Focus on application building, not infrastructure.
 
-![kitchenai-dev](docs/_static/images/kitchenai-highlevel1.png)
+**Our vision**: Let you seamlessly **drop** these Bento Boxes into your application so you can focus on **delivering value** rather than reinventing AI pipelines or infrastructure.
 
----
+### **Why KitchenAI?**  
 
-## 🛠️ **Who is KitchenAI For?**  
+- **Fastest Path to AI Orchestration**  
+  - Tap into **multi-step agent workflows** (RAG, LLM calls, prompt engineering) **without** writing a custom backend.  
+  - One-click install with **Docker Compose**—run in minutes.
 
-- **Application Developers**:  
-   - Seamlessly integrate AI into your apps using APIs.  
-   - Experiment and test AI techniques without reinventing the wheel.  
+- **Developer-First & Open Source**  
+  - Everything is **source-available** for easy integration and customization.  
+  - A **modular** approach ensures you pick only the AI “Bento Boxes” you need.
 
-- **AI Developers & Data Scientists**:  
-   - Move quickly from Jupyter notebooks to production-ready services.  
-   - Deploy custom AI techniques with ease (e.g., RAG, embeddings).  
-
-- **Platform & Infra Engineers**:  
-   - Customize your AI stack, integrate tools like Sentry, OpenTelemetry, and more.  
-   - Scale and optimize AI services with a modular, extensible framework.  
-
----
-**Say goodbye to boilerplate!**  
-
-## 🚀 **Go from notebook to app integration in minutes.**
-Example notebook: [kitchenai-community/llama_index_starter](https://github.com/epuerta9/kitchenai-community/blob/main/src/kitchenai_community/llama_index_starter/notebook.ipynb)
-
-By annotating your notebook with KitchenAI annotations, you can go from this:
-
-![kitchenai-dev](docs/_static/images/jupyter-notebook.png)
-
-To interacting with the API using the built in client:
-
-![kitchenai-dev](docs/_static/images/cli-query.png)
+- **Business Value**  
+  - Shorten time to market for advanced AI features.  
+  - Enterprise-friendly: self-host in secure environments, tailor to internal data.
 
 ---
 
-## 💡 **Why KitchenAI?**  
+## 🛠️ **Who Uses KitchenAI?**  
 
-Integrating and scaling AI is **too complex** today. KitchenAI solves this:  
-
-1. **AI Backend Ready to Go**:  
-   - Stop building APIs and infra from scratch. Deploy AI code as production-ready APIs in minutes.  
-
-2. **Built-In LLMOps Features**:  
-   - Observability, tracing, and evaluation tools are pre-configured.  
-
-3. **Framework-Agnostic & Extensible**:  
-   - Vendor-neutral, open-source, and easy to customize with plugins.  
-
-4. **Faster Time-to-Production**:  
-   - Go from experimentation to live deployments seamlessly.  
+- **Product Teams & Devs** who want to embed **agent-based AI** flows (e.g., writing marketing copy, analyzing data, generating insights) without building everything from scratch.  
+- **Data Scientists** transitioning prototypes to **production** quickly—KitchenAI’s built-in LLMOps ensures easy debugging and logging.  
+- **Enterprises** seeking a **private** or **on-prem** AI solution that’s easily auditable and **secure**.
 
 ---
 
-## ⚡ **Quickstart**  
+## 💡 **Example Use Case: TrendSpotter Bento (API-Driven AI Agents)**  
 
-1. **Set Up Environment**  
+The **TrendSpotter Bento** simplifies complex **AI agent orchestration** into a streamlined **API-first** experience, empowering developers to focus on **value delivery** instead of backend complexity.
+
+### **How It Works:**
+1. **Spin Up with One Click:**  
+   - Run **KitchenAI** with a pre-configured **Docker Compose** file.  
+   - The TrendSpotter Bento Box launches pre-optimized **agent skills** like RAG (Retrieval-Augmented Generation), summarization, and email delivery.
+
+2. **Agent with Optimized Skills Out-of-the-Box:**  
+   - The agent is **pre-configured** for a domain-specific use case (trend detection).  
+   - Fully optimized for **RAG queries**, **summarization**, and **data filtering**.  
+
+3. **Developer APIs for Custom Knowledge & RAG Integration:**  
+   - Developers have complete control over **customizing** knowledge bases and retrieval behavior.  
+   - Use the `/embed` and `/file` endpoints to **upload data** and **apply metadata filters** to **tailor** the agent’s responses to your application's context.  
+   - **Example:** Upload reports, articles, or proprietary datasets and query them using structured metadata.
+
+4. **Flexible Query Handling:**  
+   - Send a query directly to the **agent API**:  
+     ```bash
+     curl -X POST http://localhost:8000/agent/trendspotter/query \
+          -H "Content-Type: application/json" \
+          -d '{"query": "Find the latest climate trends"}'
+     ```
+   - Use **metadata filters** for precision control:  
+     ```bash
+     curl -X POST http://localhost:8000/agent/trendspotter/query \
+          -H "Content-Type: application/json" \
+          -d '{"query": "Find trends in renewable energy", "filters": {"topic": "climate", "region": "US"}}'
+     ```
+
+5. **Zero-Code Workflow Management:**  
+   - **No need for multi-step workflow coding.**  
+   - The **agent API** abstracts complex **Temporal workflows** behind a single endpoint.  
+   - **Durable** execution with support for **multiple agents**, **event streaming**, and **human-in-the-loop interactions.**
+
+---
+
+### ✅ **Why This Approach Works:**
+- **API-First Agent Experience:** No need to build custom workflows—just send queries via HTTP.  
+- **Fully Customizable RAG:** Use the `/file` and `/embed` endpoints to add domain-specific data with **metadata filters.**  
+- **Rapid Developer Integration:** No complex orchestration logic—**focus on your data and questions.**  
+- **Immediate Value:** Spin up a **production-ready AI agent** in minutes with minimal setup.  
+
+---
+
+
+## 🚀 **Getting Started (One-Click Docker Compose)**  
+
+1. **Clone** or **download** the KitchenAI repo (or a sample docker-compose.yml).  
+2. **Launch** with:
    ```bash
-   export OPENAI_API_KEY=<your key>
-   export KITCHENAI_DEBUG=True
-   python -m venv venv && source venv/bin/activate && pip install kitchenai
+   docker compose up -d
    ```
+3. Once running, go to `http://localhost:8001/api/v1/agent/<bento_name>/query` (or see the docs).  
+4. Start making requests—KitchenAI handles the multi-step agent workflows automatically.
 
-2. **Start a Project**  
+**Within minutes**, you have a **full AI runtime** exposed as HTTP endpoints, with out-of-the-box Bento Boxes covering common AI tasks like summarization, trend analysis, or Q&A.
+
+---
+
+## 🧩 **An Array of Bento Boxes**  
+
+**KitchenAI** ships with pre-built Bento Boxes, each **optimized** for a particular domain:
+
+- **Sales Agency** – Generate leads, craft follow-ups, sync with CRMs.  
+- **TrendSpotter** – Grab social or news data, do real-time RAG, produce insights.  
+- **Document Summarizer** – Summarize PDFs, docs, or knowledge bases.  
+- **(More Coming Soon)** – Seamless GPT-based chat flows, classification, image generation, etc.
+
+You just **enable** them in a config or pass an environment variable, then your app can call:
+
+```
+POST /agent/<bento_label>/query
+{
+  "query": "Analyze these docs and give me the top 3 insights."
+}
+```
+
+---
+
+
+Here's an enhanced version of your **"How It Works"** section with the **LLMOps infrastructure** focus included:
+
+---
+
+## **How It Works: AI Workflows with Built-In LLMOps**  
+
+**KitchenAI** is not just a runtime—it's a **complete AI orchestration platform** built for **production-ready** workflows with **LLMOps** baked in from the ground up.
+
+### **AI Agent Workflow Architecture**  
+1. **Bento Box Integration:**  
+   - Each **Bento Box** is a pre-optimized AI implementation containing specialized agent workflows (e.g., Sales Agency, TrendSpotter).  
+   - Bento Boxes expose **standardized API endpoints** for direct use, so you can run complex AI processes with a simple REST call.
+
+2. **Intelligent Workflow Management:**  
+   - **Temporal.io** powers **durable, long-running workflows** with built-in fault tolerance and retry mechanisms.  
+   - **KitchenAI’s ProjectManager Workflow** dynamically selects the right **Agent Tools** and **Skills** for the user’s query.  
+   - **Multi-agent collaboration**: One query can trigger multiple **agent skills** working in parallel or sequentially.
+
+3. **Built-in RAG & Prompt Management:**  
+   - **RAG (Retrieval-Augmented Generation)** with customizable **metadata filtering**.  
+   - **Prompt Management & Query Modifiers:** Easily adjust how prompts are constructed using **configurable modifiers**.  
+   - **Response Synthesizers:** Control how AI outputs are processed, summarized, or merged for final delivery.
+
+---
+
+### **LLMOps Infrastructure (Baked In)**  
+
+**Every KitchenAI instance includes a complete LLMOps suite for production visibility and control:**  
+
+- **✅ OpenTelemetry Integration:** Full tracing across **workflows**, **agent calls**, and **vector stores**.  
+- **✅ DeepEval Integration:** Real-time **AI performance evaluation**—track accuracy, relevance, and quality metrics out-of-the-box.  
+- **✅ Grafana Dashboards:** Pre-configured **visual dashboards** for monitoring workflow health, latencies, and throughput.  
+- **✅ Sentry Integration:** Capture **errors** and exceptions across your **entire AI stack**, from vector lookups to LLM responses.  
+- **✅ Prompt Management:** Define reusable **prompt templates** with version control and easy debugging.  
+- **✅ Query Modifiers:** Dynamically **transform** user queries before they reach the model for better results.  
+- **✅ Response Synthesizer:** Ensure **consistent outputs** by applying customizable response transformations.  
+
+---
+
+### **Observability-Ready by Default:**
+**No extra setup required**—KitchenAI **automatically** wires in:  
+- ✅ **LLM Call Logging & Performance Metrics**  
+- ✅ **Agent Tool Usage Analytics**  
+- ✅ **Token Usage & Cost Reporting**  
+
+---
+
+### **Developer Experience Example:**
+1. **Install and Launch:**  
    ```bash
-   kitchenai cook list && kitchenai cook select llama-index-chat && pip install -r requirements.txt
+   docker compose up -d
    ```
-   ![kitchenai-list](docs/_static/images/kitchenai-list.gif)
-   
-
-3. **Run the Server**  
+2. **Send a Query:**  
    ```bash
-   kitchenai init && kitchenai dev --module app:kitchen
+   curl -X POST http://localhost:8000/agent/trendspotter/query \
+        -H "Content-Type: application/json" \
+        -d '{"query": "Find the latest climate trends"}'
    ```
-   Alternatively, you can run the server with jupyter notebook:
-   ```bash
-   kitchenai dev --module app:kitchen --jupyter
-   ```
-
-4. **Test the API**  
-   ```bash
-   kitchenai client health
-   ```
-   ```bash
-   kitchenai client labels
-   ```
-   ![kitchenai-client](docs/_static/images/kitchenai-dev-client.gif)
-
-
-5. **Build Docker Container**  
-   ```bash
-   kitchenai build . app:kitchenai
-   ```  
-
-📖 Full quickstart guide at [docs.kitchenai.dev](https://docs.kitchenai.dev/cookbooks/quickstarts/).  
+3. **Monitor Performance:**  
+   - View **real-time traces** in **Grafana** at `http://localhost:3000`.  
+   - Check **AI accuracy metrics** in **DeepEval**.  
+   - Capture errors in **Sentry** if something fails.  
 
 ---
 
-## ✨ **Features**  
+## **Why This Matters for You:**  
 
-- **🚀 Production-Ready Backend**: Go from idea to production in minutes.  
-- **🛠️ Built-In LLMOps**: Observability, tracing, and evaluation out-of-the-box.  
-- **🔌 Extensible Framework**: Easily add custom plugins and AI techniques.  
-- **📦 Modular AI Modules**: Deploy and test AI components with ease.  
-- **🐳 Docker-First Deployment**: Build and scale with confidence.  
+- ✅ **No Extra Setup:** LLMOps tools are **pre-configured**. Just **run KitchenAI**, and **start monitoring**.  
+- ✅ **Insights for Developers:** Gain **deep visibility** into how AI agents behave across **skills and tools**.  
+- ✅ **Enterprise-Ready:** All **monitoring tools** can be **self-hosted** or **integrated** with existing observability stacks.  
 
 ---
 
-
-## 📊 **AI Lifecycle with KitchenAI**  
-
-1. **Experiment**:  
-   - Start in Jupyter notebooks or existing AI tools.  
-   - Annotate your notebook to turn it into a deployable AI module.  
-
-2. **Build**:  
-   - Use KitchenAI to generate production-ready APIs automatically.  
-
-3. **Deploy**:  
-   - Run the module locally or in production with built-in observability and scaling.  
-
-4. **Monitor & Improve**:  
-   - Use KitchenAI's observability tools to evaluate performance, trace issues, and iterate.  
-
-## Developer Experience
-
-
-![Developer Flow](docs/_static/images/workflow.png)
+## **Coming Soon: Build Your Own Bento Boxes!**  
+- **Developer Flow:** KitchenAI will soon allow **custom Bento Boxes** where developers can define their own:  
+   - **Agent Skills & Tools**  
+   - **Custom RAG Pipelines**  
+   - **Temporal Workflows**  
+- **Self-Host Anywhere:** Easily build **your own KitchenAI image** with your own **data privacy** policies.  
 
 ---
 
-## 🔧 **Under the Hood**  
-
-- **Django Ninja**: High-performance async APIs.  
-- **LLMOps Stack**: Built-in tracing, observability, and evaluations.  
-- **Plugin System**: Add advanced custom functionality.  
-- **Docker-Optimized**: Seamless deployment with S6 overlays.  
+KitchenAI: **Production-Ready AI Workflows, Built for Developers.**  
+👉 **Try it Today with One-Click Docker Compose Setup!**
 
 ---
 
-## 🚀 **KitchenAI Cloud**  
+## 🤝 **Contribute & Community**  
 
-Coming soon: **KitchenAI Cloud** will offer a fully managed AI backend experience.  
+- **Star** us on GitHub—help grow the project!  
+- **Open issues** or **pull requests** for new Bento Boxes or bugfixes.  
+- Join the **KitchenAI** community calls to share feedback and suggestions.
 
-### **Key Benefits**:  
-- Serverless deployment for AI modules.  
-- Fully managed observability, tracing, and scaling.  
-- Team collaboration tools for faster iteration.  
-
-🔗 **Sign Up for Early Access**: [Register Here](https://tally.so/r/w8pYoo)  
 
 ---
 
-## 🛠️ **Roadmap**  
-
-- Expanded SDKs (Python, Go, JS).  
-- Enhanced plugin system.  
-- Enterprise-grade observability features.  
-- KitchenAI Cloud Beta.  
-
----
-
-## 🤝 **Contribute**  
-
-Kitchenai is in **alpha-**
-
-
-We’re building KitchenAI in the open, and we’d love your contributions:  
-- ⭐ Star the repo on GitHub!  
-- 🛠️ Submit PRs, ideas, or feedback.  
-- 🧑‍🍳 Build plugins and AI modules for the community.  
-
----
-
-## 🙏 **Acknowledgements**  
-
-KitchenAI is inspired by the open-source community and modern AI development challenges. Let’s simplify AI, together.  
-
-Notable project: [Falco Project](https://github.com/Tobi-De/falco). Thanks to the Python community for best practices and tools!  
-
----
-
-## 📊 **Telemetry**  
-
-KitchenAI collects **anonymous usage data** to improve the framework—no PII or sensitive data is collected.  
-
-> Your feedback and support shape KitchenAI. Let's build the future of AI development together!  
-
-## 🔧 **Quick Install**
-
-You can quickly install KitchenAI Development Kit using this one-liner:
-
-
-`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/epuerta9/kitchenai/main/scripts/install.sh)"`
-
-
-You can also install the bundle with docker and docker-compose:
-
-`curl -sSL https://raw.githubusercontent.com/epuerta9/kitchenai/main/scripts/install-bundle.sh | bash`
+**Get Started** today with a single `docker compose up`—then watch **KitchenAI** handle your advanced AI agents so **you** can focus on delivering product value to **your** users.
