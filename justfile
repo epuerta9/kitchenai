@@ -233,7 +233,7 @@ build-docker-image:
     current_version=$(hatch version) && \
     image_name="kitchenai-bundle" && \
     just install && \
-    docker build -t "${image_name}:${current_version}" --no-cache -f deploy/Dockerfile . && \
+    docker build -t "${image_name}:${current_version}" -f deploy/Dockerfile . && \
     docker tag "${image_name}:${current_version}" "${image_name}:latest" && \
     docker tag "${image_name}:${current_version}" "epuerta18/${image_name}:latest" && \
     docker tag "${image_name}:${current_version}" "epuerta18/${image_name}:${current_version}" && \
@@ -245,7 +245,7 @@ build-docker-image-slim:
     current_version=$(hatch version) && \
     image_name="kitchenai-slim" && \
     just install && \
-    docker build -t "${image_name}:${current_version}" --no-cache -f deploy/Dockerfile.slim . && \
+    docker build -t "${image_name}:${current_version}" -f deploy/Dockerfile.slim . && \
     docker tag "${image_name}:${current_version}" "${image_name}:latest" && \
     docker tag "${image_name}:${current_version}" "epuerta18/${image_name}:latest" && \
     docker tag "${image_name}:${current_version}" "epuerta18/${image_name}:${current_version}" && \

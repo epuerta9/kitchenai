@@ -69,7 +69,8 @@ dependencies = [
   "markdown2",
   "aiohttp",
   "redis",
-  "django-redis"
+  "django-redis", 
+  "temporalio"
 
 ]
 

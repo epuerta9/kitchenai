@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% load partials static %}
+
+{% block content %}
+<div class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
+  {% include "includes/header.html" %}
+</div>
+
+<div class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
+    <div class="col-span-12 lg:col-span-8 lg:col-start-3">
+        <a href="{% url 'simple_rag:home' %}" class="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+        </a>
+    </div>
+    <section class="card col-span-12 lg:col-span-8 lg:col-start-3 bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title mb-6">Settings</h2>
+      <pre class="p-4 bg-neutral text-neutral-content rounded-lg overflow-x-auto font-mono">
+        {{ settings }}
+        </pre>
+    </div>
+  </section>
+  <section class="card col-span-12 lg:col-span-8 lg:col-start-3 bg-base-100 shadow-xl mt-8">
+
+    <div class="card-body">
+      <h2 class="card-title mb-6">RAG Configuration Options</h2>
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Description</th>
+              <th>Default Value</th>
+              <th>Constraints</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-mono text-sm">llm_type</td>
+              <td>{{ available_env_vars.llm_type }}</td>
+              <td class="font-mono">{{ available_env_vars.llm_type }}</td>
+              <td class="text-sm">
+                Must be one of: litellm, ollama
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono text-sm">llm_name</td>
+              <td>{{ available_env_vars.llm_name }}</td>
+              <td class="font-mono">{{ available_env_vars.llm_name }}</td>
+              <td class="text-sm">
+                Depends on llm_type:<br>
+                • litellm: gpt-4, gpt-4-mini<br>
+                • ollama: llama2, mistral, mixtral
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono text-sm">temperature</td>
+              <td>{{ available_env_vars.temperature }}</td>
+              <td class="font-mono">{{ available_env_vars.temperature }}</td>
+              <td class="text-sm">
+                Must be between 0.0 and 1.0
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono text-sm">vector_store</td>
+              <td>{{ available_env_vars.vector_store }}</td>
+              <td class="font-mono">{{ available_env_vars.vector_store }}</td>
+              <td class="text-sm">
+                Must be one of: chroma, pinecone
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono text-sm">chunk_size</td>
+              <td>{{ available_env_vars.chunk_size }}</td>
+              <td class="font-mono">{{ available_env_vars.chunk_size }}</td>
+              <td class="text-sm">
+                Must be greater than 0
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+{% endblock content %} 
