@@ -29,7 +29,7 @@ async def start_worker(
             client,
             task_queue=task_queue,
             workflows=[workflows.KitchenAICoreWorkflow],
-            activities=[activities.CoreManagerActivities],
+            activities=[activities.CoreManagerActivities.chat],
             activity_executor=loop,
         )
     

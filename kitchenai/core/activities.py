@@ -2,35 +2,40 @@ import json
 from typing import List
 
 from temporalio import activity
-import asyncio
+
+from dataclasses import dataclass
+from temporalio import activity
+from importlib import import_module, reload
+import sys
+from kitchenai.core.temporal_utils import get_agent
+@dataclass
+class ChatMessage:
+    message: str
+
+
+
 
 
 class CoreManagerActivities:
-    def __init__(self) -> None:
+    def __init__(self, module: str) -> None:
         """Core manager understands the available activies based on descriptions
         and chooses to build the correct Bento Box workflow"""
-        self.role: str = None
-        self.capabilities: List[str] = []
+        self.module = module
 
     @activity.defn
-    async def chat(self, message: str) -> str:
-        # Model params
-        modelId = "meta.llama2-70b-chat-v1"
-        accept = "application/json"
-        contentType = "application/json"
-        max_gen_len = 512
-        temperature = 0.1
-        top_p = 0.2
+    async def chat(self, message: ChatMessage) -> str:
+        activity.logger.info(f"Starting chat with message: {message.message}")
+        
+        try:
 
-        body = json.dumps(
-            {
-                "prompt": " message",
-                "max_gen_len": max_gen_len,
-                "temperature": temperature,
-                "top_p": top_p,
-            }
-        )
+            agent = get_agent(self.module)
 
-        response = await asyncio.sleep(1)
+            response = await agent.achat(message.message)
+            activity.logger.info(f"Chat response: {response}")
+            return response
 
-        return body
+            
+        except Exception as e:
+            activity.logger.error(f"Error in chat activity: {str(e)}")
+            raise
+

@@ -59,7 +59,7 @@ dependencies = [
   "posthog",
   "nbformat",
   "nbconvert",
-  "faststream[redis]", 
+  "faststream[nats]", 
   "starlette",
   "django-eventstream",
   "jupyterlab",
@@ -70,7 +70,8 @@ dependencies = [
   "aiohttp",
   "redis",
   "django-redis", 
-  "temporalio"
+  "temporalio",
+  "llama-index",
 
 ]
 

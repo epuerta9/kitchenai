@@ -12,7 +12,8 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
       - SIMPLE_RAG_VECTOR_STORE_ENDPOINT=localhost
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-    command: python kitchenai/ run --module kitchenai.dynamic.app:kitchen
+    #command: python kitchenai/ run --module kitchenai.dynamic.app:kitchen
+    command: python kitchenai/ run
     depends_on:
       kitchenai-setup:
         condition: service_completed_successfully

@@ -5,16 +5,9 @@ import logging
 from kitchenai.bento.models import Bento
 from kitchenai.core.models import KitchenAIManagement
 from kitchenai.core.models import FileObject, EmbedObject
-from kitchenai.dashboard.forms import FileUploadForm
-from django.shortcuts import redirect
+
 from django.apps import apps
-from django.http import HttpResponse
-from ..models import Chat, ChatMetric, AggregatedChatMetric, ChatSetting
-from kitchenai.core.exceptions import QueryHandlerBadRequestError
-from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, QueryBaseResponseSchema
-from kitchenai.core.api.query import query_handler
-from kitchenai.core.signals.query import QuerySignalSender, query_signal
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
+
 from django.contrib.auth.decorators import login_required
 
 
