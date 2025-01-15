@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "whisk"
+dynamic = ["version"]
+description = "KitchenAI Whisk - Task Management System"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+    "typer>=0.9.0",
+    "rich>=13.7.0",
+    "faststream[nats]>=0.4.5",
+    "anyio>=3.7.1",
+    "watchfiles",
+]
+
+[project.scripts]
+whisk = "whisk.__main__:app"
+
+[tool.hatch.version]
+path = "whisk/__about__.py"
+
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+] 
