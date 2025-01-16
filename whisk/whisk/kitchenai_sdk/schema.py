@@ -15,6 +15,7 @@ class QuerySchema(BaseModel):
     stream: bool = False
     stream_id: Optional[str] = None
     metadata: Optional[Dict[str, str]] = None
+    label: Optional[str]
 
 
 
@@ -32,9 +33,9 @@ class QueryBaseResponseSchema(BaseModel):
     stream_gen: Any | None = None
     metadata: Optional[Dict[str, Any]] = None
     token_counts: Optional[TokenCountSchema] = None
-
+    
     @classmethod
-    def from_response(cls, data, response, metadata=None, token_counts: TokenCountSchema | None = None):
+    def from_llama_response(cls, data, response, metadata=None, token_counts: TokenCountSchema | None = None):
         source_nodes = []
         if hasattr(response, 'source_nodes'):
             for node in response.source_nodes:
@@ -54,7 +55,7 @@ class QueryBaseResponseSchema(BaseModel):
         )
     
     @classmethod
-    def from_response_stream(cls, data, response, stream_gen, metadata: dict[str, Any] | None = {}, token_counts: TokenCountSchema | None = None):
+    def from_llama_response_stream(cls, data, response, stream_gen, metadata: dict[str, Any] | None = {}, token_counts: TokenCountSchema | None = None):
         source_nodes = []
         if hasattr(response, 'source_nodes'):
             for node in response.source_nodes:
@@ -83,13 +84,33 @@ class QueryBaseResponseSchema(BaseModel):
             metadata=response.metadata,
             token_counts=token_counts
         )
+    
+    @classmethod
+    def from_llm_invoke(cls, input: str, output: str, metadata=None, token_counts: TokenCountSchema | None = None):
+        return cls(
+            input=input,
+            output=output,
+            metadata=metadata,
+            token_counts=token_counts
+        )
+
+class StorageStatus(StrEnum):
+    PENDING = "pending"
+    ERROR = "error"
+    COMPLETE = "complete"
+    ACK = "ack"
 
 class StorageSchema(BaseModel):
-    dir: str
+    id: int
+    name: str
+    label: str 
+    data: Optional[bytes] = bytes()
     metadata: Optional[Dict[str, str]] = None
     extension: Optional[str] = None
 
 class StorageResponseSchema(BaseModel):
+    status: StorageStatus = StorageStatus.PENDING
+    error: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
     token_counts: Optional[TokenCountSchema] = None
 

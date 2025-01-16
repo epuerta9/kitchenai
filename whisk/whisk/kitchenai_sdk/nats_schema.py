@@ -17,6 +17,14 @@ from .schema import (
 class NatsMessageBase(BaseModel):
     request_id: str
     timestamp: float
+    label: str
+    client_id: str
+
+
+class NatsRegisterMessage(BaseModel):
+    client_id: str
+    ack: bool = False
+    message: str = ""
 
 # Request Messages
 class QueryRequestMessage(NatsMessageBase, QuerySchema):

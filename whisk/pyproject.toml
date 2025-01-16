@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "whisk"
+name = "kitchenai-whisk"
 dynamic = ["version"]
-description = "KitchenAI Whisk - Task Management System"
+description = "KitchenAI Whisk - Whisk Up Your Bento Box. A tool for running kitchenai apps."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -16,7 +16,10 @@ dependencies = [
     "anyio>=3.7.1",
     "watchfiles",
 ]
-
+[tool.hatch.build.targets.wheel]
+include = [
+    "whisk/**",  # Include all files in the `whisk` directory
+]
 [project.scripts]
 whisk = "whisk.__main__:app"
 

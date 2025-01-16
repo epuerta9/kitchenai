@@ -1,8 +1,7 @@
 import typer
 import asyncio
-import logging
 from rich.console import Console
-from typing import Optional, List, Dict, TYPE_CHECKING
+from typing import Optional, List
 from . import __version__
 from .client import WhiskClient
 import asyncio
@@ -12,16 +11,11 @@ import json
 from faststream.nats import NatsBroker
 from .kitchenai_sdk.nats_schema import QueryRequestMessage, StorageRequestMessage, EmbedRequestMessage, BroadcastRequestMessage, NatsMessageBase
 from .client import WhiskClient
-from faststream.exceptions import INSTALL_WATCHFILES, SetupError, ValidationError
-from faststream.cli.utils.imports import import_from_string
+from faststream.exceptions import SetupError
 import sys
-from faststream._internal.application import Application
 import os
 import importlib
-
-if TYPE_CHECKING:
-    from faststream.broker.core.usecase import BrokerUsecase
-    from faststream.types import AnyDict, SettingField
+from .kitchenai_sdk.nats_schema import QueryResponseMessage
 
 app = typer.Typer(
     name="whisk",
@@ -65,7 +59,7 @@ def run_app(path: str, nats_url: str, client_id: str, user: str, password: str):
         client_id=client_id,
         user=user,
         password=password,
-        app=kitchen
+        kitchen=kitchen
     )
 
     async def start():
@@ -80,7 +74,7 @@ def run_app(path: str, nats_url: str, client_id: str, user: str, password: str):
 def run(
     ctx: typer.Context,
     kitchen: str = typer.Argument(
-        "app:kitchen",
+        "whisk.examples.app:kitchen",
         help="App to run"
     ),
     nats_url: str = typer.Option(
@@ -96,13 +90,13 @@ def run(
         help="Client ID"
     ),
     user: str = typer.Option(
-        "clienta",
+        "playground",
         "--user",
         "-u",
         help="NATS user (clienta or clientb)"
     ),
     password: str = typer.Option(
-        None,
+        "kitchenai_playground",
         "--password",
         "-p",
         help="NATS password from environment (CLIENTA_PASSWORD or CLIENTB_PASSWORD)"
@@ -127,6 +121,12 @@ def run(
         "--reload-ext",
         help="List of file extensions to watch by.",
     ),
+    example: bool = typer.Option(
+        False,
+        "--example",
+        is_flag=True,
+        help="Run example app"
+    )
 ):
     """Run Whisk Server"""
     if reload and workers > 1:
@@ -137,6 +137,12 @@ def run(
     except ImportError:
         console.print("[red]Please install watchfiles for reload support: pip install watchfiles[/red]")
         raise typer.Exit(1)
+    
+    if not example and kitchen.startswith("whisk.examples."):
+        console.print("[red]Please use the --example flag to run example apps[/red]")
+        raise typer.Exit(1)
+    
+ 
 
     # Add current directory to Python path
     sys.path.append(os.getcwd())
@@ -158,7 +164,7 @@ def run(
             for i in range(workers):
                 p = multiprocessing.Process(
                     target=run_app,
-                    args=(kitchen, nats_url, f"{client_id}_{i}", user, password)
+                    args=(kitchen, nats_url, f"{client_id}", user, password)
                 )
                 p.start()
                 processes.append(p)
@@ -185,14 +191,8 @@ def query(
         "-q",
         help="Query to send"
     ),
-    target: str = typer.Option(
-        ...,
-        "--target",
-        "-t",
-        help="Target client (e.g., clienta)"
-    ),
     user: str = typer.Option(
-        "kitchenai_admin",
+        "kitchenai",
         "--user",
         "-u",
         help="NATS user"
@@ -226,40 +226,58 @@ def query(
         "-s",
         help="Stream ID"
     ),
-    rpc: bool = typer.Option(
-        True,
-        "--rpc",
-        help="Send RPC request"
+    client_id: Optional[str] = typer.Option(
+        "whisk_cli",
+        "--client-id",
+        "-c",
+        help="Client ID"
+    ),
+    label: Optional[str] = typer.Option(
+        "query",
+        "--label",
+        "-l",
+        help="Label for the query"
     )
 ):
     """Send a query to a specific client"""
     try:
         meta_dict = json.loads(metadata) if metadata else {}
-        meta_dict["client"] = target
-        
+        meta_dict["label"] = label
+        meta_dict["client_id"] = client_id
+        if stream:
+            #default label for stream
+            label = "stream"
+
         message = QueryRequestMessage(
             request_id=str(uuid.uuid4()),
             timestamp=time.time(),
             query=query,
             metadata=meta_dict,
-            stream=stream
+            stream=stream,
+            label=label,
+            client_id=client_id
         )
 
         async def send_message():
             client = WhiskClient(
                     nats_url=nats_url,
-                    client_id="whisk_cli",
+                    client_id="kitchenai",
                     user=user,
                     password=password
                 )
             async with client.app.broker:
-                console.print(f"Sending message to {target}")
-                console.print(f"Content: {message.model_dump_json(indent=2)}")
-                if rpc:
-                    response = await client.query(message, target)
-                    console.print(f"Response: {response}")
+                if message.stream:
+                    async for chunk in client.query_stream(message):
+                        response = QueryResponseMessage.model_validate_json(chunk)
+                        if response.error:
+                            console.print(f"[red]{response.error}[/red]")
+                        else:
+                            console.print(response.model_dump_json(indent=2))
                 else:
-                    await client.query(message, target)
+                    raw_response = await client.query(message)
+                    response = QueryResponseMessage.model_validate_json(raw_response.body)
+                    console.print(response.model_dump_json(indent=2))
+ 
                 console.print("[green]Message sent successfully![/green]")
         
         asyncio.run(send_message())
@@ -277,11 +295,11 @@ def storage(
         "-d",
         help="Directory to process"
     ),
-    target: str = typer.Option(
-        ...,
-        "--target",
-        "-t",
-        help="Target client"
+    client_id: Optional[str] = typer.Option(
+        "whisk_cli",
+        "--client-id",
+        "-c",
+        help="Client ID"
     ),
     extension: Optional[str] = typer.Option(
         None,
@@ -289,32 +307,71 @@ def storage(
         "-e",
         help="File extension filter"
     ),
+
     metadata: Optional[str] = typer.Option(None, "--metadata", "-m"),
-    user: str = typer.Option("kitchenai_admin"),
-    password: str = typer.Option(None),
-    nats_url: str = typer.Option("nats://localhost:4222")
+    user: str = typer.Option(
+        "kitchenai",
+        "--user",
+        "-u",
+        help="NATS user"
+    ),
+    password: Optional[str] = typer.Option(
+        None,
+        "--password",
+        "-p",
+        help="NATS password"
+    ),
+    nats_url: str = typer.Option(
+        "nats://localhost:4222",
+        "--nats-url",
+        "-n",
+        help="NATS server URL"
+    ),
+    id: Optional[int] = typer.Option(
+        1,
+        "--id",
+        "-i",
+        help="ID of the file"
+    )
 ):
     """Send a storage request"""
     try:
         meta_dict = json.loads(metadata) if metadata else {}
-        meta_dict["client"] = target
+        meta_dict["client"] = client_id 
         
-        message = StorageRequestMessage(
-            request_id=str(uuid.uuid4()),
-            timestamp=time.time(),
-            dir=directory,
-            metadata=meta_dict,
-            extension=extension
-        )
-        
-        asyncio.run(send_message(
-            message=message,
-            target=target,
-            subject_suffix="storage",
-            user=user,
-            password=password,
-            nats_url=nats_url
-        ))
+        async def process_file():
+            client = WhiskClient(
+                nats_url=nats_url,
+                client_id="whisk_client",
+                user=user,
+                password=password
+            )
+            
+            async with client.app.broker:
+                # Read file content
+                with open(directory, 'rb') as f:
+                    file_data = f.read()
+                
+                message = StorageRequestMessage(
+                    request_id=str(uuid.uuid4()),
+                    name=os.path.basename(directory),
+                    id=id,
+                    timestamp=time.time(),
+                    metadata=meta_dict,
+                    extension=extension,
+                    client_id=client_id,
+                    label="storage"
+                )
+                
+                console.print(f"Processing file: {directory}")
+                await client.store(message, file_data)
+                console.print("[green]File sent for processing![/green]")
+
+        asyncio.run(process_file())
+
+    except FileNotFoundError:
+        console.print(f"[red]Error: File not found: {directory}[/red]")
+        raise typer.Exit(1)
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
         raise typer.Exit(1)
@@ -349,160 +406,16 @@ def embed(
             metadata=meta_dict
         )
         
-        asyncio.run(send_message(
-            message=message,
-            target=target,
-            subject_suffix="embed",
-            user=user,
-            password=password,
-            nats_url=nats_url
-        ))
+        # asyncio.run(send_message(
+        #     message=message,
+        #     target=target,
+        #     subject_suffix="embed",
+        #     user=user,
+        #     password=password,
+        #     nats_url=nats_url
+        # ))
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
         raise typer.Exit(1)
 
-@app.command()
-def broadcast(
-    message: str = typer.Option(
-        ...,
-        "--message",
-        "-m",
-        help="Message to broadcast"
-    ),
-    type: str = typer.Option(
-        "info",
-        "--type",
-        "-t",
-        help="Message type (info, warning, error)"
-    ),
-    metadata: Optional[str] = typer.Option(None, "--metadata"),
-    user: str = typer.Option("kitchenai_admin"),
-    password: str = typer.Option(None),
-    nats_url: str = typer.Option("nats://localhost:4222")
-):
-    """Send a broadcast message"""
-    try:
-        meta_dict = json.loads(metadata) if metadata else {}
-        
-        message = BroadcastRequestMessage(
-            request_id=str(uuid.uuid4()),
-            timestamp=time.time(),
-            message=message,
-            type=type,
-            metadata=meta_dict
-        )
-        
-        asyncio.run(send_message(
-            message=message,
-            target=None,
-            subject="kitchenai.broadcast.message",
-            user=user,
-            password=password,
-            nats_url=nats_url
-        ))
-    except Exception as e:
-        console.print(f"[red]Error: {str(e)}[/red]")
-        raise typer.Exit(1)
 
-async def send_message(
-    message: NatsMessageBase,
-    target: Optional[str],
-    subject_suffix: str = "query",
-    subject: Optional[str] = None,
-    user: str = "kitchenai_admin",
-    password: Optional[str] = None,
-    nats_url: str = "nats://localhost:4222"
-):
-    """Generic message sender using WhiskClient"""
-    from .client import WhiskClient
-    
-    client = WhiskClient(
-        nats_url=nats_url,
-        client_id="whisk_cli",
-        user=user,
-        password=password
-    )
-    
-    async with client.app.broker:
-        if subject is None and target is not None:
-            subject = f"kitchenai.service.{target}.{subject_suffix}"
-        console.print("HEREEE")
-        console.print(f"Sending message to {subject}")
-        console.print(f"Content: {message.model_dump_json(indent=2)}")
-        
-        # Use the client's broker to send the message
-        await client.query(message, metadata={"client": target})
-        console.print("[green]Message sent successfully![/green]")
-
-
-async def query_fn(message: QueryRequestMessage, target: str, broker: NatsBroker):
-    """Send a query request"""
-    if message.stream:
-        await broker.publish(message, f"kitchenai.service.{target}.query")
-    else:
-        response = await broker.request(message, f"kitchenai.service.{target}.query")
-        return response
-    
-
-# def _run(
-#     # NOTE: we should pass `str` due FastStream is not picklable
-#     app: str,
-#     extra_options: Dict[str, "SettingField"],
-#     is_factory: bool,
-#     log_level: int = logging.NOTSET,
-#     app_level: int = logging.INFO,  # option for reloader only
-# ) -> None:
-#     """Runs the specified application."""
-#     _, app_obj = import_from_string(app, is_factory=is_factory)
-#     _run_imported_app(
-#         app_obj,
-#         extra_options=extra_options,
-#         log_level=log_level,
-#         app_level=app_level,
-#     )
-
-
-# def _run_imported_app(
-#     app_obj: "Application",
-#     extra_options: Dict[str, "SettingField"],
-#     log_level: int = logging.NOTSET,
-#     app_level: int = logging.INFO,  # option for reloader only
-# ) -> None:
-#     if not isinstance(app_obj, Application):
-#         raise typer.BadParameter(
-#             f'Imported object "{app_obj}" must be "Application" type.',
-#         )
-
-#     if log_level > 0:
-#         set_log_level(log_level, app_obj)
-
-#     if sys.platform not in ("win32", "cygwin", "cli"):  # pragma: no cover
-#         with suppress(ImportError):
-#             import uvloop
-
-#             uvloop.install()
-
-#     try:
-#         anyio.run(
-#             app_obj.run,
-#             app_level,
-#             extra_options,
-#         )
-
-#     except ValidationError as e:
-#         ex = MissingParameter(
-#             message=(
-#                 "You registered extra options in your application "
-#                 "`lifespan/on_startup` hook, but does not set in CLI."
-#             ),
-#             param=TyperOption(param_decls=[f"--{x}" for x in e.fields]),
-#         )
-
-#         try:
-#             from typer import rich_utils
-
-#             rich_utils.rich_format_error(ex)
-#         except ImportError:
-#             ex.show()
-
-#         sys.exit(1)
