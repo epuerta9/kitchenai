@@ -5,9 +5,12 @@ from whisk.kitchenai_sdk.taxonomy.agent import AgentTask
 
 
 class KitchenAIApp:
-    def __init__(self, namespace: str = "default", manager = None):
+    def __init__(self, namespace: str = "default", manager = None, version: str = "0.0.1"):
         self.namespace = namespace
         self.manager = manager
+        self.version = version
+        self.client_type = 'bento'
+        self.client_description = 'Bento box'
         self.query = QueryTask(namespace, manager)
         self.storage = StorageTask(namespace, manager)
         self.embeddings = EmbedTask(namespace, manager)

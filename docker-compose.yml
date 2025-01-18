@@ -1,5 +1,6 @@
-services:
 
+
+services:
   kitchenai:
     image: kitchenai-bundle:latest
     ports:

@@ -4,10 +4,16 @@ from ninja.errors import HttpError
 import logging
 from django.apps import apps
 from ..signals import query_signal, QuerySignalSender
-from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, QueryBaseResponseSchema
+from .schema import QuerySchema, QueryBaseResponseSchema
 from django_eventstream import send_event
 from kitchenai.core.exceptions import QueryHandlerBadRequestError
+from kitchenai.core.broker import whisk
 
+import time
+import uuid
+import re
+
+from whisk.kitchenai_sdk.nats_schema import QueryRequestMessage
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -65,7 +71,7 @@ async def query(request, label: str, data: QuerySchema):
             response['Cache-Control'] = 'no-cache'
             return response
         else:
-            result = await query_handler(label, data)
+            result = await whisk_query(label, data)
             if not result.retrieval_context:
                 await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result, error=True)
             else:
@@ -99,3 +105,29 @@ async def query_handler(label: str, data: QuerySchema) -> QueryResponseSchema:
     except Exception as e:
         logger.error(f"Error in query handler: {e}")
         raise QueryHandlerBadRequestError(message="query handler not found")
+
+async def whisk_query(label: str, data: QuerySchema):
+
+    message = QueryRequestMessage(
+        request_id=str(uuid.uuid4()),
+        timestamp=time.time(),
+        query=data.query,
+        metadata=data.metadata,
+        stream=data.stream,
+        label=label,
+        client_id="whisk_client"
+    )
+
+
+    response = await whisk.query(message)
+ 
+    return QueryResponseSchema(
+        input=response.decoded_body.get("input"),
+        output=response.decoded_body.get("output"),
+        retrieval_context=response.decoded_body.get("retrieval_context"),
+        metadata=response.decoded_body.get("metadata"),
+        kitchenai_metadata=KitchenAIMetadata(stream=data.stream)
+    )
+
+async def whisk_query_stream(result: QueryResponseSchema):
+    await whisk.broker.publish("kitchenai.service.query.stream.response", result.model_dump_json())

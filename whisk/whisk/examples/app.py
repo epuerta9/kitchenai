@@ -2,12 +2,12 @@
 
 from whisk.kitchenai_sdk.kitchenai import KitchenAIApp
 from whisk.kitchenai_sdk.schema import (
-    QuerySchema,
-    QueryBaseResponseSchema,
-    StorageSchema,
-    StorageResponseSchema,
-    EmbedSchema,
-    EmbedResponseSchema,
+    WhiskQuerySchema,
+    WhiskQueryBaseResponseSchema,
+    WhiskStorageSchema,
+    WhiskStorageResponseSchema,
+    WhiskEmbedSchema,
+    WhiskEmbedResponseSchema,
 )
 
 try:
@@ -27,56 +27,56 @@ logger = logging.getLogger(__name__)
 
 
 @kitchen.query.handler("query")
-async def query_handler(data: QuerySchema) -> QueryBaseResponseSchema:
+async def query_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema:
     """Query handler"""
 
     response = await llm.acomplete(data.query)
 
     print(response)
 
-    return QueryBaseResponseSchema.from_llm_invoke(
+    return WhiskQueryBaseResponseSchema.from_llm_invoke(
         data.query,
         response.text,
     )
 
 
 @kitchen.query.handler("stream")
-async def stream_handler(data: QuerySchema) -> QueryBaseResponseSchema:
+async def stream_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema:
     """Query handler"""
 
     completions = llm.astream_complete(data.query)
 
     async def stream_generator():
         async for completion in completions:
-            yield QueryBaseResponseSchema.from_llm_invoke(
+            yield WhiskQueryBaseResponseSchema.from_llm_invoke(
                 data.query,
                 completion.delta,
             )
 
-    return QueryBaseResponseSchema(
+    return WhiskQueryBaseResponseSchema(
         input=data.query,
         stream_gen=stream_generator,
     )
 
 
 @kitchen.storage.handler("storage")
-async def storage_handler(data: StorageSchema) -> StorageResponseSchema:
+async def storage_handler(data: WhiskStorageSchema) -> WhiskStorageResponseSchema:
     """Storage handler"""
     print("storage handler")
     print(data)
 
-    return StorageResponseSchema(
+    return WhiskStorageResponseSchema(
         data=data.data,
         metadata=data.metadata,
     )
 
 
 @kitchen.embeddings.handler("embed")
-async def embed_handler(data: EmbedSchema) -> EmbedResponseSchema:
+async def embed_handler(data: WhiskEmbedSchema) -> WhiskEmbedResponseSchema:
     """Embed handler"""
     print("embed handler")
     print(data)
-    return EmbedResponseSchema(
+    return WhiskEmbedResponseSchema(
         text=data.text,
         metadata=data.metadata,
     )

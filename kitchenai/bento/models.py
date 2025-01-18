@@ -53,3 +53,24 @@ class LoadedBento(TimeStamped):
             logger.error(f"Error updating config for bento {bento_name}: {e}")
             return None
 
+class RemoteClient(TimeStamped):
+    name = models.CharField(max_length=255)
+    client_id = models.CharField(max_length=255, unique=True, db_index=True)
+    client_type = models.CharField(max_length=255, choices=[("bento_box", "BentoBox")])
+    client_description = models.TextField(default="")
+    ack = models.BooleanField(default=False) 
+    message = models.TextField(default="")
+    last_seen = models.DateTimeField(auto_now=True)
+    bento_box = models.JSONField(default=dict)
+    version = models.CharField(max_length=255, default="0.0.1")
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['client_id'], name='client_id_idx')
+        ]
+        #In this scenario, we want to ensure tha the client ID we give for Bento Workers is valid. 
+        #this is tied to their account. Each bento worker will have its own name and client ID. 
+        unique_together = ['name', 'client_id', 'version']  # Added unique constraint
+
+    def __str__(self):
+        return f"{self.name} - {self.client_id}"

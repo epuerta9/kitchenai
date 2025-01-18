@@ -1,13 +1,82 @@
-{% extends "base.html" %}
+{% extends "base_error.html" %}
+{% load static %}
 
-{% block title %}
-    Server Error
-{% endblock title %}
+{% block title %}Server Error - KitchenAI{% endblock title %}
 
 {% block content %}
-    <h1>Ooops!!! 500</h1>
-    <h3>Looks like something went wrong!</h3>
-    <p>
-        We track these errors automatically, but if the problem persists feel free to contact us. In the meantime, try refreshing.
-    </p>
+<div class="min-h-screen bg-base-200 flex items-center justify-center px-4">
+    <div class="max-w-md text-center">
+        <div class="mb-8 relative">
+            <img src="{% static 'images/icon-logo.png' %}" alt="KitchenAI" class="mx-auto h-24 opacity-50" />
+            <div class="absolute -top-2 -right-2 animate-bounce">
+                <div class="badge badge-error gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="h-4 w-4 stroke-current">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    500
+                </div>
+            </div>
+        </div>
+
+        <h1 class="text-3xl font-bold mb-2">Our Kitchen is Having Technical Difficulties</h1>
+        <h2 class="text-xl text-base-content/70 mb-8">Don't worry, our AI chefs are working on it! 👨‍🍳</h2>
+
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <div class="flex items-center justify-center space-x-4 mb-4">
+                    <span class="loading loading-spinner loading-md text-primary"></span>
+                    <p class="text-base-content/70">Automatic error tracking in progress...</p>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="space-y-4 text-left">
+                    <h3 class="font-semibold">What you can try:</h3>
+                    <ul class="list-none space-y-2">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-success mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Refresh the page
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-success mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Try again in a few minutes
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-success mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Clear your browser cache
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button class="btn btn-primary" onclick="window.location.reload()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                </svg>
+                Refresh Page
+            </button>
+            <a href="{% url 'dashboard:home' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <div class="mt-8 text-sm text-base-content/50">
+            <p>If the problem persists, please contact our support team at 
+                <a href="mailto:support@kitchenai.com" class="link link-primary">support@kitchenai.dev</a>
+            </p>
+            <p class="mt-2">Error ID: {{ request.sentry.id }}</p>
+        </div>
+    </div>
+</div>
 {% endblock content %}

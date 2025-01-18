@@ -8,7 +8,6 @@ from django.apps import apps
 from django.conf import settings
 from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
 from kitchenai.core.models import KitchenAIManagement
-from kitchenai.core.models import KitchenAIRootModule
 from django.conf import settings
 if TYPE_CHECKING:
     from ninja import NinjaAPI
@@ -123,25 +122,6 @@ def add_package_to_core(package_name: str):
         return instance
     except (ImportError, AttributeError) as e:
         logger.error(f"Error loading module '{e}")
-
-#TODO: remove the kitchenai mgmt db work. Most of the time we are just adding a bento box to the core app. without the need to manage state 
-#especially since kitchenai environments are so dynamic. It makes more sense to keep it at config runtime level.
-
-def get_or_create_root_module(module_path: str):
-    try:
-        return KitchenAIRootModule.objects.get(name=module_path)
-    except KitchenAIRootModule.DoesNotExist:
-        kitchen_mgmt = KitchenAIManagement.objects.get(name="kitchenai_management")
-        #create a new root module
-        root_module = KitchenAIRootModule(name=module_path, kitchen=kitchen_mgmt)
-        root_module.save()
-        logger.warning(f"No root module found for {module_path}. Created new root module.")
-
-def get_first_root_module() -> str:
-    try:
-        return KitchenAIRootModule.objects.first().name
-    except KitchenAIRootModule.DoesNotExist:
-        raise Exception("No root module found. Please create a root module first.")
 
 def get_core_kitchenai_app():
     """

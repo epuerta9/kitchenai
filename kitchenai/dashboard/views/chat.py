@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from ..models import Chat, ChatMetric, AggregatedChatMetric, ChatSetting
 from kitchenai.core.exceptions import QueryHandlerBadRequestError
 from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema
-from kitchenai.core.api.query import query_handler
+from kitchenai.core.api.query import whisk_query
 from kitchenai.core.signals.query import QuerySignalSender, query_signal
 from django.contrib.auth.decorators import login_required
 import logging
@@ -136,7 +136,7 @@ async def chat_send(request: HttpRequest, chat_id: int):
     chat = await Chat.objects.select_related('chatsetting').aget(id=chat_id)
     
     try:
-        result = await query_handler(
+        result = await whisk_query(
             chat.chatsetting.selected_label, 
             QuerySchema(
                 query=message, 

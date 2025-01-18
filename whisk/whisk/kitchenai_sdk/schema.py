@@ -10,7 +10,7 @@ class TokenCountSchema(BaseModel):
     total_llm_tokens: Optional[int] = None
 
 
-class QuerySchema(BaseModel):
+class WhiskQuerySchema(BaseModel):
     query: str
     stream: bool = False
     stream_id: Optional[str] = None
@@ -24,7 +24,7 @@ class SourceNodeSchema(BaseModel):
     metadata: Dict
     score: float
 
-class QueryBaseResponseSchema(BaseModel):
+class WhiskQueryBaseResponseSchema(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     
     input: Optional[str] = None
@@ -94,13 +94,13 @@ class QueryBaseResponseSchema(BaseModel):
             token_counts=token_counts
         )
 
-class StorageStatus(StrEnum):
+class WhiskStorageStatus(StrEnum):
     PENDING = "pending"
     ERROR = "error"
     COMPLETE = "complete"
     ACK = "ack"
 
-class StorageSchema(BaseModel):
+class WhiskStorageSchema(BaseModel):
     id: int
     name: str
     label: str 
@@ -108,8 +108,8 @@ class StorageSchema(BaseModel):
     metadata: Optional[Dict[str, str]] = None
     extension: Optional[str] = None
 
-class StorageResponseSchema(BaseModel):
-    status: StorageStatus = StorageStatus.PENDING
+class WhiskStorageResponseSchema(BaseModel):
+    status: WhiskStorageStatus = WhiskStorageStatus.PENDING
     error: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
     token_counts: Optional[TokenCountSchema] = None
@@ -118,14 +118,14 @@ class StorageResponseSchema(BaseModel):
     def with_token_counts(cls, token_counts: TokenCountSchema):
         return cls(token_counts=token_counts)
 
-class AgentResponseSchema(BaseModel):  
+class WhiskAgentResponseSchema(BaseModel):  
     response: str
 
-class EmbedSchema(BaseModel):
+class WhiskEmbedSchema(BaseModel):
     text: str
     metadata: Optional[Dict[str, str]] = None
 
-class EmbedResponseSchema(BaseModel):
+class WhiskEmbedResponseSchema(BaseModel):
     metadata: Optional[Dict[str, Any]] = None
     token_counts: Optional[TokenCountSchema] = None
 
@@ -133,13 +133,13 @@ class EmbedResponseSchema(BaseModel):
     def with_token_counts(cls, token_counts: TokenCountSchema):
         return cls(token_counts=token_counts)
 
-class BroadcastSchema(BaseModel):
+class WhiskBroadcastSchema(BaseModel):
     """Schema for broadcast messages"""
     message: str
     type: str = "info"  # info, warning, error, etc.
     metadata: Optional[Dict[str, Any]] = None
 
-class BroadcastResponseSchema(BaseModel):
+class WhiskBroadcastResponseSchema(BaseModel):
     """Schema for broadcast responses"""
     message: str
     type: str
@@ -147,12 +147,45 @@ class BroadcastResponseSchema(BaseModel):
     token_counts: Optional[TokenCountSchema] = None
 
     @classmethod
-    def from_broadcast(cls, broadcast: BroadcastSchema, token_counts: TokenCountSchema | None = None):
+    def from_broadcast(cls, broadcast: WhiskBroadcastSchema, token_counts: TokenCountSchema | None = None):
         return cls(
             message=broadcast.message,
             type=broadcast.type,
             metadata=broadcast.metadata,
             token_counts=token_counts
+        )
+
+
+class NatsMessageMetadata(BaseModel):
+    content_type: str
+    correlation_id: str
+    reply_to: Optional[str] = None
+    message_id: str
+
+class NatsMessage(BaseModel):
+    """
+    Used for Request/Response messages
+    """
+    body: bytes
+    headers: Dict[str, str]
+    metadata: NatsMessageMetadata
+    decoded_body: Dict[str, Any]
+
+    @classmethod
+    def from_faststream(cls, msg):
+        return cls(
+            body=msg.body,
+            headers=msg.headers,
+            metadata=NatsMessageMetadata(
+                content_type=msg.content_type,
+                correlation_id=msg.correlation_id,
+                reply_to=msg.reply_to,
+                message_id=msg.message_id,
+                request_id=msg._decoded_body.get('request_id'),
+            subject=msg.raw_message.subject,
+            client_id=msg._decoded_body.get('client_id')
+            ),
+            decoded_body=msg._decoded_body
         )
 
 class DependencyType(StrEnum):

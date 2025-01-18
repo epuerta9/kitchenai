@@ -1,16 +1,45 @@
-{% extends "base.html" %}
+{% extends "base_error.html" %}
+{% load static %}
 
-{% block title %}
-    Page not found
-{% endblock title %}
+{% block title %}Page Not Found - KitchenAI{% endblock title %}
 
 {% block content %}
-    <h1>Page not found</h1>
-    <p>
-        {% if exception %}
-            {{ exception }}
-        {% else %}
-            This is not the page you were looking for.
-        {% endif %}
-    </p>
+<div class="min-h-screen bg-base-200 flex items-center justify-center px-4">
+    <div class="max-w-md text-center">
+        <div class="mb-8">
+            <img src="{% static 'images/icon-logo.png' %}" alt="KitchenAI" class="mx-auto h-24 opacity-50" />
+        </div>
+        
+        <h1 class="text-5xl font-bold text-primary mb-4">404</h1>
+        <h2 class="text-2xl font-semibold mb-4">Oops! Page not found</h2>
+        
+        <div class="text-base-content/70 mb-8">
+            {% if exception %}
+                <p>{{ exception }}</p>
+            {% else %}
+                <p>Looks like we've misplaced that URL or it's pointing to something that doesn't exist. 
+                   Head back to the kitchen and let's start cooking again! 🧑‍🍳</p>
+            {% endif %}
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'dashboard:home' %}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Back to Dashboard
+            </a>
+            <button class="btn btn-outline" onclick="history.back()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                Go Back
+            </button>
+        </div>
+
+        <div class="mt-8 text-sm text-base-content/50">
+            <p>If you think this is a mistake, please <a href="https://github.com/epuerta9/kitchenai/issues" class="link link-primary">report it</a>.</p>
+        </div>
+    </div>
+</div>
 {% endblock content %}

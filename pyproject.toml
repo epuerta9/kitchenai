@@ -62,7 +62,6 @@ dependencies = [
   "faststream[nats]", 
   "starlette",
   "django-eventstream",
-  "jupyterlab",
   "nest_asyncio",
   "django-model-utils",
   "kitchenai-py",

@@ -9,7 +9,7 @@ import uuid
 import time
 import json
 from faststream.nats import NatsBroker
-from .kitchenai_sdk.nats_schema import QueryRequestMessage, StorageRequestMessage, EmbedRequestMessage, BroadcastRequestMessage, NatsMessageBase
+from .kitchenai_sdk.nats_schema import QueryRequestMessage, StorageRequestMessage, EmbedRequestMessage
 from .client import WhiskClient
 from faststream.exceptions import SetupError
 import sys
@@ -51,7 +51,7 @@ def run_app(path: str, nats_url: str, client_id: str, user: str, password: str):
     # Clear module from cache to allow reloading
     if module_path in sys.modules:
         importlib.reload(kitchen_module)
-        
+    from whisk.kitchenai_sdk.nats_schema import NatsRegisterMessage
     kitchen = getattr(kitchen_module, attr)
 
     client = WhiskClient(
@@ -62,8 +62,18 @@ def run_app(path: str, nats_url: str, client_id: str, user: str, password: str):
         kitchen=kitchen
     )
 
+    async def send_message():
+        async with client.app.broker:
+            response = await client.register_client(client_id)
+            response = NatsRegisterMessage.model_validate(response)
+            console.print(response.model_dump_json(indent=2))
+            console.print("[green]Successfully registered client![/green]")
+    
+    asyncio.run(send_message())
+
+
     async def start():
-        await client.app.run()
+            await client.app.run()
 
     try:
         asyncio.run(start())
@@ -274,10 +284,8 @@ def query(
                         else:
                             console.print(response.model_dump_json(indent=2))
                 else:
-                    raw_response = await client.query(message)
-                    response = QueryResponseMessage.model_validate_json(raw_response.body)
-                    console.print(response.model_dump_json(indent=2))
- 
+                    response = await client.query(message)
+                    console.print(response.decoded_body)
                 console.print("[green]Message sent successfully![/green]")
         
         asyncio.run(send_message())

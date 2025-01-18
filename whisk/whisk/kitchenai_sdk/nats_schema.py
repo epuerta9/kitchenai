@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 from .schema import (
-    QuerySchema, 
-    StorageSchema, 
-    EmbedSchema,
-    QueryBaseResponseSchema,
-    StorageResponseSchema,
-    EmbedResponseSchema,
-    BroadcastSchema,
-    BroadcastResponseSchema,
+    WhiskQuerySchema,
+    WhiskStorageSchema,
+    WhiskEmbedSchema,
+    WhiskQueryBaseResponseSchema,
+    WhiskStorageResponseSchema,
+    WhiskEmbedResponseSchema,
+    WhiskBroadcastSchema,
+    WhiskBroadcastResponseSchema,
     TokenCountSchema,
     SourceNodeSchema
 )
@@ -20,42 +20,55 @@ class NatsMessageBase(BaseModel):
     label: str
     client_id: str
 
+class BentoBox(BaseModel):
+    namespace: str
+    query_handlers: list[str]
+    storage_handlers: list[str]
+    embed_handlers: list[str]
+    agent_handlers: list[str]
+    
 
 class NatsRegisterMessage(BaseModel):
+    name: str
     client_id: str
+    client_description: str | None = None
+    client_type: str = "bento"
     ack: bool = False
     message: str = ""
+    bento_box: BentoBox | None = None
+    error: str | None = None
+    version: str
 
 # Request Messages
-class QueryRequestMessage(NatsMessageBase, QuerySchema):
+class QueryRequestMessage(NatsMessageBase, WhiskQuerySchema):
     """Schema for query requests"""
     pass
 
-class StorageRequestMessage(NatsMessageBase, StorageSchema):
+class StorageRequestMessage(NatsMessageBase, WhiskStorageSchema):
     """Schema for storage requests"""
     pass
 
-class EmbedRequestMessage(NatsMessageBase, EmbedSchema):
+class EmbedRequestMessage(NatsMessageBase, WhiskEmbedSchema):
     """Schema for embedding requests"""
     pass
 
-class BroadcastRequestMessage(NatsMessageBase, BroadcastSchema):
+class BroadcastRequestMessage(NatsMessageBase, WhiskBroadcastSchema):
     """Schema for broadcast requests"""
     pass
 
 # Response Messages
-class QueryResponseMessage(NatsMessageBase, QueryBaseResponseSchema):
+class QueryResponseMessage(NatsMessageBase, WhiskQueryBaseResponseSchema):
     """Schema for query responses"""
     error: Optional[str] = None
 
-class StorageResponseMessage(NatsMessageBase, StorageResponseSchema):
+class StorageResponseMessage(NatsMessageBase, WhiskStorageResponseSchema):
     """Schema for storage responses"""
     error: Optional[str] = None
 
-class EmbedResponseMessage(NatsMessageBase, EmbedResponseSchema):
+class EmbedResponseMessage(NatsMessageBase, WhiskEmbedResponseSchema):
     """Schema for embedding responses"""
     error: Optional[str] = None
 
-class BroadcastResponseMessage(NatsMessageBase, BroadcastResponseSchema):
+class BroadcastResponseMessage(NatsMessageBase, WhiskBroadcastResponseSchema):
     """Schema for broadcast responses"""
     error: Optional[str] = None 

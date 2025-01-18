@@ -35,6 +35,7 @@ env.read_env(Path(BASE_DIR, ".env").as_posix())
 # False when deployed, whether or not it's a production environment.
 DEBUG = env.bool("DEBUG", default=False)
 KITCHENAI_LOCAL = env.bool("KITCHENAI_LOCAL", default=True)
+KITCHENAI_LICENSE = env.str("KITCHENAI_LICENSE", default="oss")
 
 # Suppress specific warnings
 warnings.filterwarnings("ignore", message="You are using deepeval version")
@@ -143,7 +144,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "kitchenai.core",
-    "kitchenai.notebooks",
+    #"kitchenai.notebooks",
     "kitchenai.bento",
     "kitchenai.plugins",
     "kitchenai.dashboard",
@@ -270,7 +271,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "kitchenai.core.middleware.HtmxNoCacheMiddleware",
-    
+    'kitchenai.core.middleware.AsyncOrganizationMiddleware',    
     # Cache middleware end - commented out
     # "django.middleware.cache.FetchFromCacheMiddleware",
 ]
@@ -447,17 +448,35 @@ ACCOUNT_LOGOUT_REDIRECT_URL = "account_login"
 
 ACCOUNT_SESSION_REMEMBER = True
 
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
 
 ACCOUNT_UNIQUE_EMAIL = True
 
 # Forms and UI
 ACCOUNT_FORMS = {
     'login': 'allauth.account.forms.LoginForm',
-
+    # 'signup': 'kitchenai.core.forms.KitchenAISignupForm',
 }
 
 LOGIN_REDIRECT_URL = "dashboard:home"
+
+# Allauth settings
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
+# AllAuth Configuration
+ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ALLOW_REGISTRATION", default=True)
+
+
+AUTH_USER_MODEL = 'core.OSSUser'
+AUTH_ORGANIZATION_MODEL = 'core.OSSOrganization'
+AUTH_ORGANIZATIONMEMBER_MODEL = 'core.OSSOrganizationMember'
+# AllAuth settings
+ACCOUNT_ADAPTER = 'kitchenai.core.adapters.KitchenAIAccountAdapter'
+
+if not ACCOUNT_ALLOW_REGISTRATION:
+    ACCOUNT_ADAPTER = "kitchenai.users.adapters.NoNewUsersAccountAdapter"
+
 
 
 # django-anymail
@@ -549,6 +568,12 @@ KITCHENAI = {
     },
 }
 
+WHISK_SETTINGS = {
+    "user": env.str("WHISK_USER", default="kitchenai"),
+    "password": env.str("WHISK_PASSWORD", default="kitchenai_admin"),
+    "nats_url": env.str("NATS_URL", default="nats://localhost:4222"),
+}
+
 KITCHENAI_JWT_SECRET = env.str("KITCHENAI_JWT_SECRET", default="")
 
 KITCHENAI_APP = "bento"
@@ -585,3 +610,6 @@ if KITCHENAI_THEME not in KITCHENAI_THEMES:
 
 # Django plugin system. This has to be the last line
 djp.settings(globals())
+
+
+

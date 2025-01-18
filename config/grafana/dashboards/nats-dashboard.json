@@ -1,0 +1,38 @@
+{
+    "dashboard": {
+      "title": "NATS Server Monitoring",
+      "panels": [
+        {
+          "title": "Total Incoming Messages",
+          "type": "timeseries",
+          "targets": [
+            {
+              "expr": "nats_varz_in_msgs",
+              "legendFormat": "Incoming Messages"
+            }
+          ]
+        },
+        {
+          "title": "Total Connections",
+          "type": "timeseries",
+          "targets": [
+            {
+              "expr": "nats_connz_total",
+              "legendFormat": "Active Connections"
+            }
+          ]
+        },
+        {
+          "title": "JetStream Storage Usage",
+          "type": "timeseries",
+          "targets": [
+            {
+              "expr": "nats_varz_jetsream_bytes",
+              "legendFormat": "JetStream Storage"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  

@@ -31,6 +31,9 @@ async def home(request: HttpRequest):
         name="kitchenai_management"
     ).afirst()
 
+    org_member = request.org_data
+    logger.info(f"Org member: {org_member}")
+
     total_files = await FileObject.objects.acount()
     total_embeddings = await EmbedObject.objects.acount()
 
@@ -42,10 +45,10 @@ async def home(request: HttpRequest):
             "apps": apps,
             "plugins": plugins,
             "selected_bento": selected_bento,
-            "module_type": mgmt.module_path,
             "total_files": total_files,
             "total_embeddings": total_embeddings,
             "is_local": settings.KITCHENAI_LOCAL,
+            "org_member": org_member,
         },
     )
 

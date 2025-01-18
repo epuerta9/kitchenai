@@ -28,19 +28,6 @@ logger = logging.getLogger(__name__)
 @app.command()
 def init(
     verbose: Annotated[int, typer.Option(help="verbosity level. default 0")] = 0,
-    collect_static: Annotated[
-        bool,
-        typer.Option(
-            "-s/--no-collect-static",
-            help="Don't collect static assets.",
-        ),
-    ] = False,
-    bento: Annotated[
-        str, typer.Option("--bento", help="Bento box to install")
-    ] = "kitchenai_rag_simple_bento",
-    plugin: Annotated[
-        str, typer.Option("--plugin", help="Plugin to install")
-    ] = "deepeval_plugin",
     local: Annotated[
         bool, typer.Option("--local/--no-local", help="local setup.")
     ] = False,
@@ -50,6 +37,7 @@ def init(
     from django.core.management import execute_from_command_line
     from kitchenai.core.models import KitchenAIManagement
     from django.conf import settings
+    from django.apps import apps
     import posthog
     import warnings
 
@@ -100,8 +88,6 @@ def init(
 
         execute_from_command_line(["manage", "setup_periodic_tasks"])
 
-        # apply migrations for the packages we just installed
-        execute_from_command_line(cmd)
 
         if local:
             try:
@@ -133,11 +119,25 @@ def init(
     KitchenAIManagement.objects.all().delete()
     try:
         mgmt = KitchenAIManagement.objects.create(
-            version=settings.VERSION, project_name="default"
+            version=settings.VERSION
         )
     except Exception as e:
         logger.error(e)
         return
+    if settings.KITCHENAI_LICENSE == 'oss':
+        try:
+            Organization = apps.get_model(settings.AUTH_ORGANIZATION_MODEL)
+            if not Organization.objects.exists():
+                org = Organization.objects.create(
+                    name=Organization.DEFAULT_NAME,
+                    slug="default-organization",
+                    allow_signups=True,
+                )
+                logger.info(f"Created default organization: {org.name}")
+            else:
+                logger.info("Default organization already exists")
+        except Exception as e:
+            logger.error(f"Failed to create default organization: {str(e)}")
 
 
 @app.command()
@@ -201,52 +201,19 @@ def runserver(
 
 @app.command()
 def run(
-    module: Annotated[
-        str, typer.Option(help="Python module to load.")
-    ] = os.environ.get("KITCHENAI_MODULE", "")
+    lite: Annotated[
+        bool, typer.Option(help="Lite version of ASGI server")
+    ] = False
 ) -> None:
     """Run Django runserver."""
     sys.argv = [sys.argv[0]]
     django.setup()
-    from kitchenai.api import api
-    from kitchenai.core.utils import setup
-    from kitchenai.bento.models import Bento
-    from kitchenai.core.models import KitchenAIManagement
 
-    console = Console()
 
-    if module:
-        setup(api, module=module)
-        console.print(f"[green]Successfully loaded module:[/green] {module}")
+    if lite:
+        _run_dev_uvicorn(sys.argv)
     else:
-        mgmt = KitchenAIManagement.objects.filter(name="kitchenai_management").first()
-        mgmt.module_path = "bento"
-        mgmt.save()
-        try:
-            bento_box = Bento.objects.first()
-            if not bento_box:
-                #check if any bento boxes are installed. Load the first one from settings.KITCHENAI["bento"]
-                bento_boxes = settings.KITCHENAI["bento"] 
-                if bento_boxes:
-                    installed_bento_box = bento_boxes[0]["name"]
-                    bento_box = Bento.objects.create(name=installed_bento_box)
-                    bento_box.add_to_core()
-                    console.print(f"[green]Loaded bento box:[/green] {installed_bento_box}")
-                else:
-                    console.print("[red]Error:[/red] No bento box loaded. Please run 'bento select' to select a bento box.")
-            else:
-                bento_box.add_to_core()
-
-            bento_box = Bento.objects.first()
-            bento_box.add_to_core()
-        except Bento.DoesNotExist:
-            console.print(
-                "[red]Error:[/red] No bento box loaded. Please run 'bento select' to select a bento box."
-            )
-            raise Exception(
-                "No bento box loaded. Please run 'bento select' to select a bento box."
-            )
-    _run_uvicorn(sys.argv)
+        _run_uvicorn(sys.argv)
 
 
 @app.command()
@@ -513,7 +480,7 @@ def _run_uvicorn(argv: list) -> None:
         "-",
     ]
     argv.extend(gunicorn_args)
-
+    
     wsgiapp.run()
 
 

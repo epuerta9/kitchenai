@@ -4,10 +4,14 @@ from .models import (
     EmbedObject,
     FileObject,
     KitchenAIManagement,
-    KitchenAIRootModule,
     EmbedFunctionTokenCounts,
-    StorageFunctionTokenCounts
+    StorageFunctionTokenCounts,
+    OSSOrganization,
+    OSSOrganizationMember,
+    OSSUser,
+    OSSBentoClient,
 )
+
 
 
 @admin.register(KitchenAIManagement)
@@ -25,11 +29,6 @@ class EmbedObjectAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(KitchenAIRootModule)
-class KitchenAIRootModuleAdmin(admin.ModelAdmin):
-    pass
-
-
 @admin.register(EmbedFunctionTokenCounts)
 class EmbedFunctionTokenCountsAdmin(admin.ModelAdmin):
     pass
@@ -37,4 +36,23 @@ class EmbedFunctionTokenCountsAdmin(admin.ModelAdmin):
 
 @admin.register(StorageFunctionTokenCounts)
 class StorageFunctionTokenCountsAdmin(admin.ModelAdmin):
+    pass
+
+
+
+@admin.register(OSSBentoClient)
+class OSSBentoClientAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(OSSOrganization)
+class OSSOrganizationAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(OSSOrganizationMember)
+class OSSOrganizationMemberAdmin(admin.ModelAdmin):
+    pass    
+
+@admin.register(OSSUser)
+class OSSKitchenAIUserAdmin(admin.ModelAdmin):
     pass

@@ -1,12 +1,12 @@
 from faststream import FastStream, Logger
 
 from faststream.nats import NatsBroker
-from typing import Dict, Any, Optional, List
 from contextlib import asynccontextmanager
 from whisk.kitchenai_sdk.kitchenai import KitchenAIApp
 import time
 import sys
 from nats.errors import Error as NatsError
+import logging
 from whisk.kitchenai_sdk.nats_schema import (
     QueryRequestMessage,
     StorageRequestMessage,
@@ -15,11 +15,21 @@ from whisk.kitchenai_sdk.nats_schema import (
     StorageResponseMessage,
     EmbedResponseMessage,
     BroadcastRequestMessage,
-    BroadcastResponseMessage,
     NatsRegisterMessage,
 )
 
-from .kitchenai_sdk.schema import QuerySchema, StorageSchema, StorageStatus, EmbedSchema
+from .kitchenai_sdk.schema import (
+    WhiskQuerySchema,
+    WhiskStorageSchema,
+    WhiskEmbedSchema,
+    NatsMessage,
+    WhiskQueryBaseResponseSchema,
+    WhiskStorageResponseSchema,
+    WhiskEmbedResponseSchema,
+    WhiskBroadcastSchema,
+    WhiskBroadcastResponseSchema,
+    WhiskStorageStatus,
+)
 
 
 class WhiskClientError(Exception):
@@ -40,6 +50,7 @@ class WhiskConnectionError(WhiskClientError):
     pass
 
 
+logger = logging.getLogger(__name__)
 class WhiskClient:
     """
     # As a client
@@ -78,7 +89,8 @@ class WhiskClient:
             )
 
             # Register subscribers immediately
-            self._setup_subscribers()
+            if not self.is_kitchenai:
+                self._setup_subscribers()
 
         except NatsError as e:
             if "Authorization" in str(e):
@@ -98,18 +110,25 @@ class WhiskClient:
             yield
         except NatsError as e:
             if "Authorization" in str(e):
-                self.logger.error(f"Authorization error: {str(e)}")
+                logger.error(f"Authorization error: {str(e)}")
                 sys.exit(1)  # Exit gracefully on auth errors
             elif "permissions violation" in str(e).lower():
-                self.logger.error(f"Permissions error: {str(e)}")
+                logger.error(f"Permissions error: {str(e)}")
                 # Continue running but log the error
             else:
-                self.logger.error(f"NATS error: {str(e)}")
+                logger.error(f"NATS error: {str(e)}")
         except Exception as e:
-            self.logger.error(f"Unexpected error: {str(e)}")
+            logger.error(f"Unexpected error: {str(e)}")
         finally:
             if hasattr(self, "broker"):
                 await self.broker.close()
+
+    async def register_client(self, message: NatsRegisterMessage) -> NatsRegisterMessage:
+        """Used by the workers to register with the server"""
+        ack = await self.broker.request(
+            message, f"kitchenai.service.{message.client_id}.mgmt.register"
+        )
+        return ack
 
     def _setup_subscribers(self):
         # Update topic pattern to include client name
@@ -126,6 +145,9 @@ class WhiskClient:
         # Setup subscribers
         self.handle_query = self.broker.subscriber(f"{client_prefix}.query.*", *args)(
             self._handle_query
+        )
+        self.handle_heartbeat = self.broker.subscriber(f"{client_prefix}.heartbeat", *args)(
+            self._handle_heartbeat
         )
         self.handle_query_stream = self.broker.subscriber(
             f"{client_prefix}.query.*.stream", *args
@@ -156,7 +178,7 @@ class WhiskClient:
                 error=f"No task found for query",
             )
 
-        response = await task(QuerySchema(**msg.model_dump()))
+        response = await task(WhiskQuerySchema(**msg.model_dump()))
         return QueryResponseMessage(
             **response.model_dump(),
             label=msg.label,
@@ -170,7 +192,7 @@ class WhiskClient:
     ) -> None:
         logger.info(f"Query stream request: {msg}")
         resp = await self.kitchen.query.get_task("stream")(
-            QuerySchema(**msg.model_dump())
+            WhiskQuerySchema(**msg.model_dump())
         )
         async for chunk in resp.stream_gen():
             await self._publish_stream(
@@ -183,6 +205,16 @@ class WhiskClient:
                     metadata=msg.metadata,
                 )
             )
+    
+    async def _handle_heartbeat(self, msg: NatsRegisterMessage, logger: Logger) -> None:
+        logger.info(f"Heartbeat request: {msg}")
+        return NatsRegisterMessage(
+            client_id=msg.client_id,
+            version=msg.version,
+            name=msg.name,
+            ack=True,
+            message="heartbeat",
+        )
 
     async def _handle_storage(self, msg: StorageRequestMessage, logger: Logger) -> None:
         """
@@ -218,8 +250,8 @@ class WhiskClient:
             bucket = await self.broker.object_storage(bucket_name)
             file_data = await bucket.get(msg.name)
 
-            #Send an ack to the server so that it can delete the file from object store
-            #Only used in playground for convenience. By default, files older than 1 hour are deleted
+            # Send an ack to the server so that it can delete the file from object store
+            # Only used in playground for convenience. By default, files older than 1 hour are deleted
             await self.broker.publish(
                 StorageResponseMessage(
                     request_id=msg.request_id,
@@ -227,14 +259,20 @@ class WhiskClient:
                     label=msg.label,
                     client_id=msg.client_id,
                     metadata={"file_name": msg.name},
-                    status=StorageStatus.ACK,
+                    status=WhiskStorageStatus.ACK,
                 ),
                 f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response.playground",
             )
 
             # Process file with kitchen task
             response = await task(
-                StorageSchema(id=msg.id, name=msg.name, label=msg.label, data=file_data.data, metadata=msg.metadata)
+                WhiskStorageSchema(
+                    id=msg.id,
+                    name=msg.name,
+                    label=msg.label,
+                    data=file_data.data,
+                    metadata=msg.metadata,
+                )
             )
 
             await self.broker.publish(
@@ -244,7 +282,7 @@ class WhiskClient:
                     label=msg.label,
                     client_id=msg.client_id,
                     metadata=response.metadata,
-                    status=StorageStatus.COMPLETE,
+                    status=WhiskStorageStatus.COMPLETE,
                     token_counts=response.token_counts,
                 ),
                 f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response",
@@ -259,7 +297,7 @@ class WhiskClient:
                     error=str(e),
                     label=msg.label,
                     client_id=msg.client_id,
-                    status=StorageStatus.ERROR,
+                    status=WhiskStorageStatus.ERROR,
                 ),
                 f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response",
             )
@@ -289,7 +327,7 @@ class WhiskClient:
                     client_id=msg.client_id,
                     error="No task found for embed request",
                 )
-            response = await task(EmbedSchema(**msg.model_dump()))
+            response = await task(WhiskEmbedSchema(**msg.model_dump()))
             await self.broker.publish(
                 EmbedResponseMessage(
                     **response.model_dump(),
@@ -320,14 +358,16 @@ class WhiskClient:
             f"kitchenai.service.{message.client_id}.query.{message.label}.stream.response",
         )
 
-    async def query(self, message: QueryRequestMessage):
-        """Send a query request"""
+    async def query(self, message: QueryRequestMessage) -> NatsMessage:
+        """Send a query request.
+        Returns a NatsMessage object
+        """
         response = await self.broker.request(
             message,
             f"kitchenai.service.{message.client_id}.query.{message.label}",
             timeout=10,
         )
-        return response
+        return NatsMessage.from_faststream(response)
 
     async def query_stream(self, message: QueryRequestMessage):
         """Send a query stream request. This will only work for KitchenAI Server
@@ -340,11 +380,18 @@ class WhiskClient:
         )
 
     async def register_client(
-        self, message: NatsRegisterMessage
+        self, client_id: str
     ) -> NatsRegisterMessage:
         """Used by the workers to register with the server"""
         ack = await self.broker.request(
-            message, f"kitchenai.service.{message.client_id}.mgmt.register"
+            NatsRegisterMessage(
+                client_id=client_id,
+                version=self.kitchen.version,
+                name=self.kitchen.namespace,
+                bento_box=self.kitchen.to_dict(),
+                client_type=self.kitchen.client_type,
+                client_description=self.kitchen.client_description,
+            ), f"kitchenai.service.{client_id}.mgmt.register"
         )
         return ack
 
