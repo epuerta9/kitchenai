@@ -51,7 +51,6 @@ def run_app(path: str, nats_url: str, client_id: str, user: str, password: str):
     # Clear module from cache to allow reloading
     if module_path in sys.modules:
         importlib.reload(kitchen_module)
-    from whisk.kitchenai_sdk.nats_schema import NatsRegisterMessage
     kitchen = getattr(kitchen_module, attr)
 
     client = WhiskClient(
@@ -65,16 +64,24 @@ def run_app(path: str, nats_url: str, client_id: str, user: str, password: str):
     async def send_message():
         async with client.app.broker:
             response = await client.register_client(client_id)
-            response = NatsRegisterMessage.model_validate(response)
-            console.print(response.model_dump_json(indent=2))
+            console.print(response.decoded_body)
+            if response.decoded_body.get("error"):
+                console.print(f"[red]{response.decoded_body.get('error')}[/red]")
+                raise Exception(response.decoded_body.get("error"))
+            
             console.print("[green]Successfully registered client![/green]")
     
-    asyncio.run(send_message())
-
-
     async def start():
-            await client.app.run()
+        await client.app.run()
 
+    # Handle registration first
+    try:
+        asyncio.run(send_message())
+    except Exception as e:
+        console.print(f"[red]Registration failed: {str(e)}[/red]")
+        sys.exit(1)  # Exit with error code
+
+    # Only start the app if registration succeeded
     try:
         asyncio.run(start())
     except KeyboardInterrupt:

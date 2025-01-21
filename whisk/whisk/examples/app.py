@@ -34,6 +34,7 @@ async def query_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema:
 
     print(response)
 
+
     return WhiskQueryBaseResponseSchema.from_llm_invoke(
         data.query,
         response.text,
@@ -63,12 +64,18 @@ async def stream_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema
 async def storage_handler(data: WhiskStorageSchema) -> WhiskStorageResponseSchema:
     """Storage handler"""
     print("storage handler")
-    print(data)
 
     return WhiskStorageResponseSchema(
+        id=data.id,
         data=data.data,
         metadata=data.metadata,
     )
+
+@kitchen.storage.on_delete("storage")
+async def storage_delete_handler(data: WhiskStorageSchema) -> None:
+    """Storage delete handler"""
+    print("storage delete handler")
+    print(data)
 
 
 @kitchen.embeddings.handler("embed")
@@ -80,3 +87,9 @@ async def embed_handler(data: WhiskEmbedSchema) -> WhiskEmbedResponseSchema:
         text=data.text,
         metadata=data.metadata,
     )
+
+@kitchen.embeddings.on_delete("embed")
+async def embed_delete_handler(data: WhiskEmbedSchema) -> None:
+    """Embed delete handler"""
+    print("embed delete handler")
+    print(data)

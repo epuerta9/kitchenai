@@ -108,7 +108,17 @@ class WhiskStorageSchema(BaseModel):
     metadata: Optional[Dict[str, str]] = None
     extension: Optional[str] = None
 
+class WhiskStorageGetRequestSchema(BaseModel):
+    id: int
+    presigned: bool = False
+
+
+class WhiskStorageGetResponseSchema(BaseModel):
+    presigned_url: Optional[str] = None
+    error: Optional[str] = None
+
 class WhiskStorageResponseSchema(BaseModel):
+    id: int
     status: WhiskStorageStatus = WhiskStorageStatus.PENDING
     error: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
@@ -122,7 +132,8 @@ class WhiskAgentResponseSchema(BaseModel):
     response: str
 
 class WhiskEmbedSchema(BaseModel):
-    text: str
+    label: str
+    text: Optional[str] = None
     metadata: Optional[Dict[str, str]] = None
 
 class WhiskEmbedResponseSchema(BaseModel):

@@ -15,6 +15,7 @@ dependencies = [
     "faststream[nats]>=0.4.5",
     "anyio>=3.7.1",
     "watchfiles",
+    "httpx",
 ]
 [tool.hatch.build.targets.wheel]
 include = [

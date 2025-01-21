@@ -28,6 +28,15 @@ class StorageTask(KitchenAITask, KitchenAITaskHookMixin):
                 return func(*args, **kwargs)
             return self.register_hook(label, "on_store", wrapper)
         return decorator
+    
+    def on_delete(self, label: str, *dependencies: DependencyType):
+        """Decorator for registering deletion hooks with dependencies."""
+        def decorator(func):
+            @self.with_dependencies(*dependencies)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            return self.register_hook(label, "on_delete", wrapper)
+        return decorator
 
     def on_retrieve(self, label: str, *dependencies: DependencyType):
         """Decorator for registering retrieval hooks with dependencies."""

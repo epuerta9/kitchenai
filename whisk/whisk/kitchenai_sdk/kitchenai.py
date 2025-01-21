@@ -9,7 +9,7 @@ class KitchenAIApp:
         self.namespace = namespace
         self.manager = manager
         self.version = version
-        self.client_type = 'bento'
+        self.client_type = 'bento_box'
         self.client_description = 'Bento box'
         self.query = QueryTask(namespace, manager)
         self.storage = StorageTask(namespace, manager)

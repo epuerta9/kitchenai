@@ -10,7 +10,9 @@ from .schema import (
     WhiskBroadcastSchema,
     WhiskBroadcastResponseSchema,
     TokenCountSchema,
-    SourceNodeSchema
+    SourceNodeSchema,
+    WhiskStorageGetRequestSchema,
+    WhiskStorageGetResponseSchema
 )
 
 # Base message schema
@@ -48,17 +50,32 @@ class StorageRequestMessage(NatsMessageBase, WhiskStorageSchema):
     """Schema for storage requests"""
     pass
 
+class StorageGetRequestMessage(NatsMessageBase, WhiskStorageGetRequestSchema):
+    """Schema for storage get requests"""
+    pass
+
+
 class EmbedRequestMessage(NatsMessageBase, WhiskEmbedSchema):
     """Schema for embedding requests"""
-    pass
+    id: int
 
 class BroadcastRequestMessage(NatsMessageBase, WhiskBroadcastSchema):
     """Schema for broadcast requests"""
     pass
 
 # Response Messages
+
+class StorageGetResponseMessage(NatsMessageBase, WhiskStorageGetResponseSchema):
+    """Schema for storage get responses"""
+    pass
+
 class QueryResponseMessage(NatsMessageBase, WhiskQueryBaseResponseSchema):
     """Schema for query responses"""
+    error: Optional[str] = None
+
+
+class RegisterResponseMessage(NatsMessageBase, NatsRegisterMessage):
+    """Schema for register responses"""
     error: Optional[str] = None
 
 class StorageResponseMessage(NatsMessageBase, WhiskStorageResponseSchema):
@@ -67,6 +84,7 @@ class StorageResponseMessage(NatsMessageBase, WhiskStorageResponseSchema):
 
 class EmbedResponseMessage(NatsMessageBase, WhiskEmbedResponseSchema):
     """Schema for embedding responses"""
+    id: int
     error: Optional[str] = None
 
 class BroadcastResponseMessage(NatsMessageBase, WhiskBroadcastResponseSchema):

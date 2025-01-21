@@ -1,6 +1,8 @@
 from faststream import FastStream, Logger
 
-from faststream.nats import NatsBroker
+from faststream.nats import NatsBroker, PullSub, JStream
+
+
 from contextlib import asynccontextmanager
 from whisk.kitchenai_sdk.kitchenai import KitchenAIApp
 import time
@@ -16,6 +18,8 @@ from whisk.kitchenai_sdk.nats_schema import (
     EmbedResponseMessage,
     BroadcastRequestMessage,
     NatsRegisterMessage,
+    StorageGetRequestMessage,
+    StorageGetResponseMessage,
 )
 
 from .kitchenai_sdk.schema import (
@@ -23,13 +27,9 @@ from .kitchenai_sdk.schema import (
     WhiskStorageSchema,
     WhiskEmbedSchema,
     NatsMessage,
-    WhiskQueryBaseResponseSchema,
-    WhiskStorageResponseSchema,
-    WhiskEmbedResponseSchema,
-    WhiskBroadcastSchema,
-    WhiskBroadcastResponseSchema,
     WhiskStorageStatus,
 )
+import httpx
 
 
 class WhiskClientError(Exception):
@@ -51,6 +51,8 @@ class WhiskConnectionError(WhiskClientError):
 
 
 logger = logging.getLogger(__name__)
+
+
 class WhiskClient:
     """
     # As a client
@@ -78,10 +80,7 @@ class WhiskClient:
         self.app = app
         try:
             self.broker = NatsBroker(
-                nats_url,
-                name=client_id,
-                user=user,
-                password=password,
+                nats_url, name=client_id, user=user, password=password
             )
 
             self.app = FastStream(
@@ -123,7 +122,9 @@ class WhiskClient:
             if hasattr(self, "broker"):
                 await self.broker.close()
 
-    async def register_client(self, message: NatsRegisterMessage) -> NatsRegisterMessage:
+    async def register_client(
+        self, message: NatsRegisterMessage
+    ) -> NatsRegisterMessage:
         """Used by the workers to register with the server"""
         ack = await self.broker.request(
             message, f"kitchenai.service.{message.client_id}.mgmt.register"
@@ -146,18 +147,26 @@ class WhiskClient:
         self.handle_query = self.broker.subscriber(f"{client_prefix}.query.*", *args)(
             self._handle_query
         )
-        self.handle_heartbeat = self.broker.subscriber(f"{client_prefix}.heartbeat", *args)(
-            self._handle_heartbeat
-        )
+        self.handle_heartbeat = self.broker.subscriber(
+            f"{client_prefix}.heartbeat", *args
+        )(self._handle_heartbeat)
         self.handle_query_stream = self.broker.subscriber(
             f"{client_prefix}.query.*.stream", *args
         )(self._handle_query_stream)
         self.handle_storage = self.broker.subscriber(
-            f"{client_prefix}.storage.*", *args
+            f"{client_prefix}.storage.*",
+            *args,
         )(self._handle_storage)
+        self.handle_storage_delete = self.broker.subscriber(
+            f"{client_prefix}.storage.*.delete",
+            *args,
+        )(self._handle_storage_delete)
         self.handle_embed = self.broker.subscriber(
             f"{client_prefix}.embedding.*", *args
         )(self._handle_embed)
+        self.handle_embed_delete = self.broker.subscriber(
+            f"{client_prefix}.embedding.*.delete", *args
+        )(self._handle_embed_delete)
 
     async def _handle_query(
         self, msg: QueryRequestMessage, logger: Logger
@@ -205,7 +214,7 @@ class WhiskClient:
                     metadata=msg.metadata,
                 )
             )
-    
+
     async def _handle_heartbeat(self, msg: NatsRegisterMessage, logger: Logger) -> None:
         logger.info(f"Heartbeat request: {msg}")
         return NatsRegisterMessage(
@@ -220,14 +229,13 @@ class WhiskClient:
         """
         This is a storage request.
         Flow:
-        - KitchenAI stored file in object store and publishes a message to client bento box
-        - Bento box will pick up the message and fetch the file from object store
-        - Bento box service will process the file with the storage task
+        - KitchenAI will publish a message to client bento box
+        - Bento box will pick up the message and request a presigned url from KitchenAI
+        - KitchenAI will return a presigned url
+        - Bento box will use the presigned url to download the file
+        - Bento box will process the file with the storage task
         - Bento box service will send a response back to the client for progress
         - KitchenAI will update object status.
-
-
-        These objects are relatively short lived. They provide a more reliable means of storing files and retries.
         """
         logger.info(f"Storage request: {msg}")
 
@@ -236,6 +244,7 @@ class WhiskClient:
             task = self.kitchen.storage.get_task(msg.label)
             if not task:
                 payload = StorageResponseMessage(
+                    id=msg.id,
                     request_id=msg.request_id,
                     timestamp=time.time(),
                     error="No task found for storage request",
@@ -245,24 +254,34 @@ class WhiskClient:
                     f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response",
                 )
                 return
-            # Get file from object store
-            bucket_name = f"playground_{msg.client_id}_storage"
-            bucket = await self.broker.object_storage(bucket_name)
-            file_data = await bucket.get(msg.name)
-
-            # Send an ack to the server so that it can delete the file from object store
-            # Only used in playground for convenience. By default, files older than 1 hour are deleted
-            await self.broker.publish(
-                StorageResponseMessage(
+            # Get file pre-signed url from kitchenai storage
+            nats_response = await self.broker.request(
+                StorageGetRequestMessage(
+                    id=msg.id,
                     request_id=msg.request_id,
                     timestamp=time.time(),
                     label=msg.label,
                     client_id=msg.client_id,
-                    metadata={"file_name": msg.name},
-                    status=WhiskStorageStatus.ACK,
+                    presigned=True,
                 ),
-                f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response.playground",
+                f"kitchenai.service.{msg.client_id}.storage.{msg.label}.get",
             )
+            presigned_message = StorageGetResponseMessage(
+                id=msg.id, **NatsMessage.from_faststream(nats_response).decoded_body
+            )
+            if presigned_message.error:
+                raise WhiskClientError(
+                    f"Error getting presigned url: {presigned_message.error}"
+                )
+            logger.info(f"Presigned url: {presigned_message.presigned_url}")
+            # Use httpx to download the file using the presigned URL
+            async with httpx.AsyncClient() as client:
+                response = await client.get(presigned_message.presigned_url)
+                if response.status_code != 200:
+                    raise WhiskClientError(
+                        f"Error downloading file: {response.status_code}"
+                    )
+                file_data = response.content
 
             # Process file with kitchen task
             response = await task(
@@ -270,13 +289,14 @@ class WhiskClient:
                     id=msg.id,
                     name=msg.name,
                     label=msg.label,
-                    data=file_data.data,
+                    data=file_data,
                     metadata=msg.metadata,
                 )
             )
 
             await self.broker.publish(
                 StorageResponseMessage(
+                    id=msg.id,
                     request_id=msg.request_id,
                     timestamp=time.time(),
                     label=msg.label,
@@ -292,6 +312,7 @@ class WhiskClient:
             logger.error(f"Error processing storage request: {str(e)}")
             await self.broker.publish(
                 StorageResponseMessage(
+                    id=msg.id,
                     request_id=msg.request_id,
                     timestamp=time.time(),
                     error=str(e),
@@ -302,55 +323,74 @@ class WhiskClient:
                 f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response",
             )
 
+    async def _handle_storage_delete(
+        self, msg: StorageRequestMessage, logger: Logger
+    ) -> None:
+        logger.info(f"Storage delete request: {msg}")
+        task = self.kitchen.storage.get_hook(msg.label, "on_delete")
+        if not task:
+            logger.error(f"No task found for storage delete request: {msg.label}")
+            return
+        await task(WhiskStorageSchema(**msg.model_dump()))
+
     async def _handle_embed(self, msg: EmbedRequestMessage, logger: Logger) -> None:
         """
         This is an embed request.
-        Flow:
-        - KitchenAI stored file in object store and publishes a message to client bento box
-        - Bento box will pick up the message and fetch the file from object store
-        - Bento box service will process the file with the embed task
-        - Bento box service will send a response back to the client for progress
-        - KitchenAI will update the embed object status.
-
-        These objects are relatively short lived. They provide a more reliable means of storing files and retries.
+        This is an object stored in kitchenai but since its just a text payload, we can serialize and send it directly.
         """
         logger.info(f"Embed request: {msg}")
         try:
             # Get the task handler
             task = self.kitchen.embeddings.get_task(msg.label)
             if not task:
-                return EmbedResponseMessage(
+                embed_response = EmbedResponseMessage(
+                    id=msg.id,
                     request_id=msg.request_id,
                     timestamp=time.time(),
-                    metadata=msg.metadata,
                     label=msg.label,
                     client_id=msg.client_id,
                     error="No task found for embed request",
                 )
+                await self.broker.publish(
+                    embed_response,
+                    f"kitchenai.service.{msg.client_id}.embedding.{msg.label}.response",
+                )
+                return
             response = await task(WhiskEmbedSchema(**msg.model_dump()))
             await self.broker.publish(
                 EmbedResponseMessage(
-                    **response.model_dump(),
+                    id=msg.id,
                     request_id=msg.request_id,
                     timestamp=time.time(),
-                    metadata=msg.metadata,
                     label=msg.label,
                     client_id=msg.client_id,
+                    **response.model_dump(),
                 ),
-                f"kitchenai.service.{msg.client_id}.embed.{msg.label}.response",
+                f"kitchenai.service.{msg.client_id}.embedding.{msg.label}.response",
             )
         except Exception as e:
             logger.error(f"Error processing embed request: {str(e)}")
             await self.broker.publish(
                 EmbedResponseMessage(
+                    id=msg.id,
                     request_id=msg.request_id,
                     timestamp=time.time(),
                     error=str(e),
                     label=msg.label,
                     client_id=msg.client_id,
                 ),
-                f"kitchenai.service.{msg.client_id}.embed.{msg.label}.response",
+                f"kitchenai.service.{msg.client_id}.embedding.{msg.label}.response",
             )
+
+    async def _handle_embed_delete(
+        self, msg: EmbedRequestMessage, logger: Logger
+    ) -> None:
+        logger.info(f"Embed delete request: {msg}")
+        task = self.kitchen.embeddings.get_hook(msg.label, "on_delete")
+        if not task:
+            logger.error(f"No task found for embed delete request: {msg.label}")
+            return
+        await task(WhiskEmbedSchema(**msg.model_dump()))
 
     async def _publish_stream(self, message: QueryResponseMessage):
         await self.broker.publish(
@@ -379,11 +419,9 @@ class WhiskClient:
             f"kitchenai.service.{message.client_id}.query.{message.label}.stream",
         )
 
-    async def register_client(
-        self, client_id: str
-    ) -> NatsRegisterMessage:
-        """Used by the workers to register with the server"""
-        ack = await self.broker.request(
+    async def register_client(self, client_id: str) -> NatsRegisterMessage:
+        """Used by the workers to register with the server. Request/Reply always returns a nats message"""
+        response = await self.broker.request(
             NatsRegisterMessage(
                 client_id=client_id,
                 version=self.kitchen.version,
@@ -391,9 +429,10 @@ class WhiskClient:
                 bento_box=self.kitchen.to_dict(),
                 client_type=self.kitchen.client_type,
                 client_description=self.kitchen.client_description,
-            ), f"kitchenai.service.{client_id}.mgmt.register"
+            ),
+            f"kitchenai.service.{client_id}.mgmt.register",
         )
-        return ack
+        return NatsMessage.from_faststream(response)
 
     async def store_message(self, message: StorageRequestMessage):
         """Send a storage request"""
@@ -401,18 +440,25 @@ class WhiskClient:
             message, f"kitchenai.service.{message.client_id}.storage.{message.label}"
         )
 
-    async def store(self, message: StorageRequestMessage, file_data: bytes):
-        """Send a storage stream request"""
-        bucket_name = f"playground_{self.client_id}_storage"
-        bucket = await self.broker.object_storage(bucket_name)
-        await bucket.put(message.name, file_data)
-
-        await self.store_message(message)
+    async def store_delete(self, message: StorageRequestMessage):
+        """Send a storage delete request"""
+        await self.broker.publish(
+            message,
+            f"kitchenai.service.{message.client_id}.storage.{message.label}.delete",
+        )
 
     async def embed(self, message: EmbedRequestMessage):
         """Send an embed request"""
+        logger.info(f"Embedding request: {message}")
         await self.broker.publish(
-            message, f"kitchenai.service.{message.client_id}.embed.{message.label}"
+            message, f"kitchenai.service.{message.client_id}.embedding.{message.label}"
+        )
+
+    async def embed_delete(self, message: EmbedRequestMessage):
+        """Send an embed delete request"""
+        await self.broker.publish(
+            message,
+            f"kitchenai.service.{message.client_id}.embedding.{message.label}.delete",
         )
 
     async def broadcast(self, message: BroadcastRequestMessage):
