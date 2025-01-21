@@ -186,10 +186,17 @@ class WhiskClient:
                 token_counts=None,
                 error=f"No task found for query",
             )
-
+        
         response = await task(WhiskQuerySchema(**msg.model_dump()))
+        response_dict = response.model_dump()
+        
+        # Update metadata with additional fields
+        metadata = response_dict.get('metadata', {}) or {}  # Handle None case
+        metadata.update(msg.metadata)
+        response_dict['metadata'] = metadata
+
         return QueryResponseMessage(
-            **response.model_dump(),
+            **response_dict,
             label=msg.label,
             client_id=msg.client_id,
             request_id=msg.request_id,

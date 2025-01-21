@@ -31,7 +31,7 @@ class WhiskQueryBaseResponseSchema(BaseModel):
     output: Optional[str] = None
     retrieval_context: Optional[List[SourceNodeSchema]] = None
     stream_gen: Any | None = None
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = {}
     token_counts: Optional[TokenCountSchema] = None
     
     @classmethod
