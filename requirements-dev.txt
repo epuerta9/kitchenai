@@ -22,6 +22,7 @@
 # - bump-my-version
 # - hatch-pip-compile
 # - jupyterlab
+# - django-seed
 # - aiohttp
 # - boto3
 # - cookiecutter
@@ -321,6 +322,7 @@ django==5.1.2
     #   django-q-registry
     #   django-q2
     #   django-redis
+    #   django-seed
     #   django-storages
     #   django-stubs
     #   django-stubs-ext
@@ -422,6 +424,8 @@ django-redis==5.4.0
     #   hatch.envs.dev
 django-schema-graph==3.1.0
     # via dj-notebook
+django-seed==0.3.1
+    # via hatch.envs.dev
 django-storages==1.14.4
     # via
     #   -c requirements.txt
@@ -471,6 +475,8 @@ execnet==2.1.1
     # via pytest-xdist
 executing==2.1.0
     # via stack-data
+faker==33.3.1
+    # via django-seed
 falco-app==0.3.0
     # via
     #   -c requirements.txt
@@ -1079,6 +1085,7 @@ python-dateutil==2.9.0.post0
     #   -c requirements.txt
     #   arrow
     #   botocore
+    #   faker
     #   jupyter-client
     #   kitchenai-python-sdk
     #   pandas
@@ -1308,6 +1315,8 @@ tomlkit==0.13.2
     #   bump-my-version
     #   falco-cli
     #   hatch
+toposort==1.10
+    # via django-seed
 tornado==6.4.2
     # via
     #   -c requirements.txt
@@ -1380,6 +1389,7 @@ typing-extensions==4.12.2
     #   dj-database-url
     #   django-stubs
     #   django-stubs-ext
+    #   faker
     #   faststream
     #   ipython
     #   kitchenai-python-sdk

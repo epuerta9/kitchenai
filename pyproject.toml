@@ -125,6 +125,7 @@ dependencies = [
   "bump-my-version",
   "hatch-pip-compile",
   "jupyterlab",
+  "django-seed",
   ]
 lock-filename = "requirements-dev.txt"
 
