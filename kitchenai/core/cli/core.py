@@ -47,6 +47,7 @@ def init(
         "ignore", category=Warning, module="django.contrib.staticfiles"
     )
     warnings.filterwarnings("ignore", category=Warning, module="django.contrib")
+    console.print(f"[green]KitchenAI version: {settings.VERSION}[/green]")
 
     if verbose != 1:
         with console.status("Applying migrations...", spinner="dots"):
@@ -89,32 +90,7 @@ def init(
         execute_from_command_line(["manage", "setup_periodic_tasks"])
 
 
-        if local:
-            try:
-                email = "admin@localhost"
-                password = "admin"
-                username = email.split("@")[0]
 
-                if password == "admin":
-                    # set it
-                    os.environ["DJANGO_SUPERUSER_PASSWORD"] = "admin"
-                execute_from_command_line(
-                    [
-                        "manage",
-                        "createsuperuser",
-                        "--noinput",
-                        "--traceback",
-                        "--email",
-                        email,
-                        "--username",
-                        username,
-                    ]
-                )
-            except Exception as e:
-                console.print(
-                    f"[red]ERROR:[/red] Failed to create superuser. Details: {e}"
-                )
-                return
 
     KitchenAIManagement.objects.all().delete()
     try:
@@ -123,7 +99,6 @@ def init(
         )
     except Exception as e:
         logger.error(e)
-        return
     if settings.KITCHENAI_LICENSE == 'oss':
         try:
             Organization = apps.get_model(settings.AUTH_ORGANIZATION_MODEL)

@@ -1,0 +1,20 @@
+{% extends "account/email/base_message.txt" %}
+{% load account %}
+{% load i18n %}
+
+{% block content %}{% autoescape off %}{% user_display user as user_display %}
+Hello!
+
+You're receiving this email because user {{ user_display }} has given your email address to register an account on {{ current_site.domain }}.
+
+{% if code %}
+Your email verification code is: {{ code }}
+
+Please enter this code in your open browser window.
+{% else %}
+To confirm this is correct, please go to {{ activate_url }}
+{% endif %}
+
+Thanks,
+{{ current_site.name }} Team
+{% endautoescape %}{% endblock %} 

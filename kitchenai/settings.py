@@ -159,6 +159,7 @@ if DEBUG:
         "django_browser_reload",
         "django_fastdev",
         "django_watchfiles",
+        'django_seed',
         *THIRD_PARTY_APPS,
     ]
 
@@ -171,6 +172,9 @@ if DEBUG or KITCHENAI_LOCAL:
     ]
 
 LANGUAGE_CODE = "en-us"
+
+
+
 
 # LOGGING = {
 #     "version": 1,
@@ -271,7 +275,6 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "kitchenai.core.middleware.HtmxNoCacheMiddleware",
-    'kitchenai.core.middleware.AsyncOrganizationMiddleware',    
     # Cache middleware end - commented out
     # "django.middleware.cache.FetchFromCacheMiddleware",
 ]
@@ -319,18 +322,28 @@ SERVER_EMAIL = env.str(
 SESSION_COOKIE_SECURE = not (DEBUG or KITCHENAI_LOCAL)
 
 # S3/MinIO Storage Settings
+
+AWS_ACCESS_KEY_ID = env.str("AWS_ACCESS_KEY_ID", default=None)
+AWS_SECRET_ACCESS_KEY = env.str("AWS_SECRET_ACCESS_KEY", default=None)
+AWS_STORAGE_BUCKET_NAME = env.str("AWS_STORAGE_BUCKET_NAME", default=None)
+AWS_S3_ENDPOINT_URL = env.str("AWS_S3_ENDPOINT_URL", default=None)
+AWS_DEFAULT_REGION = env.str("AWS_DEFAULT_REGION", default="us-east-1")
+AWS_S3_ADDRESSING_STYLE = env.str("AWS_S3_ADDRESSING_STYLE", default="path")
+AWS_S3_USE_SSL = env.bool("AWS_S3_USE_SSL", default=False) if (DEBUG or KITCHENAI_LOCAL) else True
+AWS_S3_VERIFY = env.bool("AWS_S3_VERIFY", default=False) if (DEBUG or KITCHENAI_LOCAL) else True
+
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3.S3Storage",
         "OPTIONS": {
-            "access_key": env.str("AWS_ACCESS_KEY_ID", default=None),
-            "secret_key": env.str("AWS_SECRET_ACCESS_KEY", default=None),
-            "bucket_name": env.str("AWS_STORAGE_BUCKET_NAME", default=None),
-            "endpoint_url": env.str("AWS_S3_ENDPOINT_URL", default=None),
-            "region_name": env.str("AWS_DEFAULT_REGION", default="us-east-1"),
-            "verify": env.bool("AWS_S3_VERIFY", default=False),
-            "addressing_style": env.str("AWS_S3_ADDRESSING_STYLE", default="path"),
-            "use_ssl": env.bool("AWS_S3_USE_SSL", default=False),
+            "access_key": AWS_ACCESS_KEY_ID,
+            "secret_key": AWS_SECRET_ACCESS_KEY,
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "endpoint_url": AWS_S3_ENDPOINT_URL,
+            "region_name": AWS_DEFAULT_REGION,
+            "verify": AWS_S3_VERIFY,
+            "addressing_style": AWS_S3_ADDRESSING_STYLE,
+            "use_ssl": AWS_S3_USE_SSL,
         },
     },
     "staticfiles": {
@@ -369,6 +382,7 @@ TEMPLATES = [
                 "kitchenai.context_processors.theme_context",
                 "kitchenai.context_processors.version_context",
                 "kitchenai.context_processors.local_context",
+                "kitchenai.context_processors.license_context",
             ],
             "builtins": [
                 "template_partials.templatetags.partials",
@@ -389,7 +403,8 @@ TIME_ZONE = "UTC"
 
 USE_I18N = False
 
-USE_TZ = True
+USE_TZ = False
+
 
 WSGI_APPLICATION = "kitchenai.wsgi.application"
 
@@ -455,14 +470,14 @@ ACCOUNT_UNIQUE_EMAIL = True
 # Forms and UI
 ACCOUNT_FORMS = {
     'login': 'allauth.account.forms.LoginForm',
-    # 'signup': 'kitchenai.core.forms.KitchenAISignupForm',
+    'signup': 'kitchenai.core.forms.KitchenAISignupForm',
 }
 
 LOGIN_REDIRECT_URL = "dashboard:home"
 
 # Allauth settings
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
 
 # AllAuth Configuration
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ALLOW_REGISTRATION", default=True)
@@ -471,6 +486,7 @@ ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ALLOW_REGISTRATION", default=True)
 AUTH_USER_MODEL = 'core.OSSUser'
 AUTH_ORGANIZATION_MODEL = 'core.OSSOrganization'
 AUTH_ORGANIZATIONMEMBER_MODEL = 'core.OSSOrganizationMember'
+
 # AllAuth settings
 ACCOUNT_ADAPTER = 'kitchenai.core.adapters.KitchenAIAccountAdapter'
 
@@ -575,6 +591,9 @@ WHISK_SETTINGS = {
 }
 
 KITCHENAI_JWT_SECRET = env.str("KITCHENAI_JWT_SECRET", default="")
+
+
+KITCHENAI_BENTO_CLIENT_MODEL = "core.OSSBentoClient"
 
 KITCHENAI_APP = "bento"
 

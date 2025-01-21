@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from falco_toolbox.models import TimeStamped
 from django_q.tasks import async_task
@@ -11,6 +12,7 @@ class Dashboard(TimeStamped):
 
 class Chat(TimeStamped):
     name = models.CharField(max_length=255)
+    bento_box = models.ForeignKey(settings.KITCHENAI_BENTO_CLIENT_MODEL, on_delete=models.CASCADE)
     alias = models.CharField(max_length=255, default="")
 
 class ChatSetting(TimeStamped):

@@ -26,14 +26,14 @@ class KitchenAIMetadata(BaseModel):
 class QueryResponseSchema(QueryBaseResponseSchema):
     kitchenai_metadata: KitchenAIMetadata | None = None
 
-@router.post("/{label}", response=QueryResponseSchema)
-async def query(request, label: str, data: QuerySchema):
+@router.post("/{client_id}/{label}", response=QueryResponseSchema)
+async def query(request, client_id: str, label: str, data: QuerySchema):
     """Create a new query"""
     """process file async function for core app using storage task"""
     try:
         await query_signal.asend(sender=QuerySignalSender.PRE_API_QUERY, data=data)
         if data.stream:
-            result = await query_handler(label, data)
+            result = await query_handler(client_id, label, data)
             
             async def event_stream():
                 async def query_response_stream():
@@ -71,7 +71,7 @@ async def query(request, label: str, data: QuerySchema):
             response['Cache-Control'] = 'no-cache'
             return response
         else:
-            result = await whisk_query(label, data)
+            result = await whisk_query(client_id, label, data)
             if not result.retrieval_context:
                 await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result, error=True)
             else:
@@ -81,11 +81,11 @@ async def query(request, label: str, data: QuerySchema):
         logger.error(f"QueryHandlerBadRequestError raised: {e}")
         raise HttpError(400, e.message)
     except Exception as e:
-        logger.error(f"Error in <api/query>: {e}")
+        logger.error(f"Error in <api/query>: {e}")      
         raise HttpError(500, "query function not found")
 
 
-async def query_handler(label: str, data: QuerySchema) -> QueryResponseSchema:
+async def query_handler(client_id: str, label: str, data: QuerySchema) -> QueryResponseSchema:
     try:
         core_app = apps.get_app_config("core")
         if not core_app.kitchenai_app:
@@ -106,7 +106,7 @@ async def query_handler(label: str, data: QuerySchema) -> QueryResponseSchema:
         logger.error(f"Error in query handler: {e}")
         raise QueryHandlerBadRequestError(message="query handler not found")
 
-async def whisk_query(label: str, data: QuerySchema):
+async def whisk_query(client_id: str, label: str, data: QuerySchema):
 
     message = QueryRequestMessage(
         request_id=str(uuid.uuid4()),
@@ -115,7 +115,7 @@ async def whisk_query(label: str, data: QuerySchema):
         metadata=data.metadata,
         stream=data.stream,
         label=label,
-        client_id="whisk_client"
+        client_id=client_id
     )
 
 

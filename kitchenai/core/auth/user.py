@@ -16,8 +16,23 @@ class KitchenAIUser(AbstractUser):
     # Make email required and unique
     email = models.EmailField('email address', unique=True)
     
-    # Additional fields
-    role = models.CharField(max_length=255, blank=True)
+    # Role choices
+    ROLE_ADMIN = 'admin'
+    ROLE_DEVELOPER = 'developer'
+    ROLE_VIEWER = 'viewer'
+    
+    ROLE_CHOICES = [
+        (ROLE_ADMIN, 'Admin'),
+        (ROLE_DEVELOPER, 'Developer'),
+        (ROLE_VIEWER, 'Viewer'),
+    ]
+    
+    role = models.CharField(
+        max_length=255,
+        choices=ROLE_CHOICES,
+        default=ROLE_VIEWER,
+        blank=True
+    )
     is_onboarding_complete = models.BooleanField(default=False)
 
     # Use email for login instead of username
@@ -52,32 +67,21 @@ class KitchenAIUser(AbstractUser):
             #attach the user to the default organization
             default_organization = Organization.objects.get(slug="default-organization")
 
-            OrganizationMember.objects.create(
-                organization=default_organization,
-                user=self,
-                is_admin=True
-            )
+            #check to see if there are any organization members. If there are none, make the user an admin
+            if not OrganizationMember.objects.exists():
+                OrganizationMember.objects.create(
+                    organization=default_organization,
+                    user=self,
+                    is_admin=True
+                )
+            else:
+                #if there are organization members, add the user to the organization
+                OrganizationMember.objects.create(
+                    organization=default_organization,
+                    user=self,
+                    is_admin=False
+                )
 
             self.organization = default_organization
             self.save()
             return
-    
-
-        # try:
-        #     org_name = self.email.split('@')[0]
-        #     org_slug = slugify(org_name)
-            
-        #     org = Organization.objects.create(
-        #         name=f"{org_name}'s Organization",
-        #         slug=org_slug
-        #     )
-            
-        #     OrganizationMember.objects.create(
-        #         organization=org,
-        #         user=self,
-        #         is_admin=True
-        #     )
-        #     logger.info(f"Created organization for user {self.email}")
-            
-        # except Exception as e:
-        #     logger.error(f"Failed to create organization for user {self.email}: {str(e)}")

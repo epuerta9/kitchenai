@@ -151,22 +151,44 @@
               <label class="label">
                 <span class="label-text">Chat Type</span>
               </label>
-              <select class="select select-bordered" name="chat_type">
+              <select class="select select-bordered" name="chat_type" id="chat-type" onchange="updateLabelOptions()">
                 <option value="query" {% if settings.chat_type == 'query' %}selected{% endif %}>Query</option>
                 <option value="agent" {% if settings.chat_type == 'agent' %}selected{% endif %}>Agent</option>
               </select>
             </div>
+            
             <div class="form-control">
               <label class="label">
                 <span class="label-text">Selected Label</span>
+                {% if settings.chat_type == 'query' and not chat.bento_box.bento_box.query_handlers %}
+                  <span class="label-text-alt text-error">No query handlers available</span>
+                {% elif settings.chat_type == 'agent' and not chat.bento_box.bento_box.agent_handlers %}
+                  <span class="label-text-alt text-error">No agent handlers available</span>
+                {% endif %}
               </label>
-              <input type="text" value="{{ settings.selected_label }}" class="input input-bordered" name="selected_label" />
+              <select class="select select-bordered" name="selected_label" id="label-select" required>
+                <option value="">Select a handler</option>
+                {% if settings.chat_type == 'query' %}
+                  {% for handler in chat.bento_box.bento_box.query_handlers %}
+                    <option value="{{ handler }}" {% if settings.selected_label == handler %}selected{% endif %}>
+                      {{ handler }}
+                    </option>
+                  {% endfor %}
+                {% else %}
+                  {% for handler in chat.bento_box.bento_box.agent_handlers %}
+                    <option value="{{ handler }}" {% if settings.selected_label == handler %}selected{% endif %}>
+                      {{ handler }}
+                    </option>
+                  {% endfor %}
+                {% endif %}
+              </select>
             </div>
+
             <div class="form-control">
               <label class="label">
                 <span class="label-text">Bento Name</span>
               </label>
-              <input type="text" value="{{ settings.bento_name }}" class="input input-bordered" name="bento_name" />
+              <input type="text" value="{{ chat.bento_box.bento_box.namespace }}" class="input input-bordered" name="bento_name" readonly>
             </div>
 
             <label class="label">
@@ -202,6 +224,28 @@
               Add Metadata Field
             </button>
             <script>
+              function updateLabelOptions() {
+                const chatType = document.getElementById('chat-type').value;
+                const labelSelect = document.getElementById('label-select');
+                const handlers = chatType === 'query' 
+                  ? {{ chat.bento_box.bento_box.query_handlers|safe }}
+                  : {{ chat.bento_box.bento_box.agent_handlers|safe }};
+                
+                // Clear existing options
+                labelSelect.innerHTML = '<option value="">Select a handler</option>';
+                
+                // Add new options
+                handlers.forEach(handler => {
+                  const option = document.createElement('option');
+                  option.value = handler;
+                  option.textContent = handler;
+                  if (handler === '{{ settings.selected_label }}') {
+                    option.selected = true;
+                  }
+                  labelSelect.appendChild(option);
+                });
+              }
+
               function addMetadataField() {
                 const container = document.getElementById('metadata-fields');
                 const newField = document.createElement('div');

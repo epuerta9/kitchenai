@@ -9,6 +9,9 @@ from django.conf import settings
 from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
 from kitchenai.core.models import KitchenAIManagement
 from django.conf import settings
+from django.utils import timezone
+from datetime import datetime
+
 if TYPE_CHECKING:
     from ninja import NinjaAPI
 from django_q.tasks import async_task
@@ -173,3 +176,29 @@ def run_django_q_task(task_name: str, *args, **kwargs):
         result = task_func(*args, **kwargs)
         return result
     async_task(task_name, *args, **kwargs)
+
+
+
+
+# Convert naive to aware
+def make_aware(naive_datetime):
+    return timezone.make_aware(naive_datetime, timezone=timezone.get_current_timezone())
+
+# # Example usage
+# naive_time = datetime.now()  # Your naive datetime from the database
+# aware_time = make_aware(naive_time)  # Now it's timezone-aware
+
+
+def get_bento_clients_by_user(user):
+    #TODO: return just filter functions and grab the BentoClient using the models and settings functions. to keep it entirely agnostic except for filter.
+    if settings.KITCHENAI_LICENSE == "oss":
+        from kitchenai.core.auth.oss.organization import OSSBentoClient
+        oss_bento_clients = OSSBentoClient.objects.select_related(
+            'organization'
+        ).filter(
+            organization__ossorganizationmember__user=user
+        ).all()
+        return oss_bento_clients
+    else:
+        #TODO: add the cloud bento section
+        return OSSBentoClient.objects.filter(organization__ossorganizationmember__user=user)

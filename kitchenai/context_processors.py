@@ -11,7 +11,6 @@ def version_context(request):
     }
 
 def local_context(request):
-    print(f"KITCHENAI_LOCAL: {getattr(settings, 'KITCHENAI_LOCAL')}")
     return {
         'KITCHENAI_LOCAL': getattr(settings, 'KITCHENAI_LOCAL')
     }

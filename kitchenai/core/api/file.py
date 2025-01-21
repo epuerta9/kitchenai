@@ -8,7 +8,8 @@ from ninja.files import UploadedFile
 from ninja import Schema
 from ..models import FileObject
 import logging
-
+from django.apps import apps
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -25,15 +26,18 @@ class FileObjectResponse(Schema):
     ingest_label: str
     metadata: dict[str,str]
     status: str
-
-@router.post("/", response=FileObjectResponse)
-async def file_upload(request, data: FileObjectSchema,file: UploadedFile = File(...)):
+    presigned_url: str | None = None
+@router.post("/{client_id}", response=FileObjectResponse)
+async def file_upload(request, client_id: str, data: FileObjectSchema,file: UploadedFile = File(...)):
     """main entry for any file upload. Will upload via django storage and emit signals to any listeners"""
+    BentoManager = apps.get_model(settings.KITCHENAI_BENTO_CLIENT_MODEL)
     try:        
+        bento_box = await BentoManager.objects.filter(client_id=client_id).afirst()
         file_object = await FileObject.objects.acreate(
             name=data.name,
             file=file,
             ingest_label=data.ingest_label,
+            bento_box=bento_box,
             metadata=data.metadata if data.metadata else {},
             status=FileObject.Status.PENDING
         )
@@ -46,9 +50,15 @@ async def file_upload(request, data: FileObjectSchema,file: UploadedFile = File(
 @router.get("/{pk}", response=FileObjectResponse)
 async def file_get(request, pk: int):
     """get a file"""
+    #if query param has pre-signed true then call the get_presigned_url function on the file object
+    presigned = request.query_params.get("presigned", "false")
     try:
         file_object = await FileObject.objects.aget(pk=pk)
-        return file_object
+        if presigned == "true":
+            presigned_url = file_object.generate_presigned_url()
+            return {**file_object.dict(), "presigned_url": presigned_url}
+        else:
+            return file_object
     except FileObject.DoesNotExist:
         raise HttpError(404, "File not found")
     except Exception as e:
