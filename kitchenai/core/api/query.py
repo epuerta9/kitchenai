@@ -118,16 +118,19 @@ async def whisk_query(client_id: str, label: str, data: QuerySchema):
         client_id=client_id
     )
 
+    metadata = KitchenAIMetadata(stream=data.stream)
 
     response = await whisk.query(message)
- 
-    return QueryResponseSchema(
+
+    logger.info(f"Whisk response: {response.decoded_body.get('metadata')}")
+    extended_response = QueryResponseSchema(
         input=response.decoded_body.get("input"),
         output=response.decoded_body.get("output"),
         retrieval_context=response.decoded_body.get("retrieval_context"),
         metadata=response.decoded_body.get("metadata"),
-        kitchenai_metadata=KitchenAIMetadata(stream=data.stream)
+        kitchenai_metadata=metadata
     )
+    return extended_response
 
 async def whisk_query_stream(result: QueryResponseSchema):
     await whisk.broker.publish("kitchenai.service.query.stream.response", result.model_dump_json())

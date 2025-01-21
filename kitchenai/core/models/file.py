@@ -36,10 +36,6 @@ class FileObject(TimeStamped):
     def __str__(self):
         return self.name
 
-    # async def adelete(self, *args, **kwargs):
-    #     if self.file:
-    #         await self.file.adelete()  # Delete file from MinIO
-    #     await super().adelete(*args, **kwargs)  # Delete database record
 
     def generate_presigned_url(self, expires_in=3600):
         """

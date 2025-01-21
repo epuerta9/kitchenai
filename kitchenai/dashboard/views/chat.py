@@ -149,7 +149,7 @@ async def chat_send(request: HttpRequest, chat_id: int):
 
 
     chat = await Chat.objects.select_related('chatsetting', 'bento_box').aget(id=chat_id)
-    
+
     try:
         result = await whisk_query(
             chat.bento_box.client_id,
@@ -160,11 +160,12 @@ async def chat_send(request: HttpRequest, chat_id: int):
                 metadata=chat.chatsetting.metadata
             )
         )
-    except QueryHandlerBadRequestError as e:
+
+    except Exception as e:
         return TemplateResponse(
             request, 
             "dashboard/htmx/chat_response.html", 
-            {"message": message, "error": e.message}
+            {"message": message, "error": e}
         )
     
     # Convert retrieval context to JSON-serializable format

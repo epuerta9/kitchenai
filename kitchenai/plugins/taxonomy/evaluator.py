@@ -1,12 +1,12 @@
 from pydantic import BaseModel
-from kitchenai.contrib.kitchenai_sdk.schema import QueryBaseResponseSchema
+from whisk.kitchenai_sdk.schema import WhiskQueryBaseResponseSchema
 from ..plugin import Plugin
 from typing import Optional, Type
 from abc import abstractmethod
 
 # Define input and output schemas for EvaluatorPlugin
 
-class QueryEvaluatorInput(QueryBaseResponseSchema):
+class QueryEvaluatorInput(WhiskQueryBaseResponseSchema):
     source_id: int
 
 
