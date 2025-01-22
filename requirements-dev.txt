@@ -523,7 +523,7 @@ fsspec==2024.12.0
     # via
     #   -c requirements.txt
     #   llama-index-core
-git-cliff==2.6.1
+git-cliff==2.7.0
     # via hatch.envs.dev
 gitdb==4.0.11
     # via gitpython
