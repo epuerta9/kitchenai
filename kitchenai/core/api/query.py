@@ -4,10 +4,16 @@ from ninja.errors import HttpError
 import logging
 from django.apps import apps
 from ..signals import query_signal, QuerySignalSender
-from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema, QueryBaseResponseSchema
+from .schema import QuerySchema, QueryBaseResponseSchema
 from django_eventstream import send_event
 from kitchenai.core.exceptions import QueryHandlerBadRequestError
+from kitchenai.core.broker import whisk
 
+import time
+import uuid
+import re
+
+from whisk.kitchenai_sdk.nats_schema import QueryRequestMessage
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -20,66 +26,66 @@ class KitchenAIMetadata(BaseModel):
 class QueryResponseSchema(QueryBaseResponseSchema):
     kitchenai_metadata: KitchenAIMetadata | None = None
 
-@router.post("/{label}", response=QueryResponseSchema)
-async def query(request, label: str, data: QuerySchema):
+@router.post("/{client_id}/{label}", response=QueryResponseSchema)
+async def query(request, client_id: str, label: str, data: QuerySchema):
     """Create a new query"""
     """process file async function for core app using storage task"""
     try:
         await query_signal.asend(sender=QuerySignalSender.PRE_API_QUERY, data=data)
-        if data.stream:
-            result = await query_handler(label, data)
+        # if data.stream:
+        #     result = await query_handler(client_id, label, data)
             
-            async def event_stream():
-                async def query_response_stream():
-                    async def chunk_stream():
-                        buffer = ""  # Hold partial chunks to assemble words
+        #     async def event_stream():
+        #         async def query_response_stream():
+        #             async def chunk_stream():
+        #                 buffer = ""  # Hold partial chunks to assemble words
 
-                        async for chunk in result.stream_gen:
-                            buffer += chunk  # Collect incoming data
-                            # Use regex to detect words ending with space or punctuation
-                            words = re.findall(r"\b[\w']+(?:[.,!?])?|\S", buffer)
+        #                 async for chunk in result.stream_gen:
+        #                     buffer += chunk  # Collect incoming data
+        #                     # Use regex to detect words ending with space or punctuation
+        #                     words = re.findall(r"\b[\w']+(?:[.,!?])?|\S", buffer)
 
-                            # Check if the last chunk is incomplete (no space or punctuation yet)
-                            if buffer and not buffer[-1].isspace() and buffer[-1] not in ",.?!":
-                                # Hold the last partial word back in the buffer for the next chunk
-                                buffer = words.pop() if words else ""
-                            else:
-                                buffer = ""
+        #                     # Check if the last chunk is incomplete (no space or punctuation yet)
+        #                     if buffer and not buffer[-1].isspace() and buffer[-1] not in ",.?!":
+        #                         # Hold the last partial word back in the buffer for the next chunk
+        #                         buffer = words.pop() if words else ""
+        #                     else:
+        #                         buffer = ""
 
-                            # Stream only complete words
-                            for word in words:
-                                yield f"{word}\n\n".encode('utf-8')
+        #                     # Stream only complete words
+        #                     for word in words:
+        #                         yield f"{word}\n\n".encode('utf-8')
 
-                        # Send any remaining buffer as the final word
-                        if buffer.strip():
-                            yield f"{buffer.strip()}\n\n".encode('utf-8')
+        #                 # Send any remaining buffer as the final word
+        #                 if buffer.strip():
+        #                     yield f"{buffer.strip()}\n\n".encode('utf-8')
                     
-                    async for word in chunk_stream():
-                        yield QueryResponseSchema(input=data.query, output=word, sources=[], metadata=data.metadata, kitchenai_metadata=KitchenAIMetadata(stream_id=data.stream_id, stream=data.stream))
+        #             async for word in chunk_stream():
+        #                 yield QueryResponseSchema(input=data.query, output=word, sources=[], metadata=data.metadata, kitchenai_metadata=KitchenAIMetadata(stream_id=data.stream_id, stream=data.stream))
 
-                async for query_response in query_response_stream():
-                    yield query_response
+        #         async for query_response in query_response_stream():
+        #             yield query_response
 
 
-            response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
-            response['Cache-Control'] = 'no-cache'
-            return response
+        #     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+        #     response['Cache-Control'] = 'no-cache'
+        #     return response
+        # else:
+        result = await whisk_query(client_id, label, data)
+        if not result.retrieval_context:
+            await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result, error=True)
         else:
-            result = await query_handler(label, data)
-            if not result.retrieval_context:
-                await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result, error=True)
-            else:
-                await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result)
+            await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result)
         return result
     except QueryHandlerBadRequestError as e:
         logger.error(f"QueryHandlerBadRequestError raised: {e}")
         raise HttpError(400, e.message)
     except Exception as e:
-        logger.error(f"Error in <api/query>: {e}")
+        logger.error(f"Error in <api/query>: {e}")      
         raise HttpError(500, "query function not found")
 
 
-async def query_handler(label: str, data: QuerySchema) -> QueryResponseSchema:
+async def query_handler(client_id: str, label: str, data: QuerySchema) -> QueryResponseSchema:
     try:
         core_app = apps.get_app_config("core")
         if not core_app.kitchenai_app:
@@ -99,3 +105,31 @@ async def query_handler(label: str, data: QuerySchema) -> QueryResponseSchema:
     except Exception as e:
         logger.error(f"Error in query handler: {e}")
         raise QueryHandlerBadRequestError(message="query handler not found")
+
+async def whisk_query(client_id: str, label: str, data: QuerySchema):
+
+    message = QueryRequestMessage(
+        request_id=str(uuid.uuid4()),
+        timestamp=time.time(),
+        query=data.query,
+        metadata=data.metadata,
+        stream=data.stream,
+        label=label,
+        client_id=client_id
+    )
+
+    metadata = KitchenAIMetadata(stream=data.stream)
+
+    response = await whisk.query(message)
+
+    extended_response = QueryResponseSchema(
+        input=response.decoded_body.get("input"),
+        output=response.decoded_body.get("output"),
+        retrieval_context=response.decoded_body.get("retrieval_context"),
+        metadata=response.decoded_body.get("metadata"),
+        kitchenai_metadata=metadata
+    )
+    return extended_response
+
+async def whisk_query_stream(result: QueryResponseSchema):
+    await whisk.broker.publish("kitchenai.service.query.stream.response", result.model_dump_json())

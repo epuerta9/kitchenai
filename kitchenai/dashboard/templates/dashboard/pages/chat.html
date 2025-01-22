@@ -34,12 +34,26 @@
                 </div>
             {% endif %}
             <div class="card-actions justify-center mt-6">
-                <form method="POST" action="{% url 'dashboard:chat' %}" class="w-full flex justify-center">
+                <form method="POST" action="{% url 'dashboard:chat' %}" class="w-full max-w-md space-y-4">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-primary gap-2 text-center">
-                        <svg data-src="https://unpkg.com/heroicons/20/solid/plus.svg" class="w-5 h-5"></svg>
-                        Start New Session
-                    </button>
+                    <div class="form-control">
+                        <select name="bento_box_id" class="select select-bordered w-full" required>
+                            <option value="">Select a Bento Box</option>
+                            {% for client in bento_boxes %}
+                            <option value="{{ client.id }}">
+                                {{ client.bento_box.namespace|title }} ({{ client.client_id|truncatechars:12 }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="flex justify-center">
+                        <button type="submit" class="btn btn-primary gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            Start New Session
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

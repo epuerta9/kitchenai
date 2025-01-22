@@ -1,0 +1,30 @@
+services:
+  #for local development we don't need the image directly.Uncomment if you want to use the image you built and choose local as env
+  kitchenai_rag_simple_bento:
+    image: kitchenai_rag_simple_bento
+    ports:
+    - "8000:8000"
+    volumes:
+      - $HOME/.aws/credentials:/root/.aws/credentials:ro
+    network_mode: host
+    env_file:
+      - .env
+      
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: "minioadmin"       # Default username
+      MINIO_ROOT_PASSWORD: "minioadmin"   # Default password (use a stronger password in production)
+    volumes:
+      - minio_data:/data                  # Persist data
+    ports:
+      - "9000:9000"                        # MinIO console port
+      - "9001:9001"                        # Optional: MinIO API port for admin console
+    command: server /data --console-address ":9001"
+  
+  # Optionally add other services here, for example an app that connects to MinIO
+
+volumes:
+  minio_data:
+    driver: local

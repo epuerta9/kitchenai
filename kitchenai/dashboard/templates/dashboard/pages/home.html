@@ -48,7 +48,7 @@
     class="stats stats-vertical col-span-12 w-full shadow-sm xl:stats-horizontal">
     <div class="stat">
       <div class="stat-title">Total Bentos</div>
-      <div class="stat-value">{{ bento|length }}</div>
+      <div class="stat-value">{{ bento_boxes|length }}</div>
     </div>
     <div class="stat">
       <div class="stat-title">Total Plugins</div>
@@ -73,53 +73,100 @@
         <div class="flex items-center">
           <h2 class="text-2xl font-bold">
             Bento Boxes
-            {% if selected_bento %}
-              {% if module_type == "bento" %}
-                <span class="badge badge-success badge-md ml-2 font-medium shadow-sm">{{ selected_bento.name }}</span>
-              {% else %}
-                <span class="badge badge-ghost badge-md ml-2 font-medium shadow-sm">{{ selected_bento.name }} (inactive)</span>
-              {% endif %}
-            {% endif %}
+                <button onclick="window.location.reload()" class="btn btn-ghost btn-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+
           </h2>
           </h2>
         </div>
       </div>
 
-      {% if module_type != "bento" %}
-        <div class="flex items-center gap-2 mb-4">
-          <span class="text-sm">Dynamic Bento Boxes:</span>
-          <span class="text-success font-semibold">{{ module_type }}</span>
-        </div>
-      {% endif %}
-
       <div class="grid grid-cols-3 gap-4">
-         {% if bento %}
-            {% for b in bento %}
-            <div class="card bg-base-100 w-96 shadow-xl">
-               <figure>
-                 <img
-                   src="{% static 'images/bento.png' %}"
-                   alt="Bento" />
-               </figure>
-               <div class="card-body">
-                 <h2 class="card-title">
-                   {{ b.name }}
-                   {% if selected_bento and b.name == selected_bento.name %}
-                     {% if module_type == "bento" %}
-                       <div class="badge badge-success badge-sm">Active</div>
-                     {% else %}
-                       <div class="badge badge-ghost badge-sm">Inactive</div>
-                     {% endif %}
-                   {% endif %}
-                 </h2>
-                 <p>{{ b.description }}</p>
-                 <div class="card-actions justify-end">
-                   <a href="{% url b.namespace|add:':home' %}" class="btn btn-primary">View</a>
-                 </div>
-               </div>
-             </div>
-            {% endfor %}
-         {% else %}
+        {% if bento_boxes %}
+          {% for b in bento_boxes %}
+          <div class="card bg-base-100 w-96 shadow-xl">
+            <figure class="px-6 pt-6">
+              <img
+                src="{% static 'images/bento.png' %}"
+                alt="Bento"
+                class="h-24 w-24 object-contain" />
+            </figure>
+            <div class="card-body">
+              <h2 class="card-title">
+                {{ b.bento_box.namespace|title }}
+                {% if b.ack %}
+                  <div class="badge badge-success badge-sm">Active</div>
+                {% else %}
+                  <div class="badge badge-ghost badge-sm">Inactive</div>
+                {% endif %}
+                <button 
+                  hx-delete="{% url 'dashboard:delete_bento' b.id %}"
+                  hx-confirm="Are you sure you want to delete {{ b.bento_box.namespace }}?"
+                  hx-target="closest .card"
+                  hx-swap="outerHTML"
+                  class="btn btn-ghost btn-sm text-error hover:bg-error hover:text-error-content"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </h2>
+              
+              <!-- Client Details -->
+              <div class="text-sm space-y-2 mt-2">
+                <div class="flex items-center gap-2 text-base-content/70">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                  <span class="font-mono">{{ b.client_id }}</span>
+                </div>
+                
+                <div class="flex items-center gap-2 text-base-content/70">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                  <span>v{{ b.version }}</span>
+                </div>
+
+                <div class="flex items-center gap-2 text-base-content/70">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Last seen {{ b.last_seen|timesince }} ago</span>
+                </div>
+              </div>
+
+              <!-- Handlers Section -->
+              <div class="mt-4">
+                <div class="flex flex-wrap gap-2">
+                  {% if b.bento_box.query_handlers %}
+                    <span class="badge badge-primary badge-sm">Query</span>
+                  {% endif %}
+                  {% if b.bento_box.stream_handlers %}
+                    <span class="badge badge-secondary badge-sm">Stream</span>
+                  {% endif %}
+                  {% if b.bento_box.storage_handlers %}
+                    <span class="badge badge-accent badge-sm">Storage</span>
+                  {% endif %}
+                  {% if b.bento_box.embed_handlers %}
+                    <span class="badge badge-info badge-sm">Embed</span>
+                  {% endif %}
+                  {% if b.bento_box.agent_handlers %}
+                    <span class="badge badge-warning badge-sm">Agent</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              {% comment %} <div class="card-actions justify-end mt-4">
+                <a href="#" class="btn btn-primary btn-sm">View Details</a>
+              </div> {% endcomment %}
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
             <div class="col-span-3 flex flex-col items-center justify-center p-8 text-center">
               <svg data-src="https://unpkg.com/heroicons/24/outline/squares-2x2.svg" class="h-12 w-12 text-gray-400"></svg>
               <h3 class="mt-2 text-sm font-semibold text-gray-900">No bentos</h3>
@@ -127,12 +174,12 @@
                 <p class="text-sm text-gray-500">Get started by installing some bentos</p>
               </div>
             </div>
-         {% endif %}
+        {% endif %}
       </div>
    </section>
 
    <section class="col-span-12">
-    <h2 class="text-2xl font-bold mb-6">Plugins</h2>
+    <h2 class="text-2xl font-bold mb-6">Global Plugins</h2>
     <div class="grid grid-cols-3 gap-4">
        {% if plugins %}
          {% for plugin in plugins %}

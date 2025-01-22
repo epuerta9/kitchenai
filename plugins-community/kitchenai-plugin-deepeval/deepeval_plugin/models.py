@@ -31,6 +31,7 @@ class Settings(TimeStamped):
     def get_settings(cls):
         obj, created = cls.objects.get_or_create(defaults={'name': 'Default Settings'})
         return obj
+    
     @classmethod    
     async def aget_settings(cls):
         obj, created = await cls.objects.aget_or_create(defaults={'name': 'Default Settings'})

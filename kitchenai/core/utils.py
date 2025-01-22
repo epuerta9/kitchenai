@@ -8,8 +8,10 @@ from django.apps import apps
 from django.conf import settings
 from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIApp
 from kitchenai.core.models import KitchenAIManagement
-from kitchenai.core.models import KitchenAIRootModule
 from django.conf import settings
+from django.utils import timezone
+from datetime import datetime
+
 if TYPE_CHECKING:
     from ninja import NinjaAPI
 from django_q.tasks import async_task
@@ -124,25 +126,6 @@ def add_package_to_core(package_name: str):
     except (ImportError, AttributeError) as e:
         logger.error(f"Error loading module '{e}")
 
-#TODO: remove the kitchenai mgmt db work. Most of the time we are just adding a bento box to the core app. without the need to manage state 
-#especially since kitchenai environments are so dynamic. It makes more sense to keep it at config runtime level.
-
-def get_or_create_root_module(module_path: str):
-    try:
-        return KitchenAIRootModule.objects.get(name=module_path)
-    except KitchenAIRootModule.DoesNotExist:
-        kitchen_mgmt = KitchenAIManagement.objects.get(name="kitchenai_management")
-        #create a new root module
-        root_module = KitchenAIRootModule(name=module_path, kitchen=kitchen_mgmt)
-        root_module.save()
-        logger.warning(f"No root module found for {module_path}. Created new root module.")
-
-def get_first_root_module() -> str:
-    try:
-        return KitchenAIRootModule.objects.first().name
-    except KitchenAIRootModule.DoesNotExist:
-        raise Exception("No root module found. Please create a root module first.")
-
 def get_core_kitchenai_app():
     """
     Set the core kitchenai_app whether its bento or dynamic module.
@@ -193,3 +176,29 @@ def run_django_q_task(task_name: str, *args, **kwargs):
         result = task_func(*args, **kwargs)
         return result
     async_task(task_name, *args, **kwargs)
+
+
+
+
+# Convert naive to aware
+def make_aware(naive_datetime):
+    return timezone.make_aware(naive_datetime, timezone=timezone.get_current_timezone())
+
+# # Example usage
+# naive_time = datetime.now()  # Your naive datetime from the database
+# aware_time = make_aware(naive_time)  # Now it's timezone-aware
+
+
+def get_bento_clients_by_user(user):
+    #TODO: return just filter functions and grab the BentoClient using the models and settings functions. to keep it entirely agnostic except for filter.
+    if settings.KITCHENAI_LICENSE == "oss":
+        from kitchenai.core.auth.oss.organization import OSSBentoClient
+        oss_bento_clients = OSSBentoClient.objects.select_related(
+            'organization'
+        ).filter(
+            organization__ossorganizationmember__user=user
+        ).all()
+        return oss_bento_clients
+    else:
+        #TODO: add the cloud bento section
+        return OSSBentoClient.objects.filter(organization__ossorganizationmember__user=user)

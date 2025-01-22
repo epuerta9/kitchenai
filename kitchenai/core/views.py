@@ -3,6 +3,7 @@ from django.template.response import TemplateResponse
 
 from falco_toolbox.types import HttpRequest
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 
 
 @login_required

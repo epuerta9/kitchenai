@@ -1,0 +1,11 @@
+nats stream add KITCHENAI_PLAYGROUND \
+    --subjects "kitchenai.service.*.query.response" \
+    --subjects "kitchenai.service.*.storage.response" \
+    --subjects "kitchenai.service.*.embedding.response" \
+    --subjects "kitchenai.service.*.mgmt.register" \
+    --subjects "_INBOX.>" \
+    --retention limits \
+    --max-msgs 1000 \
+    --max-msgs-per-subject 100 \
+    --max-bytes 10485760 \
+    --discard old

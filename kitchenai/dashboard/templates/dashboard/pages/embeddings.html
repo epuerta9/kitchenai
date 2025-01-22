@@ -10,41 +10,107 @@
         <p class="text-base-content/70">Manage your text embeddings and their processing status</p>
     </div>
 
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-            <!-- Embedding Creation Section -->
-            <div class="mb-8">
+    {% if not client_id %}
+    <!-- Bento Box Selection Section -->
+    <div class="mb-8">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Select a Bento Box</h2>
+                <p class="text-base-content/70 mb-4">Choose a Bento Box to handle embeddings</p>
+                
+                <div class="dropdown dropdown-bottom">
+                    <label tabindex="0" class="btn btn-primary w-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                        </svg>
+                        Select Bento Box
+                    </label>
+                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-96">
+                        {% for client in bento_clients %}
+                        <li>
+                            <a href="?client_id={{ client.client_id }}" class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium">{{ client.bento_box.namespace|title }}</div>
+                                    <div class="text-xs text-base-content/70">{{ client.client_id }}</div>
+                                </div>
+                                <div class="badge badge-sm">v{{ client.version }}</div>
+                            </a>
+                        </li>
+                        {% empty %}
+                        <li><span class="p-4 text-base-content/70">No Bento Boxes available</span></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Embedding Creation Section -->
+    <div class="mb-8">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <!-- Selected Bento Box Info -->
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 class="card-title">{{ bento_box.bento_box.namespace|title }}</h2>
+                        <div class="text-sm text-base-content/70 font-mono mt-1">{{ bento_box.client_id }}</div>
+                        <div class="text-sm text-base-content/70 mt-1">Version {{ bento_box.version }}</div>
+                    </div>
+                    <a href="?" class="btn btn-ghost btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Clear Selection
+                    </a>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Embedding Creation Form -->
                 <div class="flex justify-between items-start">
-                    <h2 class="card-title mb-4">Create New Embedding</h2>
+                    <h3 class="text-lg font-medium mb-4">Create New Embedding</h3>
                     <div class="dropdown dropdown-end">
                         <label tabindex="0" class="btn btn-ghost btn-sm">
-                            <span>Available Labels</span>
+                            <span>Available Embed Handlers</span>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-1">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                             </svg>
                         </label>
                         <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                            {% for handler in embed_handlers %}
+                            {% for handler in bento_box.bento_box.embed_handlers %}
                                 <li><a onclick="document.getElementsByName('ingest_label')[0].value='{{ handler }}'">{{ handler }}</a></li>
                             {% empty %}
-                                <li><span class="text-base-content/70 p-2">No labels available</span></li>
+                                <li><span class="text-base-content/70 p-2">No embed handlers available</span></li>
                             {% endfor %}
                         </ul>
                     </div>
                 </div>
+
                 <form method="POST" class="space-y-4">
                     {% csrf_token %}
+                    <!-- Hidden field for bento client ID -->
+                    <input type="hidden" name="bento_box_id" value="{{ bento_box.id }}">
+                    
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Text to Embed</span>
                         </label>
                         <textarea name="text" class="textarea textarea-bordered w-full" required></textarea>
                     </div>
+
                     <div class="form-control">
                         <label class="label">
-                            <span class="label-text">Ingest Label</span>
+                            <span class="label-text">Embed Handler</span>
+                            {% if bento_box.bento_box.embed_handlers|length == 0 %}
+                            <span class="label-text-alt text-error">No embed handlers available</span>
+                            {% endif %}
                         </label>
-                        <input type="text" name="ingest_label" class="input input-bordered w-full" required>
+                        <select name="ingest_label" class="select select-bordered w-full" required>
+                            <option value="">Select an embed handler</option>
+                            {% for handler in bento_box.bento_box.embed_handlers %}
+                                <option value="{{ handler }}">{{ handler }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <label class="label">
@@ -80,108 +146,129 @@
                         </span>
                     </button>
                 </form>
-
-                <div class="divider"></div>
             </div>
+        </div>
+    </div>
+    {% endif %}
 
-            <!-- Embeddings List Section -->
-            <div>
-                <h2 class="card-title mb-4">Existing Embeddings</h2>
-                <div class="overflow-x-auto">
-                    <table class="table table-zebra">
-                        <thead>
-                            <tr>
-                                <th>Text</th>
-                                <th>Ingest Label</th>
-                                <th>Status</th>
-                                <th>Created At</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for embed in embeddings %}
-                            <tr>
-                                <td class="max-w-md truncate">{{ embed.text }}</td>
-                                <td>{{ embed.ingest_label }}</td>
-                                <td>
-                                    <div class="badge 
-                                        {% if embed.status == 'completed' %}badge-success
-                                        {% elif embed.status == 'failed' %}badge-error
-                                        {% elif embed.status == 'processing' %}badge-warning
-                                        {% else %}badge-ghost{% endif %}">
-                                        {{ embed.status }}
-                                    </div>
-                                </td>
-                                <td>{{ embed.created_at|date:"Y-m-d H:i" }}</td>
-                                <td>
-                                    <div class="flex gap-2">
-                                        {% if embed.metadata %}
-                                        <button 
-                                            class="btn btn-sm btn-outline btn-primary"
-                                            onclick="document.getElementById('metadata-modal-{{ embed.id }}').showModal()">
-                                            Metadata
-                                        </button>
-                                        <dialog id="metadata-modal-{{ embed.id }}" class="modal">
-                                            <div class="modal-box">
-                                                <h3 class="font-bold text-lg mb-4">Metadata for Embedding</h3>
-                                                <div class="grid grid-cols-2 gap-2">
+    <!-- Embeddings List Section -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title mb-4">Existing Embeddings</h2>
+            <div class="overflow-x-auto rounded-xl border border-base-200">
+                <table class="table">
+                    <thead class="bg-base-200">
+                        <tr>
+                            <th class="bg-base-200">Text</th>
+                            <th class="bg-base-200">Ingest Label</th>
+                            <th class="bg-base-200">Status</th>
+                            <th class="bg-base-200">Created At</th>
+                            <th class="bg-base-200">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for embed in embeddings %}
+                        <tr class="hover:bg-base-100/50">
+                            <td class="max-w-md truncate font-medium">{{ embed.text }}</td>
+                            <td class="font-mono text-sm">{{ embed.ingest_label }}</td>
+                            <td>
+                                <div class="badge badge-sm
+                                    {% if embed.status == 'completed' %}badge-success
+                                    {% elif embed.status == 'failed' %}badge-error
+                                    {% elif embed.status == 'processing' %}badge-warning
+                                    {% else %}badge-ghost{% endif %}">
+                                    {{ embed.status }}
+                                </div>
+                            </td>
+                            <td class="text-base-content/70">{{ embed.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <div class="flex gap-2">
+                                    {% if embed.metadata %}
+                                    <button 
+                                        class="btn btn-sm btn-ghost"
+                                        onclick="document.getElementById('metadata-modal-{{ embed.id }}').showModal()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
+                                        </svg>
+                                    </button>
+                                    <dialog id="metadata-modal-{{ embed.id }}" class="modal">
+                                        <div class="modal-box">
+                                            <h3 class="font-bold text-lg mb-4">Metadata for Embedding</h3>
+                                            <div class="grid grid-cols-2 gap-2">
+                                                {% if embed.metadata.items %}
                                                     {% for key, value in embed.metadata.items %}
                                                     <div class="text-base-content/70">{{ key }}:</div>
                                                     <div>{{ value }}</div>
                                                     {% endfor %}
-                                                </div>
-                                                <div class="modal-action">
-                                                    <form method="dialog">
-                                                        <button class="btn">Close</button>
-                                                    </form>
-                                                </div>
+                                                {% else %}
+                                                    <div class="col-span-2 text-center text-base-content/70 py-4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mx-auto mb-2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                                                        </svg>
+                                                        No metadata available for this embedding
+                                                    </div>
+                                                {% endif %}
                                             </div>
-                                        </dialog>
-                                        {% endif %}
-                                        <button 
-                                            class="btn btn-sm btn-outline btn-error"
-                                            hx-delete="{% url 'dashboard:delete_embedding' embed.id %}"
-                                            hx-confirm="Are you sure you want to delete this embedding?"
-                                            hx-target="closest tr"
-                                            hx-swap="outerHTML">
-                                            Delete
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center text-base-content/70">
-                                    No embeddings created yet
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                            <div class="modal-action">
+                                                <form method="dialog">
+                                                    <button class="btn">Close</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </dialog>
+                                    {% endif %}
+                                    <button 
+                                        class="btn btn-sm btn-ghost text-error"
+                                        hx-delete="{% url 'dashboard:delete_embedding' embed.id %}"
+                                        hx-confirm="Are you sure you want to delete this embedding?"
+                                        hx-target="closest tr"
+                                        hx-swap="outerHTML">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-8 text-base-content/70">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mx-auto mb-2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                </svg>
+                                No embeddings created yet
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-                    <!-- Add Pagination here -->
-                    {% if total_pages > 1 %}
-                    <div class="flex justify-center mt-4">
-                        <div class="join">
-                            {% if current_page > 1 %}
-                            <a href="?page={{ current_page|add:'-1' }}" class="join-item btn">«</a>
-                            {% endif %}
-                            
-                            {% for page_num in total_pages|get_range %}
-                            <a href="?page={{ page_num }}" 
-                               class="join-item btn {% if page_num == current_page %}btn-active{% endif %}">
-                               {{ page_num }}
-                            </a>
-                            {% endfor %}
-                            
-                            {% if current_page < total_pages %}
-                            <a href="?page={{ current_page|add:'1' }}" class="join-item btn">»</a>
-                            {% endif %}
-                        </div>
-                    </div>
+            <!-- Pagination -->
+            {% if embeddings %}
+            <div class="flex justify-center mt-6">
+                <div class="join shadow-sm">
+                    {% if page > 1 %}
+                    <a href="?page={{ page|add:'-1' }}&per_page={{ per_page }}{% if client_id %}&client_id={{ client_id }}{% endif %}" 
+                       class="join-item btn btn-sm">«</a>
+                    {% endif %}
+                    
+                    {% for p in total_pages|get_range %}
+                    {% with p_num=forloop.counter %}
+                    <a href="?page={{ p_num }}&per_page={{ per_page }}{% if client_id %}&client_id={{ client_id }}{% endif %}" 
+                       class="join-item btn btn-sm {% if p_num == page %}btn-active{% endif %}">
+                        {{ p_num }}
+                    </a>
+                    {% endwith %}
+                    {% endfor %}
+
+                    {% if page < total_pages %}
+                    <a href="?page={{ page|add:'1' }}&per_page={{ per_page }}{% if client_id %}&client_id={{ client_id }}{% endif %}" 
+                       class="join-item btn btn-sm">»</a>
                     {% endif %}
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>

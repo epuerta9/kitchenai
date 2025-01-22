@@ -1,5 +1,6 @@
-services:
 
+
+services:
   kitchenai:
     image: kitchenai-bundle:latest
     ports:
@@ -10,9 +11,10 @@ services:
     environment:
       - KITCHENAI_LOCAL=False
       - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
-      - SIMPLE_RAG_VECTOR_STORE_ENDPOINT=localhost
+      - VECTOR_STORE_ENDPOINT=localhost
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-    command: python kitchenai/ run --module kitchenai.dynamic.app:kitchen
+    #command: python kitchenai/ run --module kitchenai.dynamic.app:kitchen
+    command: python kitchenai/ run
     depends_on:
       kitchenai-setup:
         condition: service_completed_successfully
@@ -27,7 +29,7 @@ services:
     environment:
       - KITCHENAI_LOCAL=False
       - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
-      - SIMPLE_RAG_VECTOR_STORE_ENDPOINT=localhost
+      - VECTOR_STORE_ENDPOINT=localhost
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     env_file:
       - .env
@@ -37,8 +39,7 @@ services:
     image: kitchenai-bundle:latest
     network_mode: host
     command: >
-      sh -c "python kitchenai/ init --local &&
-             python manage.py migrate"    
+      sh -c "python kitchenai/ init"    
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,6 +48,21 @@ services:
       - KITCHENAI_LOCAL=False
     env_file:
       - .env
+
+
+  nats:
+      image: nats:latest
+      command: ["-c", "/etc/nats/nats-server.conf"]
+      ports:
+        - "4222:4222"
+        - "8222:8222"
+        - "6222:6222"
+      volumes:
+        #bind config when a more robust config is needed
+        - ./config/nats-playground.conf:/etc/nats/nats-server.conf
+        - nats-data:/data
+      env_file:
+        - ./config/nats/.env
 
   postgres:
     image: pgvector/pgvector:pg17
@@ -118,3 +134,5 @@ volumes:
   postgres_data:
   minio_data:
   chroma_data:
+  nats-data:
+    driver: local

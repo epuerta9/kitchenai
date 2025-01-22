@@ -22,4 +22,3 @@ class ModelName(str, Enum):
 
 class VectorStore(str, Enum):
     CHROMA = "chroma"
-

@@ -1,0 +1,205 @@
+services:
+
+  # ✅ KitchenAI Setup with Django
+  kitchenai-setup:
+    image: kitchenai-bundle:latest
+    command: python kitchenai/ init
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - DEBUG=False
+      - KITCHENAI_LOCAL=False
+      - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+    # networks:
+    #   - kitchenai_network
+
+  kitchenai:
+    image: kitchenai-bundle:latest
+    ports:
+      - "8001:8001"
+    # network_mode: host
+    env_file:
+      - .env
+    environment:
+      - DEBUG=False
+      - KITCHENAI_LOCAL=False
+      - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+      - VECTOR_STORE_ENDPOINT=localhost
+      - REDIS_LOCATION=redis://localhost:6379/1
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: python kitchenai/ run
+    depends_on:
+      kitchenai-setup:
+        condition: service_completed_successfully
+
+  kitchenai-qcluster:
+    image: kitchenai-bundle:latest
+    # network_mode: host
+    depends_on:
+      kitchenai-setup:
+        condition: service_completed_successfully
+    environment:
+      - DEBUG=False
+      - KITCHENAI_LOCAL=False
+      - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+      - VECTOR_STORE_ENDPOINT=localhost
+      - REDIS_LOCATION=redis://localhost:6379/1
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    env_file:
+      - .env
+    command: python manage.py qcluster
+
+  # ✅ Redis for Caching and Queuing
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    # networks:
+    #   - kitchenai_network
+
+  # ✅ NATS Server with JetStream and Exporter for Prometheus
+  nats:
+      image: nats:latest
+      command: ["-c", "/etc/nats/nats-server.conf"]
+      ports:
+        - "4222:4222"
+        - "8222:8222"
+        - "6222:6222"
+      volumes:
+        #bind config when a more robust config is needed
+        - ./config/nats-playground.conf:/etc/nats/nats-server.conf
+        - nats-data:/data
+      env_file:
+        - ./config/nats/.env
+      # networks:
+      #   - kitchenai_network
+
+
+  # ✅ NATS Exporter for Prometheus Metrics
+  # nats-exporter:
+  #   image: natsio/prometheus-nats-exporter:latest
+  #   command:
+  #     - "-a"
+  #     - "0.0.0.0"
+  #     - "-connz"
+  #     - "-varz"
+  #     - "-routez"
+  #     - "-subz"
+  #     - "-jsz=all"
+  #     - "http://nats:8222"
+  #   ports:
+  #     - "7777:7777"
+  #   # depends_on:
+  #   #   nats:
+  #   #     condition: service_healthy
+  #   networks:
+  #     - kitchenai_network
+
+  # ✅ Postgres Database with pgvector for AI Storage
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - kitchenai_network
+
+  # ✅ MinIO for Object Storage
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: "minioadmin"
+      MINIO_ROOT_PASSWORD: "minioadmin"
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    # networks:
+    #   - kitchenai_network
+
+  # ✅ ChromaDB for Vector Database
+  chroma:
+    image: chromadb/chroma:latest
+    volumes:
+      - chroma_data:/chroma/chroma
+    ports:
+      - "8000:8000"
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8000
+      - ALLOW_RESET=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # networks:
+    #   - kitchenai_network
+
+  # ✅ Prometheus for Metrics Collection
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+  #   # depends_on:
+  #   #   - nats-exporter
+  #   networks:
+  #     - kitchenai_network
+
+  # ✅ Grafana for Dashboarding
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   ports:
+  #     - "3000:3000"
+  #   user: "0:0"
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #     - ./config/grafana:/etc/grafana/provisioning
+  #   depends_on:
+  #     - prometheus
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin
+  #     - GF_SECURITY_ADMIN_USER=admin
+  #     - GF_PATHS_DATA=/var/lib/grafana
+  #   restart: unless-stopped
+  #   networks:
+  #     - kitchenai_network
+
+# ✅ Create a shared network for all services
+# networks:
+#   kitchenai_network:
+#     driver: bridge
+
+volumes:
+  redis_data:
+  postgres_data:
+  minio_data:
+  chroma_data:
+  nats-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+
+
+

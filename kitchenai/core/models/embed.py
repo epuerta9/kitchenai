@@ -1,6 +1,6 @@
 from django.db import models
 from falco_toolbox.models import TimeStamped
-
+from django.conf import settings
 
 class EmbedObject(TimeStamped):
     """
@@ -13,6 +13,10 @@ class EmbedObject(TimeStamped):
         FAILED = "failed"
 
     text = models.CharField(max_length=255)
+    bento_box = models.ForeignKey(
+        settings.KITCHENAI_BENTO_CLIENT_MODEL, 
+        on_delete=models.CASCADE
+    )
     ingest_label = models.CharField(max_length=255)
     status = models.CharField(max_length=255, default=Status.PENDING)
     metadata = models.JSONField(default=dict)

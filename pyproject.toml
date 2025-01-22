@@ -59,17 +59,19 @@ dependencies = [
   "posthog",
   "nbformat",
   "nbconvert",
-  "faststream[redis]", 
+  "faststream[nats]", 
   "starlette",
   "django-eventstream",
-  "jupyterlab",
   "nest_asyncio",
   "django-model-utils",
   "kitchenai-py",
   "markdown2",
   "aiohttp",
   "redis",
-  "django-redis"
+  "django-redis", 
+  "temporalio",
+  "kitchenai_whisk",
+  "llama-index",
 
 ]
 
@@ -124,6 +126,7 @@ dependencies = [
   "bump-my-version",
   "hatch-pip-compile",
   "jupyterlab",
+  "django-seed",
   ]
 lock-filename = "requirements-dev.txt"
 

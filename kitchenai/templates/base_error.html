@@ -1,0 +1,67 @@
+{% load compress django_htmx static tailwind_cli %}
+
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ KITCHENAI_THEME }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="htmx-config" content='{"globalViewTransitions": "true"}' />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+
+    {% block title %}
+      <title>KitchenAI</title>
+    {% endblock title %}
+
+    {% tailwind_css %}
+    {% compress css %}
+
+      {% block css %}
+      {% endblock css %}
+
+    {% endcompress css %}
+    <script type="module"
+            src="https://cdn.jsdelivr.net/npm/@weblogin/trendchart-elements@1.1.0/dist/index.js/+esm"
+            async></script>
+    <!-- svg loader for icons -->
+    <script src="https://cdn.jsdelivr.net/npm/external-svg-loader@1.6.10/svg-loader.min.js"
+            async></script>
+    <script defer src="{% static 'vendors/htmx/htmx.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.6/lottie.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {% compress js %}
+
+      {% block javascript %}
+      {% endblock javascript %}
+
+    {% endcompress js %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="icon" type="image/png" href="{% static 'images/icon-logo.png' %}">
+
+
+  </head>
+  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        class="drawer min-h-screen w-full bg-base-200 lg:drawer-open">
+    <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+    <main class="drawer-content">
+
+
+        {% block content %}
+        {% endblock content %}
+
+    </main>
+
+    {% block modal %}
+    {% endblock modal %}
+
+    {% block inline_javascript %}
+    {% endblock inline_javascript %}
+
+    {% django_htmx_script %}
+    <script src="https://unpkg.com/flowbite@1.5.3/dist/datepicker.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  </body>
+</html>

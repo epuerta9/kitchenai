@@ -3,6 +3,8 @@ from ninja import Schema
 from ninja.errors import HttpError
 from ninja import Schema
 from ..models import EmbedObject
+from django.apps import apps
+from django.conf import settings
 
 import logging
 
@@ -28,15 +30,18 @@ class EmbedObjectResponse(Schema):
     status: str
 
 #Embed Object API
-@router.post("/", response=EmbedObjectResponse)
-async def embed_create(request, data: EmbedSchema):
+@router.post("/{client_id}", response=EmbedObjectResponse)
+async def embed_create(request, client_id: str, data: EmbedSchema):
     """Create a new embed from text"""
     try:
+        BentoManager = apps.get_model(settings.KITCHENAI_BENTO_CLIENT_MODEL)
+        bento_box = await BentoManager.objects.filter(client_id=client_id).afirst()
         embed_object = await EmbedObject.objects.acreate(
             text=data.text,
             ingest_label=data.ingest_label,
             metadata=data.metadata if data.metadata else {},
             status=EmbedObject.Status.PENDING,
+            bento_box=bento_box,
         )
         return embed_object
     except Exception as e:

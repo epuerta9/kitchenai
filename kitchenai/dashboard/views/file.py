@@ -5,12 +5,18 @@ from kitchenai.dashboard.forms import FileUploadForm
 from django.shortcuts import redirect
 from django.apps import apps
 from django.http import HttpResponse
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-
+from kitchenai.core.utils import get_bento_clients_by_user
+from django.urls import reverse
 
 @login_required
 async def file(request: HttpRequest):
+    BentoManager = apps.get_model(settings.KITCHENAI_BENTO_CLIENT_MODEL)
+    client_id = request.GET.get("client_id", None)
     if request.method == "POST":
+        bento_box_id = request.POST.get("bento_box_id", None)
+        bento_box = await BentoManager.objects.aget(id=bento_box_id)
         file = request.FILES.get("file")
         ingest_label = request.POST.get("ingest_label")
 
@@ -30,8 +36,10 @@ async def file(request: HttpRequest):
                 name=file.name,
                 ingest_label=ingest_label,
                 metadata=metadata,  # Add metadata to the file object
+                bento_box=bento_box,
             )
-        return redirect("dashboard:file")
+        redirect_url = f"{reverse('dashboard:file')}?client_id={bento_box.client_id}"
+        return redirect(redirect_url)
 
     # Get pagination parameters
     page = int(request.GET.get('page', 1))
@@ -41,12 +49,16 @@ async def file(request: HttpRequest):
     offset = (page - 1) * per_page
 
     form = FileUploadForm()
-    core_app = apps.get_app_config("core")
-    if not core_app.kitchenai_app:
-        return TemplateResponse(request, "dashboard/pages/error/no_app.html", {})
-    labels = core_app.kitchenai_app.to_dict()
-    storage_handlers = labels.get("storage_handlers", [])
-    
+    user = await request.auser()
+    bento_clients = get_bento_clients_by_user(user)
+
+    if client_id:
+        #user has a selected a bento box so lets use it
+        bento_box = await BentoManager.objects.filter(client_id=client_id).afirst()
+    else:
+        #user has not selected a bento box so lets use the default
+        bento_box = None
+        
     # Get total count for pagination
     total_files = await FileObject.objects.acount()
     total_pages = (total_files + per_page - 1) // per_page
@@ -60,8 +72,10 @@ async def file(request: HttpRequest):
         {
             "files": files,
             "form": form,
-            "storage_handlers": storage_handlers,
+            "bento_box": bento_box,
             "current_page": page,
+            "client_id": client_id,
+            "bento_clients": bento_clients,
             "total_pages": total_pages,
             "per_page": per_page,
             "total_files": total_files,
@@ -70,6 +84,8 @@ async def file(request: HttpRequest):
 
 @login_required
 async def delete_file(request: HttpRequest, file_id: int):
-    await FileObject.objects.filter(id=file_id).adelete()
+    file = await FileObject.objects.select_related('bento_box').filter(id=file_id).afirst()
+    if file:
+        await file.adelete()
     return HttpResponse("")
 

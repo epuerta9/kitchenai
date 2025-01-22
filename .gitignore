@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 .kitchenai*/
-
+.deepeval*
 # C extensions
 *.so
 chroma_db/
@@ -28,6 +28,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+O*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

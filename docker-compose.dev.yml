@@ -21,6 +21,37 @@ services:
     network_mode: host
     command: redis-server --appendonly yes
 
+
+  nats:
+    container_name: nats
+    image: nats:latest
+    command: ["-c", "/etc/nats/nats-server.conf"]
+    ports:
+      - 4222:4222
+      - 8222:8222
+      - 6222:6222
+    # volumes:
+    #   - type: bind
+    #     source: ./config/nats/nats-server.conf
+    #     target: /etc/nats/nats-server.conf
+    #   - type: volume
+    #     source: nats-data
+    #     target: /data
+
+    volumes:
+      - ./config/nats-local.conf:/etc/nats/nats-server.conf
+      - nats-data:/data
+    env_file:
+      - ./config/nats/.env
+    environment:
+      - ADMIN_PASSWORD
+      - SYSTEM_PASSWORD
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   postgres:
     image: pgvector/pgvector:pg17
     container_name: postgres
@@ -75,3 +106,5 @@ volumes:
   postgres_data:
   minio_data:
   chroma_data:
+  nats-data:
+    driver: local

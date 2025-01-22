@@ -11,7 +11,16 @@ def version_context(request):
     }
 
 def local_context(request):
-    print(f"KITCHENAI_LOCAL: {getattr(settings, 'KITCHENAI_LOCAL')}")
     return {
         'KITCHENAI_LOCAL': getattr(settings, 'KITCHENAI_LOCAL')
+    }
+
+def license_context(request):
+    return {
+        'KITCHENAI_LICENSE': getattr(settings, 'KITCHENAI_LICENSE')
+    }
+
+def allow_registration_context(request):
+    return {
+        'ACCOUNT_ALLOW_REGISTRATION': getattr(settings, 'ACCOUNT_ALLOW_REGISTRATION', True)
     }

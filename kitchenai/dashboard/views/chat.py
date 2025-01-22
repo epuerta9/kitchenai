@@ -9,37 +9,52 @@ from django.http import HttpResponse
 from ..models import Chat, ChatMetric, AggregatedChatMetric, ChatSetting
 from kitchenai.core.exceptions import QueryHandlerBadRequestError
 from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema
-from kitchenai.core.api.query import query_handler
+from kitchenai.core.api.query import whisk_query
 from kitchenai.core.signals.query import QuerySignalSender, query_signal
 from django.contrib.auth.decorators import login_required
 import logging
+
 
 logger = logging.getLogger(__name__)
 
 @login_required
 async def chat(request: HttpRequest):
-    if request.method == "POST":
-        mgmt = await KitchenAIManagement.objects.filter(
-            name="kitchenai_management"
-        ).afirst()
-        if mgmt.module_path == "bento":
-            name = await Bento.objects.afirst()
-        else:
-            name = mgmt.module_path
-        chat = await Chat.objects.acreate(name=name)
-        labels = apps.get_app_config("core")
-        if labels:
-            labels = labels.kitchenai_app.to_dict()
-        else:
-            return TemplateResponse(request, "dashboard/pages/errors.html", {"error": "No query handlers found"})
-        if labels["query_handlers"]:
-            await ChatSetting.objects.acreate(chat=chat, selected_label=labels["query_handlers"][0], bento_name=name, chat_type=ChatSetting.ChatType.QUERY)
-        else:
-           return TemplateResponse(request, "dashboard/pages/errors.html", {"error": "No query handlers found"})
-        return redirect("dashboard:chat_session", chat_id=chat.id)
+    BentoManager = apps.get_model(settings.KITCHENAI_BENTO_CLIENT_MODEL)
 
+    if request.method == "POST":
+        bento_box_id = request.POST.get("bento_box_id")
+        bento_box = await BentoManager.objects.aget(id=bento_box_id)
+        
+        # Get query handlers from bento box
+        query_handlers = bento_box.bento_box.get("query_handlers", [])
+        
+        if not query_handlers:
+            return TemplateResponse(
+                request, 
+                "dashboard/pages/errors.html", 
+                {"error": "No query handlers found in selected Bento Box"}
+            )
+        logger.info(f"query_handlers: {bento_box.bento_box.get('namespace', '')}")
+        # Create chat and settings with first available query handler
+        chat = await Chat.objects.acreate(
+            name=bento_box.bento_box.get("namespace", ""), 
+            bento_box=bento_box
+        )
+        
+        await ChatSetting.objects.acreate(
+            chat=chat, 
+            selected_label=query_handlers[0],
+            bento_name=bento_box.bento_box.get("namespace", ""),
+            chat_type=ChatSetting.ChatType.QUERY
+        )
+        
+        return redirect("dashboard:chat_session", chat_id=chat.id)
+    bento_boxes = BentoManager.objects.all()
     chats = Chat.objects.all()
-    return TemplateResponse(request, "dashboard/pages/chat.html", {"chats": chats})
+    return TemplateResponse(request, "dashboard/pages/chat.html", {
+        "chats": chats,
+        "bento_boxes": bento_boxes
+        })
 
 
 @login_required
@@ -53,7 +68,7 @@ async def chat_session(request: HttpRequest, chat_id: int):
             plugin_widgets.append(plugin.plugin.get_chat_metric_widget())
 
     chat = (
-        await Chat.objects.select_related("chatsetting")
+        await Chat.objects.select_related("chatsetting", "bento_box")
         .prefetch_related(
             "chatmetric_set",
         )
@@ -133,10 +148,11 @@ async def chat_send(request: HttpRequest, chat_id: int):
             plugin_widgets.append(plugin.plugin.get_chat_metric_widget())
 
 
-    chat = await Chat.objects.select_related('chatsetting').aget(id=chat_id)
-    
+    chat = await Chat.objects.select_related('chatsetting', 'bento_box').aget(id=chat_id)
+
     try:
-        result = await query_handler(
+        result = await whisk_query(
+            chat.bento_box.client_id,
             chat.chatsetting.selected_label, 
             QuerySchema(
                 query=message, 
@@ -144,11 +160,12 @@ async def chat_send(request: HttpRequest, chat_id: int):
                 metadata=chat.chatsetting.metadata
             )
         )
-    except QueryHandlerBadRequestError as e:
+
+    except Exception as e:
         return TemplateResponse(
             request, 
             "dashboard/htmx/chat_response.html", 
-            {"message": message, "error": e.message}
+            {"message": message, "error": e}
         )
     
     # Convert retrieval context to JSON-serializable format
@@ -160,14 +177,16 @@ async def chat_send(request: HttpRequest, chat_id: int):
         }
         for source in (result.retrieval_context or [])
     ]
-    metadata = result.metadata or {}
-    logger.info(f"input: {result.input}")
-    logger.info(f"output: {result.output}")
+    # Ensure metadata exists and add owner
+    if result.metadata is None:
+        result.metadata = {}
+    result.metadata["owner"] = "kitchenai"
+    logger.info(f"result.metadata: {result.metadata}")  
     metric = ChatMetric(
         input_text=result.input,
         output_text=result.output,
         chat=chat,
-        metadata=metadata,
+        metadata=result.metadata,
         sources_used=sources
     )
 
@@ -178,6 +197,8 @@ async def chat_send(request: HttpRequest, chat_id: int):
         metric.total_llm_tokens = result.token_counts.total_llm_tokens
 
     await metric.asave()
+
+
 
     #check if the response is empty and if so, send a signal to whoever is handling the query
     if not sources:

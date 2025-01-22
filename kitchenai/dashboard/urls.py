@@ -18,4 +18,5 @@ urlpatterns = [
     path("chat/<int:chat_id>/delete", views.chat_delete, name="chat_delete"),
     path("chat/<int:chat_id>/settings", views.chat_settings, name="chat_settings"),
     path("settings", views.settings_view, name="settings"),
+    path("bento/delete/<int:bento_id>", views.delete_bento, name="delete_bento"),
 ]
