@@ -60,28 +60,10 @@ def run_app(path: str, nats_url: str, client_id: str, user: str, password: str):
         password=password,
         kitchen=kitchen
     )
-
-    async def send_message():
-        async with client.app.broker:
-            response = await client.register_client(client_id)
-            console.print(response.decoded_body)
-            if response.decoded_body.get("error"):
-                console.print(f"[red]{response.decoded_body.get('error')}[/red]")
-                raise Exception(response.decoded_body.get("error"))
-            
-            console.print("[green]Successfully registered client![/green]")
     
     async def start():
-        await client.app.run()
+        await client.run()
 
-    # Handle registration first
-    try:
-        asyncio.run(send_message())
-    except Exception as e:
-        console.print(f"[red]Registration failed: {str(e)}[/red]")
-        sys.exit(1)  # Exit with error code
-
-    # Only start the app if registration succeeded
     try:
         asyncio.run(start())
     except KeyboardInterrupt:

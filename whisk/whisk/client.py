@@ -21,7 +21,7 @@ from whisk.kitchenai_sdk.nats_schema import (
     StorageGetRequestMessage,
     StorageGetResponseMessage,
 )
-
+from rich.console import Console
 from .kitchenai_sdk.schema import (
     WhiskQuerySchema,
     WhiskStorageSchema,
@@ -30,6 +30,8 @@ from .kitchenai_sdk.schema import (
     WhiskStorageStatus,
 )
 import httpx
+
+console = Console()
 
 
 class WhiskClientError(Exception):
@@ -471,3 +473,25 @@ class WhiskClient:
     async def broadcast(self, message: BroadcastRequestMessage):
         """Send a broadcast message"""
         await self.broker.publish(message, f"kitchenai.broadcast.{message.label}")
+
+
+
+    async def run(self):
+        async with self.app.broker:
+            response = await self.register_client(self.client_id)
+            logger.info(f"Registration response: {response.decoded_body}")
+            
+            if response.decoded_body.get("error"):
+                error_msg = response.decoded_body.get("error")
+                logger.error(f"Registration failed: {error_msg}")
+                console.print(f"[bold red]Registration Error: {error_msg}[/bold red]")
+                raise Exception(error_msg)
+            
+            # Pretty print the bento box configuration
+            if self.kitchen:
+                console.print("\n[bold blue]KitchenAI Configuration:[/bold blue]")
+                console.print(self.kitchen.to_dict(), style="cyan")
+            
+            console.print("\n[bold green]✓ Successfully registered client![/bold green]")
+            
+        await self.app.run()

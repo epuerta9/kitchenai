@@ -4,11 +4,11 @@
 .. toctree::
    :hidden:
 
-   getting-started/index
-   develop/index
-   cookbooks/index
-   deploy/index
-   cloud/index
+   .. getting-started/index
+   .. develop/index
+   .. cookbooks/index
+   .. deploy/index
+   .. cloud/index
    changelog
 
 -----
