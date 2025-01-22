@@ -24,9 +24,6 @@ RUN pip install --upgrade pip uv \
 # install plugins 
 RUN uv pip install "deepeval_plugin>=0.2.1"
 
-#install bento boxes
-RUN uv pip install "kitchenai_rag_simple_bento>=0.1.10"
-
 # Create base requirements file
 RUN uv pip list > "$VENV_PATH/base-requirements.txt"
 

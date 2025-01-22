@@ -70,6 +70,7 @@ dependencies = [
   "redis",
   "django-redis", 
   "temporalio",
+  "kitchenai_whisk",
   "llama-index",
 
 ]

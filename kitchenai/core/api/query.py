@@ -32,50 +32,50 @@ async def query(request, client_id: str, label: str, data: QuerySchema):
     """process file async function for core app using storage task"""
     try:
         await query_signal.asend(sender=QuerySignalSender.PRE_API_QUERY, data=data)
-        if data.stream:
-            result = await query_handler(client_id, label, data)
+        # if data.stream:
+        #     result = await query_handler(client_id, label, data)
             
-            async def event_stream():
-                async def query_response_stream():
-                    async def chunk_stream():
-                        buffer = ""  # Hold partial chunks to assemble words
+        #     async def event_stream():
+        #         async def query_response_stream():
+        #             async def chunk_stream():
+        #                 buffer = ""  # Hold partial chunks to assemble words
 
-                        async for chunk in result.stream_gen:
-                            buffer += chunk  # Collect incoming data
-                            # Use regex to detect words ending with space or punctuation
-                            words = re.findall(r"\b[\w']+(?:[.,!?])?|\S", buffer)
+        #                 async for chunk in result.stream_gen:
+        #                     buffer += chunk  # Collect incoming data
+        #                     # Use regex to detect words ending with space or punctuation
+        #                     words = re.findall(r"\b[\w']+(?:[.,!?])?|\S", buffer)
 
-                            # Check if the last chunk is incomplete (no space or punctuation yet)
-                            if buffer and not buffer[-1].isspace() and buffer[-1] not in ",.?!":
-                                # Hold the last partial word back in the buffer for the next chunk
-                                buffer = words.pop() if words else ""
-                            else:
-                                buffer = ""
+        #                     # Check if the last chunk is incomplete (no space or punctuation yet)
+        #                     if buffer and not buffer[-1].isspace() and buffer[-1] not in ",.?!":
+        #                         # Hold the last partial word back in the buffer for the next chunk
+        #                         buffer = words.pop() if words else ""
+        #                     else:
+        #                         buffer = ""
 
-                            # Stream only complete words
-                            for word in words:
-                                yield f"{word}\n\n".encode('utf-8')
+        #                     # Stream only complete words
+        #                     for word in words:
+        #                         yield f"{word}\n\n".encode('utf-8')
 
-                        # Send any remaining buffer as the final word
-                        if buffer.strip():
-                            yield f"{buffer.strip()}\n\n".encode('utf-8')
+        #                 # Send any remaining buffer as the final word
+        #                 if buffer.strip():
+        #                     yield f"{buffer.strip()}\n\n".encode('utf-8')
                     
-                    async for word in chunk_stream():
-                        yield QueryResponseSchema(input=data.query, output=word, sources=[], metadata=data.metadata, kitchenai_metadata=KitchenAIMetadata(stream_id=data.stream_id, stream=data.stream))
+        #             async for word in chunk_stream():
+        #                 yield QueryResponseSchema(input=data.query, output=word, sources=[], metadata=data.metadata, kitchenai_metadata=KitchenAIMetadata(stream_id=data.stream_id, stream=data.stream))
 
-                async for query_response in query_response_stream():
-                    yield query_response
+        #         async for query_response in query_response_stream():
+        #             yield query_response
 
 
-            response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
-            response['Cache-Control'] = 'no-cache'
-            return response
+        #     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+        #     response['Cache-Control'] = 'no-cache'
+        #     return response
+        # else:
+        result = await whisk_query(client_id, label, data)
+        if not result.retrieval_context:
+            await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result, error=True)
         else:
-            result = await whisk_query(client_id, label, data)
-            if not result.retrieval_context:
-                await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result, error=True)
-            else:
-                await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result)
+            await query_signal.asend(sender=QuerySignalSender.POST_API_QUERY, result=result)
         return result
     except QueryHandlerBadRequestError as e:
         logger.error(f"QueryHandlerBadRequestError raised: {e}")
@@ -122,7 +122,6 @@ async def whisk_query(client_id: str, label: str, data: QuerySchema):
 
     response = await whisk.query(message)
 
-    logger.info(f"Whisk response: {response.decoded_body.get('metadata')}")
     extended_response = QueryResponseSchema(
         input=response.decoded_body.get("input"),
         output=response.decoded_body.get("output"),

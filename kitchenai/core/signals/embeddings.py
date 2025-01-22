@@ -1,4 +1,5 @@
 import logging
+import asyncio
 
 from django.apps import apps
 from django.db.models.signals import post_delete
@@ -9,15 +10,13 @@ from ..models import EmbedObject
 from django.dispatch import Signal
 from kitchenai.core.broker import whisk
 from whisk.kitchenai_sdk.nats_schema import EmbedRequestMessage
-
-logger = logging.getLogger(__name__)
-from django.conf import settings
+from asgiref.sync import async_to_sync
 import uuid
 import time
 
-embed_signal = Signal()
 from enum import StrEnum
 
+logger = logging.getLogger(__name__)
 
 class EmbedSignalSender(StrEnum):
     POST_EMBED_PROCESS = "post_embed_process"
@@ -48,11 +47,12 @@ async def embed_object_created(sender, instance, created, **kwargs):
         )
 
 @receiver(post_delete, sender=EmbedObject)
-async def embed_object_deleted(sender, instance, **kwargs):
+def embed_object_deleted(sender, instance, **kwargs):
     """delete the embed from vector db"""
     logger.info(f"<kitchenai_core>: EmbedObject deleted: {instance.pk}")
-    await whisk.embed_delete(
-        EmbedRequestMessage(
+    
+    try:
+        message = EmbedRequestMessage(
             id=instance.id,
             label=instance.ingest_label,
             client_id=instance.bento_box.client_id,
@@ -60,4 +60,9 @@ async def embed_object_deleted(sender, instance, **kwargs):
             timestamp=time.time(),
             metadata=instance.metadata,
         )
-    )
+        
+        # Use async_to_sync to properly run and await the async function
+        async_to_sync(whisk.embed_delete)(message)
+        
+    except Exception as e:
+        logger.error(f"Error deleting embed from vector db: {e}")

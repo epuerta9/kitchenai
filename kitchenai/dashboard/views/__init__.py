@@ -13,6 +13,7 @@ from .file import *
 from .settings import *
 from .embeddings import *
 from .chat import *
+from .bento import *
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 .kitchenai*/
-
+.deepeval*
 # C extensions
 *.so
 chroma_db/

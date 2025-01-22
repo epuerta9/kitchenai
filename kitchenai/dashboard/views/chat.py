@@ -177,12 +177,16 @@ async def chat_send(request: HttpRequest, chat_id: int):
         }
         for source in (result.retrieval_context or [])
     ]
-    metadata = result.metadata or {}
+    # Ensure metadata exists and add owner
+    if result.metadata is None:
+        result.metadata = {}
+    result.metadata["owner"] = "kitchenai"
+    logger.info(f"result.metadata: {result.metadata}")  
     metric = ChatMetric(
         input_text=result.input,
         output_text=result.output,
         chat=chat,
-        metadata=metadata,
+        metadata=result.metadata,
         sources_used=sources
     )
 
@@ -193,6 +197,8 @@ async def chat_send(request: HttpRequest, chat_id: int):
         metric.total_llm_tokens = result.token_counts.total_llm_tokens
 
     await metric.asave()
+
+
 
     #check if the response is empty and if so, send a signal to whoever is handling the query
     if not sources:
