@@ -984,7 +984,7 @@ pluggy==1.5.0
     #   djp
     #   hatchling
     #   pytest
-posthog==3.7.0
+posthog==3.9.2
     # via
     #   -c requirements.txt
     #   hatch.envs.dev
