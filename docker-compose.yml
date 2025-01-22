@@ -1,23 +1,23 @@
 
 
 services:
-  kitchenai:
-    image: kitchenai-bundle:latest
-    ports:
-      - "8001:8001"
-    network_mode: host
-    env_file:
-      - .env
-    environment:
-      - KITCHENAI_LOCAL=False
-      - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
-      - VECTOR_STORE_ENDPOINT=localhost
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-    #command: python kitchenai/ run --module kitchenai.dynamic.app:kitchen
-    command: python kitchenai/ run
-    depends_on:
-      kitchenai-setup:
-        condition: service_completed_successfully
+  # kitchenai:
+  #   image: kitchenai-bundle:latest
+  #   ports:
+  #     - "8001:8001"
+  #   network_mode: host
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - KITCHENAI_LOCAL=False
+  #     - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+  #     - VECTOR_STORE_ENDPOINT=localhost
+  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
+  #   #command: python kitchenai/ run --module kitchenai.dynamic.app:kitchen
+  #   command: python kitchenai/ run
+  #   depends_on:
+  #     kitchenai-setup:
+  #       condition: service_completed_successfully
 
 
   kitchenai-qcluster:
