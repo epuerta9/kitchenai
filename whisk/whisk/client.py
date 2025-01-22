@@ -197,13 +197,15 @@ class WhiskClient:
         metadata.update(msg.metadata)
         response_dict['metadata'] = metadata
 
-        return QueryResponseMessage(
+
+        query_response = QueryResponseMessage(
             **response_dict,
             label=msg.label,
             client_id=msg.client_id,
             request_id=msg.request_id,
             timestamp=time.time(),
         )
+        return query_response
 
     async def _handle_query_stream(
         self, msg: QueryRequestMessage, logger: Logger

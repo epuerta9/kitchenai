@@ -86,7 +86,7 @@ class WhiskQueryBaseResponseSchema(BaseModel):
         )
     
     @classmethod
-    def from_llm_invoke(cls, input: str, output: str, metadata=None, token_counts: TokenCountSchema | None = None):
+    def from_llm_invoke(cls, input: str, output: str, metadata=None, token_counts: TokenCountSchema | None = None):        
         return cls(
             input=input,
             output=output,
