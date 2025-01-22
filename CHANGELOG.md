@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.16.0] - 2025-01-22
+
+### 🚀 Features
+
+- *(whisk)* Whisk cli with working example. The library and faststream wrapper
+
+### 🚜 Refactor
+
+- *(core)* BIG refactor. Using nats as the message fabric for distributed bento boxes
+
+### 📚 Documentation
+
+- *(readme)* Updated readme to reflect new vision
+- *(readme)* Updated readme and docs page
+
+### 📦 Build
+
+- *(deps)* Update to pyproject and nats-playground conf
+
+### Bug
+
+- *(token count)* Fix a token count issue with chat model
+
+### Demo-ready
+
+- Bento box delete, update to plugin, deepeval bug fix on metadata, delete signals for embeds and files, docker compose
+
 ## [0.14.0] - 2025-01-10
 
 ### 🐛 Bug Fixes
