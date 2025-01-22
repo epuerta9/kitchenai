@@ -161,6 +161,7 @@ async def chat_send(request: HttpRequest, chat_id: int):
             )
         )
 
+
     except Exception as e:
         return TemplateResponse(
             request, 
@@ -181,7 +182,6 @@ async def chat_send(request: HttpRequest, chat_id: int):
     if result.metadata is None:
         result.metadata = {}
     result.metadata["owner"] = "kitchenai"
-    logger.info(f"result.metadata: {result.metadata}")  
     metric = ChatMetric(
         input_text=result.input,
         output_text=result.output,
@@ -189,7 +189,6 @@ async def chat_send(request: HttpRequest, chat_id: int):
         metadata=result.metadata,
         sources_used=sources
     )
-
     if result.token_counts:
         metric.embedding_tokens = result.token_counts.embedding_tokens
         metric.llm_prompt_tokens = result.token_counts.llm_prompt_tokens 

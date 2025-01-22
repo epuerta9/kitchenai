@@ -121,13 +121,10 @@ async def whisk_query(client_id: str, label: str, data: QuerySchema):
     metadata = KitchenAIMetadata(stream=data.stream)
 
     response = await whisk.query(message)
-
+    
     extended_response = QueryResponseSchema(
-        input=response.decoded_body.get("input"),
-        output=response.decoded_body.get("output"),
-        retrieval_context=response.decoded_body.get("retrieval_context"),
-        metadata=response.decoded_body.get("metadata"),
-        kitchenai_metadata=metadata
+        **response.decoded_body,  # This transfers all matching fields (input, output, token_counts, metadata, etc.)
+        kitchenai_metadata=metadata  # Add our additional field
     )
     return extended_response
 
