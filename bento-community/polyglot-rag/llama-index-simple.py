@@ -20,7 +20,7 @@ import logging
 import asyncio
 import tiktoken
 from whisk.client import WhiskClient
-
+from whisk.kitchenai_sdk.schema import TokenCountSchema
 # Setup logging
 logger = logging.getLogger(__name__)
 
@@ -55,6 +55,7 @@ async def query_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema:
         return WhiskQueryBaseResponseSchema.from_llm_invoke(
             data.query,
             response.text,
+            token_counts=TokenCountSchema(**token_counts),
             metadata={"token_counts": token_counts, **data.metadata} if data.metadata else {"token_counts": token_counts}
         )
     except Exception as e:

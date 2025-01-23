@@ -2,6 +2,7 @@
 # requires-python = ">=3.11"
 # dependencies = [
 #   "kitchenai-whisk",
+#   "kitchenai-llama",
 #   "llama-index",
 #   "llama-index-vector-stores-chroma",
 #   "chromadb",
@@ -17,6 +18,7 @@ from whisk.kitchenai_sdk.schema import (
     WhiskStorageResponseSchema,
     WhiskEmbedSchema,
     WhiskEmbedResponseSchema,
+    TokenCountSchema
 )
 
 from llama_index.core import VectorStoreIndex, StorageContext, Document
@@ -31,6 +33,10 @@ import logging
 import asyncio
 import tiktoken
 from whisk.client import WhiskClient
+from kitchenai_llama.storage.llama_parser import Parser
+import os
+import tempfile
+from pathlib import Path
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -87,9 +93,9 @@ async def query_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema:
     }
     token_counter.reset_counts()
 
-    return WhiskQueryBaseResponseSchema.from_llm_invoke(
-        data.query,
-        str(response),
+    return WhiskQueryBaseResponseSchema.from_llama_response(
+        data,
+        response,
         metadata={"token_counts": token_counts, **data.metadata} if data.metadata else {"token_counts": token_counts}
     )
 
@@ -97,43 +103,61 @@ async def query_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema:
 async def storage_handler(data: WhiskStorageSchema) -> WhiskStorageResponseSchema:
     """Storage handler for document ingestion"""
     try:
-        # Create documents from the input data
-        documents = [
-            Document(text=text, metadata=metadata)
-            for text, metadata in zip(data.data, [data.metadata] * len(data.data))
-        ]
+        # Create a temporary directory
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Extract extension from the file name
+            file_extension = Path(data.name).suffix or '.txt'  # Default to .txt if no extension found
+            temp_file_path = Path(temp_dir) / f"temp_document{file_extension}"
+            
+            # Write bytes data to temporary file
+            with open(temp_file_path, 'wb') as f:
+                f.write(data.data)
+            
+            # Initialize parser and load the file
+            parser = Parser(api_key=os.environ.get("LLAMA_CLOUD_API_KEY", None))
+            response = parser.load(str(temp_dir), metadata=data.metadata)
+            
+            # Setup storage context and process documents
+            storage_context = StorageContext.from_defaults(vector_store=vector_store)
+            
+            # Create index with transformations
+            VectorStoreIndex.from_documents(
+                response["documents"],
+                storage_context=storage_context,
+                transformations=[
+                    TokenTextSplitter(),
+                    TitleExtractor(),
+                    QuestionsAnsweredExtractor()
+                ],
+                show_progress=True
+            )
+            
+            # Get token counts and return response
+            token_counts = {
+                "embedding_tokens": token_counter.total_embedding_token_count,
+                "llm_prompt_tokens": token_counter.prompt_llm_token_count,
+                "llm_completion_tokens": token_counter.completion_llm_token_count,
+                "total_llm_tokens": token_counter.total_llm_token_count
+            }
+            token_counter.reset_counts()
 
-        # Setup storage context and transformations
-        storage_context = StorageContext.from_defaults(vector_store=vector_store)
-        
-        # Create index with transformations
-        VectorStoreIndex.from_documents(
-            documents,
-            storage_context=storage_context,
-            transformations=[
-                TokenTextSplitter(),
-                TitleExtractor(),
-                QuestionsAnsweredExtractor()
-            ],
-            show_progress=True
-        )
-
-        token_counts = {
-            "embedding_tokens": token_counter.total_embedding_token_count,
-            "llm_prompt_tokens": token_counter.prompt_llm_token_count,
-            "llm_completion_tokens": token_counter.completion_llm_token_count,
-            "total_llm_tokens": token_counter.total_llm_token_count
-        }
-        token_counter.reset_counts()
-
-        return WhiskStorageResponseSchema(
-            id=data.id,
-            data=data.data,
-            metadata={"token_counts": token_counts, **data.metadata} if data.metadata else {"token_counts": token_counts}
-        )
+            return WhiskStorageResponseSchema(
+                id=data.id,
+                name=data.name,
+                label=data.label,
+                data=data.data,
+                metadata={"token_counts": token_counts, **data.metadata} if data.metadata else {"token_counts": token_counts}
+            )
+            
     except Exception as e:
         logger.error(f"Error in storage handler: {str(e)}")
         raise
+
+@kitchen.storage.on_delete("storage")
+def storage_delete_handler(data: WhiskStorageSchema) -> None:
+    """Storage delete handler"""
+    logger.info(f"Deleting storage for {data.id}")
+
 
 @kitchen.embeddings.handler("embed")
 async def embed_handler(data: WhiskEmbedSchema) -> WhiskEmbedResponseSchema:
@@ -164,6 +188,7 @@ async def embed_handler(data: WhiskEmbedSchema) -> WhiskEmbedResponseSchema:
 
         return WhiskEmbedResponseSchema(
             text=data.text,
+            token_counts=TokenCountSchema(**token_counts),
             metadata={"token_counts": token_counts, **data.metadata} if data.metadata else {"token_counts": token_counts}
         )
     except Exception as e:
