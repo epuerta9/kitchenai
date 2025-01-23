@@ -96,6 +96,7 @@ async def query_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema:
     return WhiskQueryBaseResponseSchema.from_llama_response(
         data,
         response,
+        token_counts=TokenCountSchema(**token_counts),
         metadata={"token_counts": token_counts, **data.metadata} if data.metadata else {"token_counts": token_counts}
     )
 
@@ -105,9 +106,8 @@ async def storage_handler(data: WhiskStorageSchema) -> WhiskStorageResponseSchem
     try:
         # Create a temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Extract extension from the file name
-            file_extension = Path(data.name).suffix or '.txt'  # Default to .txt if no extension found
-            temp_file_path = Path(temp_dir) / f"temp_document{file_extension}"
+            # Use the original filename for the temporary file
+            temp_file_path = Path(temp_dir) / Path(data.name).name
             
             # Write bytes data to temporary file
             with open(temp_file_path, 'wb') as f:
@@ -132,21 +132,12 @@ async def storage_handler(data: WhiskStorageSchema) -> WhiskStorageResponseSchem
                 show_progress=True
             )
             
-            # Get token counts and return response
-            token_counts = {
-                "embedding_tokens": token_counter.total_embedding_token_count,
-                "llm_prompt_tokens": token_counter.prompt_llm_token_count,
-                "llm_completion_tokens": token_counter.completion_llm_token_count,
-                "total_llm_tokens": token_counter.total_llm_token_count
-            }
-            token_counter.reset_counts()
 
             return WhiskStorageResponseSchema(
                 id=data.id,
                 name=data.name,
                 label=data.label,
                 data=data.data,
-                metadata={"token_counts": token_counts, **data.metadata} if data.metadata else {"token_counts": token_counts}
             )
             
     except Exception as e:
@@ -154,7 +145,7 @@ async def storage_handler(data: WhiskStorageSchema) -> WhiskStorageResponseSchem
         raise
 
 @kitchen.storage.on_delete("storage")
-def storage_delete_handler(data: WhiskStorageSchema) -> None:
+async def storage_delete_handler(data: WhiskStorageSchema) -> None:
     """Storage delete handler"""
     logger.info(f"Deleting storage for {data.id}")
 
