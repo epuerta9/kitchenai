@@ -9,6 +9,7 @@ services:
     env_file:
       - .env
     environment:
+      - DEBUG=False
       - KITCHENAI_LOCAL=False
       - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
       - VECTOR_STORE_ENDPOINT=localhost
