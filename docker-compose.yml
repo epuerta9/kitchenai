@@ -6,8 +6,8 @@ services:
     ports:
       - "8001:8001"
     network_mode: host
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     environment:
       - DEBUG=False
       - KITCHENAI_LOCAL=False
@@ -32,8 +32,8 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
       - VECTOR_STORE_ENDPOINT=localhost
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     command: python manage.py qcluster
 
   kitchenai-setup:
@@ -47,8 +47,8 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
       - KITCHENAI_LOCAL=False
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
 
 
   nats:
@@ -62,8 +62,8 @@ services:
         #bind config when a more robust config is needed
         - ./config/nats-playground.conf:/etc/nats/nats-server.conf
         - nats-data:/data
-      env_file:
-        - ./config/nats/.env
+      # env_file:
+      #   - ./config/nats/.env
 
   postgres:
     image: pgvector/pgvector:pg17

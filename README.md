@@ -73,14 +73,23 @@ KitchenAI eliminates the hurdles of AI development by offering:
 2. **Create a Local Account**  
     go to `http://localhost:8001` and create an account.
     ![kitchenai-dev](docs/_static/images/sign-in.png)
+    
 
 3. **Run the Example Bento Box**
     This will connect to the KitchenAI Control Plane and run the example bento box.
    ```bash
-   uv run whisk/examples/query-example.py
+   uv run bento-community/polyglot-rag/openai-simple.py
    ```
+4. **Chat with your Bento Box**
+    Go to the chat tab and start a new session using your bento box.
 
-4. **Make Your Own Bento Box**  
+5. **(for RAG bentos)Create a default Minio Bucket**
+    kitchenai uses s3 storage as default so it needs a base kitchenai bucket 
+    1. go to `http://localhost:9001` 
+    2. log in as minioadmin / minioadmin
+    3. create bucket **kitchenai** 
+
+6. **Make Your Own Bento Box**  
 
 
 📖 Full quickstart guide at [docs.kitchenai.dev](https://docs.kitchenai.dev/cookbooks/quickstarts/).  
