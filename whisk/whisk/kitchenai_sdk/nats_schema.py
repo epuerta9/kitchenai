@@ -21,6 +21,8 @@ class NatsMessageBase(BaseModel):
     timestamp: float
     label: str
     client_id: str
+    # namespace: str
+    # version: str | None = None
 
 class BentoBox(BaseModel):
     namespace: str
