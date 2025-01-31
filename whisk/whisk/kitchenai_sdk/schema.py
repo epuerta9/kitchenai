@@ -17,6 +17,9 @@ class WhiskQuerySchema(BaseModel):
     metadata: Optional[Dict[str, str]] = None
     label: Optional[str]
 
+    # OpenAI Chat Completion Schema as optional for more context. Will come is as a dict.
+    messages: Optional[List[object]] = None
+
 
 
 class SourceNodeSchema(BaseModel):
@@ -33,6 +36,10 @@ class WhiskQueryBaseResponseSchema(BaseModel):
     stream_gen: Any | None = None
     metadata: Optional[Dict[str, Any]] = {}
     token_counts: Optional[TokenCountSchema] = None
+
+
+    # OpenAI Chat Completion Schema as optional for more context. Will come is as a dict.
+    messages: Optional[List[object]] = None
     
     @classmethod
     def from_llama_response(cls, data, response, metadata=None, token_counts: TokenCountSchema | None = None):

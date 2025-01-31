@@ -152,9 +152,11 @@ class WhiskClient:
         self.handle_heartbeat = self.broker.subscriber(
             f"{client_prefix}.heartbeat", *args
         )(self._handle_heartbeat)
-        self.handle_query_stream = self.broker.subscriber(
-            f"{client_prefix}.query.*.stream", *args
-        )(self._handle_query_stream)
+
+        # TODO: Uncomment this when we have streaming WIP
+        # self.handle_query_stream = self.broker.subscriber(
+        #     f"{client_prefix}.query.*.stream", *args
+        # )(self._handle_query_stream)
         self.handle_storage = self.broker.subscriber(
             f"{client_prefix}.storage.*",
             *args,
@@ -163,12 +165,14 @@ class WhiskClient:
             f"{client_prefix}.storage.*.delete",
             *args,
         )(self._handle_storage_delete)
-        self.handle_embed = self.broker.subscriber(
-            f"{client_prefix}.embedding.*", *args
-        )(self._handle_embed)
-        self.handle_embed_delete = self.broker.subscriber(
-            f"{client_prefix}.embedding.*.delete", *args
-        )(self._handle_embed_delete)
+
+        # TODO: Uncomment this when we have embeddings WIP
+        # self.handle_embed = self.broker.subscriber(
+        #     f"{client_prefix}.embedding.*", *args
+        # )(self._handle_embed)
+        # self.handle_embed_delete = self.broker.subscriber(
+        #     f"{client_prefix}.embedding.*.delete", *args
+        # )(self._handle_embed_delete)
 
     async def _handle_query(
         self, msg: QueryRequestMessage, logger: Logger
@@ -187,16 +191,17 @@ class WhiskClient:
                 metadata=None,
                 token_counts=None,
                 error=f"No task found for query",
+                messages=msg.messages,
             )
-        
+
         response = await task(WhiskQuerySchema(**msg.model_dump()))
         response_dict = response.model_dump()
-        
-        # Update metadata with additional fields
-        metadata = response_dict.get('metadata', {}) or {}  # Handle None case
-        metadata.update(msg.metadata)
-        response_dict['metadata'] = metadata
 
+        # Update metadata with additional fields
+        metadata = response_dict.get("metadata", {}) or {}  # Handle None case
+        metadata.update(msg.metadata)
+        response_dict["metadata"] = metadata
+        response_dict["messages"] = msg.messages
 
         query_response = QueryResponseMessage(
             **response_dict,
@@ -249,23 +254,26 @@ class WhiskClient:
         - KitchenAI will update object status.
         """
         logger.info(f"Storage request: {msg}")
-
+        # Get the task handler
+        task = self.kitchen.storage.get_task(msg.label)
+        if not task:
+            payload = StorageResponseMessage(
+                id=msg.id,
+                request_id=msg.request_id,
+                timestamp=time.time(),
+                client_id=msg.client_id,
+                label=msg.label,
+                status=WhiskStorageStatus.ERROR,
+                error="No task found for storage request",
+            )
+            logger.error(f"Error processing storage request: {payload}")
+            await self.broker.publish(
+                payload,
+                f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response",
+            )
+            return
+        # Get file pre-signed url from kitchenai storage
         try:
-            # Get the task handler
-            task = self.kitchen.storage.get_task(msg.label)
-            if not task:
-                payload = StorageResponseMessage(
-                    id=msg.id,
-                    request_id=msg.request_id,
-                    timestamp=time.time(),
-                    error="No task found for storage request",
-                )
-                await self.broker.publish(
-                    payload,
-                    f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response",
-                )
-                return
-            # Get file pre-signed url from kitchenai storage
             nats_response = await self.broker.request(
                 StorageGetRequestMessage(
                     id=msg.id,
@@ -277,50 +285,8 @@ class WhiskClient:
                 ),
                 f"kitchenai.service.{msg.client_id}.storage.{msg.label}.get",
             )
-            presigned_message = StorageGetResponseMessage(
-                id=msg.id, **NatsMessage.from_faststream(nats_response).decoded_body
-            )
-            if presigned_message.error:
-                raise WhiskClientError(
-                    f"Error getting presigned url: {presigned_message.error}"
-                )
-            logger.info(f"Presigned url: {presigned_message.presigned_url}")
-            # Use httpx to download the file using the presigned URL
-            async with httpx.AsyncClient() as client:
-                response = await client.get(presigned_message.presigned_url)
-                if response.status_code != 200:
-                    raise WhiskClientError(
-                        f"Error downloading file: {response.status_code}"
-                    )
-                file_data = response.content
-
-            # Process file with kitchen task
-            response = await task(
-                WhiskStorageSchema(
-                    id=msg.id,
-                    name=msg.name,
-                    label=msg.label,
-                    data=file_data,
-                    metadata=msg.metadata,
-                )
-            )
-
-            await self.broker.publish(
-                StorageResponseMessage(
-                    id=msg.id,
-                    request_id=msg.request_id,
-                    timestamp=time.time(),
-                    label=msg.label,
-                    client_id=msg.client_id,
-                    metadata=response.metadata,
-                    status=WhiskStorageStatus.COMPLETE,
-                    token_counts=response.token_counts,
-                ),
-                f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response",
-            )
-
         except Exception as e:
-            logger.error(f"Error processing storage request: {str(e)}")
+            logger.error(f"Error getting presigned url: {e}")
             await self.broker.publish(
                 StorageResponseMessage(
                     id=msg.id,
@@ -333,6 +299,80 @@ class WhiskClient:
                 ),
                 f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response",
             )
+            return
+        presigned_message = StorageGetResponseMessage(
+            id=msg.id, **NatsMessage.from_faststream(nats_response).decoded_body
+        )
+        if presigned_message.error:
+            raise WhiskClientError(
+                f"Error getting presigned url: {presigned_message.error}"
+            )
+        logger.info(f"Presigned url: {presigned_message.presigned_url}")
+        # Use httpx to download the file using the presigned URL
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(presigned_message.presigned_url)
+                if response.status_code != 200:
+                    raise WhiskClientError(
+                        f"Error downloading file: {response.status_code}"
+                    )
+                file_data = response.content
+        except Exception as e:
+            logger.error(f"Error downloading file: {e}")
+            await self.broker.publish(
+                StorageResponseMessage(
+                    id=msg.id,
+                    request_id=msg.request_id,
+                    timestamp=time.time(),
+                    error=str(e),
+                    label=msg.label,
+                    client_id=msg.client_id,
+                    status=WhiskStorageStatus.ERROR,
+                ),
+                f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response",
+            )
+            return
+
+        # Process file with kitchen task
+        try:
+            response = await task(
+                WhiskStorageSchema(
+                    id=msg.id,
+                    name=msg.name,
+                    label=msg.label,
+                    data=file_data,
+                    metadata=msg.metadata,
+                )
+            )
+        except Exception as e:
+            logger.error(f"Error processing storage request: {e}")
+            await self.broker.publish(
+                StorageResponseMessage(
+                    id=msg.id,
+                    request_id=msg.request_id,
+                    timestamp=time.time(),
+                    label=msg.label,
+                    client_id=msg.client_id,
+                    metadata=response.metadata,
+                    status=WhiskStorageStatus.ERROR,
+                    token_counts=response.token_counts,
+                    error=str(e),
+                ),
+                f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response",
+            )
+        await self.broker.publish(
+            StorageResponseMessage(
+                id=msg.id,
+                request_id=msg.request_id,
+                timestamp=time.time(),
+                label=msg.label,
+                client_id=msg.client_id,
+                metadata=response.metadata,
+                status=WhiskStorageStatus.COMPLETE,
+                token_counts=response.token_counts,
+            ),
+            f"kitchenai.service.{msg.client_id}.storage.{msg.label}.response",
+        )
 
     async def _handle_storage_delete(
         self, msg: StorageRequestMessage, logger: Logger
@@ -476,24 +516,24 @@ class WhiskClient:
         """Send a broadcast message"""
         await self.broker.publish(message, f"kitchenai.broadcast.{message.label}")
 
-
-
     async def run(self):
         async with self.app.broker:
             response = await self.register_client(self.client_id)
             logger.info(f"Registration response: {response.decoded_body}")
-            
+
             if response.decoded_body.get("error"):
                 error_msg = response.decoded_body.get("error")
                 logger.error(f"Registration failed: {error_msg}")
                 console.print(f"[bold red]Registration Error: {error_msg}[/bold red]")
                 raise Exception(error_msg)
-            
+
             # Pretty print the bento box configuration
             if self.kitchen:
                 console.print("\n[bold blue]KitchenAI Configuration:[/bold blue]")
                 console.print(self.kitchen.to_dict(), style="cyan")
-            
-            console.print("\n[bold green]✓ Successfully registered client![/bold green]")
-            
+
+            console.print(
+                "\n[bold green]✓ Successfully registered client![/bold green]"
+            )
+
         await self.app.run()

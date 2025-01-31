@@ -18,7 +18,7 @@ admin.autodiscover()
 admin.site.login = secure_admin_login(admin.site.login)
 
 urlpatterns = [
-    path("api/", api.urls),
+    path("v1/", api.urls),
     path(".well-known/security.txt", toolbox_views.security_txt),
     path("robots.txt", toolbox_views.robots_txt),
     path("", RedirectView.as_view(pattern_name="dashboard:home"), name="home"),

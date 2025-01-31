@@ -12,14 +12,10 @@ from .api.file import router as file_router
 logger = logging.getLogger(__name__)
 
 router = Router()
-router.add_router("/query", query_router, tags=["query"])
-#router.add_router("/agent", agent_router, tags=["agent"])
-router.add_router("/embeddings", embedding_router, tags=["embeddings"])
-router.add_router("/file", file_router, tags=["file"]) 
-
-@router.get("/health")
-async def default(request):
-    return {"msg": "ok"}
+# router.add_router("/query", query_router, tags=["deprecated"])
+# #router.add_router("/agent", agent_router, tags=["agent"])
+# router.add_router("/embeddings", embedding_router, tags=["deprecated"])
+# router.add_router("/file", file_router, tags=["deprecated"]) 
 
 
 class KitchenAIAppSchema(Schema):
@@ -30,14 +26,5 @@ class KitchenAIAppSchema(Schema):
     storage_handlers: List[str]
 import logging
 logger = logging.getLogger(__name__)    
-
-@router.get("/labels", response=KitchenAIAppSchema)
-async def labels(request):
-    """Lists all the custom kitchenai labels"""
-    core_app = apps.get_app_config("core")
-    if not core_app.kitchenai_app:
-        logger.error("No kitchenai app in core app config")
-        return HttpResponse(status=404)
-    return core_app.kitchenai_app.to_dict()
 
 
