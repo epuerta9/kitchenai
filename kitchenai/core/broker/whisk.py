@@ -47,10 +47,19 @@ whisk = WhiskClient(
 @whisk.broker.subscriber("kitchenai.service.*.storage.*.response", "kitchenai-storage")
 async def on_message(msg: StorageResponseMessage):
     """Updates the FileObject status and creates a StorageRequestMessage"""
-    if msg.error:
-        logger.error(f"Error in storage response: {msg.error}")
+    try:
+        file_object = await FileObject.objects.aget(id=msg.id)
+    except FileObject.DoesNotExist:
+        logger.error(f"FileObject not found: {msg.id}")
         return
-    file_object = await FileObject.objects.aget(id=msg.id)
+    if msg.error:
+        logger.error(f"Error in storage handler: {msg.error}: {msg.client_id}")
+        file_object.status = FileObject.Status.FAILED
+        await file_object.asave()
+    else:
+        file_object.status = FileObject.Status.COMPLETED
+        await file_object.asave()
+
     await StorageRequestMessageModel.objects.acreate(
         file_object=file_object,
         request_id=msg.request_id,
@@ -58,11 +67,9 @@ async def on_message(msg: StorageResponseMessage):
         label=msg.label,
         client_id=msg.client_id,
         metadata=msg.metadata,
-        status=msg.status,
+        status=file_object.status,
         token_counts=msg.token_counts,
     )
-    file_object.status = FileObject.Status.COMPLETED
-    await file_object.asave()
 
 
 @whisk.broker.subscriber("kitchenai.service.*.storage.*.get", "kitchenai-storage-get")
@@ -155,6 +162,7 @@ async def on_message(msg: NatsRegisterMessage):
                 )
             except OSSBentoClient.DoesNotExist:
                 # create a new OSSBentoClient
+                logger.info(f"Creating new OSSBentoClient for {msg.client_id} {msg.name} {msg.version}")
                 oss_bento_client = await OSSBentoClient.objects.acreate(
                     client_id=msg.client_id,
                     organization=org,

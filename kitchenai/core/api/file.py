@@ -27,6 +27,7 @@ class FileObjectResponse(Schema):
     metadata: dict[str,str]
     status: str
     presigned_url: str | None = None
+    
 @router.post("/{client_id}", response=FileObjectResponse)
 async def file_upload(request, client_id: str, data: FileObjectSchema,file: UploadedFile = File(...)):
     """main entry for any file upload. Will upload via django storage and emit signals to any listeners"""
