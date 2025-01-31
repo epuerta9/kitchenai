@@ -23,6 +23,8 @@
 # - hatch-pip-compile
 # - jupyterlab
 # - django-seed
+# - datamodel-code-generator
+# - openai
 # - aiohttp
 # - boto3
 # - cookiecutter
@@ -107,6 +109,8 @@ anyio==4.6.2.post1
     #   openai
     #   starlette
     #   watchfiles
+argcomplete==3.5.3
+    # via datamodel-code-generator
 argon2-cffi==23.1.0
     # via
     #   -c requirements.txt
@@ -161,7 +165,9 @@ binaryornot==0.4.4
     #   -c requirements.txt
     #   cookiecutter
 black==24.10.0
-    # via falco-cli
+    # via
+    #   datamodel-code-generator
+    #   falco-cli
 bleach==6.2.0
     # via
     #   -c requirements.txt
@@ -260,6 +266,8 @@ dataclasses-json==0.6.7
     # via
     #   -c requirements.txt
     #   llama-index-core
+datamodel-code-generator==0.26.5
+    # via hatch.envs.dev
 debugpy==1.8.9
     # via ipykernel
 decorator==5.1.1
@@ -465,10 +473,14 @@ djp==0.3.1
     # via
     #   -c requirements.txt
     #   hatch.envs.dev
+dnspython==2.7.0
+    # via email-validator
 editorconfig==0.12.4
     # via
     #   cssbeautifier
     #   jsbeautifier
+email-validator==2.2.0
+    # via pydantic
 environs==11.0.0
     # via
     #   -c requirements.txt
@@ -523,6 +535,8 @@ fsspec==2024.12.0
     # via
     #   -c requirements.txt
     #   llama-index-core
+genson==1.3.0
+    # via datamodel-code-generator
 git-cliff==2.6.1
     # via hatch.envs.dev
 gitdb==4.0.11
@@ -590,6 +604,7 @@ idna==3.10
     # via
     #   -c requirements.txt
     #   anyio
+    #   email-validator
     #   httpx
     #   hyperlink
     #   jsonschema
@@ -597,6 +612,8 @@ idna==3.10
     #   yarl
 importlib-metadata==8.5.0
     # via keyring
+inflect==5.6.2
+    # via datamodel-code-generator
 iniconfig==2.0.0
     # via pytest
 ipykernel==6.29.5
@@ -615,7 +632,9 @@ ipywidgets==8.1.5
 isoduration==20.11.0
     # via jsonschema
 isort==5.13.2
-    # via falco-cli
+    # via
+    #   datamodel-code-generator
+    #   falco-cli
 jaraco-classes==3.4.0
     # via keyring
 jaraco-context==6.0.1
@@ -632,6 +651,7 @@ jinja2==3.1.4
     # via
     #   -c requirements.txt
     #   cookiecutter
+    #   datamodel-code-generator
     #   jupyter-server
     #   jupyterlab
     #   jupyterlab-server
@@ -916,6 +936,7 @@ oauthlib==3.2.2
 openai==1.59.6
     # via
     #   -c requirements.txt
+    #   hatch.envs.dev
     #   llama-index-agent-openai
     #   llama-index-embeddings-openai
     #   llama-index-llms-openai
@@ -926,6 +947,7 @@ packaging==24.1
     #   -c requirements.txt
     #   black
     #   build
+    #   datamodel-code-generator
     #   gunicorn
     #   hatch
     #   hatchling
@@ -1035,6 +1057,7 @@ pydantic==2.9.2
     # via
     #   -c requirements.txt
     #   bump-my-version
+    #   datamodel-code-generator
     #   django-ninja
     #   fast-depends
     #   kitchenai-python-sdk
@@ -1120,6 +1143,7 @@ pyyaml==6.0.2
     #   -c requirements.txt
     #   hatch.envs.dev
     #   cookiecutter
+    #   datamodel-code-generator
     #   djlint
     #   jupyter-events
     #   llama-index-core

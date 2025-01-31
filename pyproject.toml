@@ -127,6 +127,8 @@ dependencies = [
   "hatch-pip-compile",
   "jupyterlab",
   "django-seed",
+  "datamodel-code-generator",
+  "openai",
   ]
 lock-filename = "requirements-dev.txt"
 

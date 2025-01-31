@@ -170,3 +170,4 @@ KitchenAI collects **anonymous usage data** to improve the framework—no PII or
 
 > Let’s build the future of AI development together!
 
+"{\"client_id\":\"openai-simple\",\"namespace\": \"openai\",\"label\":\"chat\"}"

@@ -1,16 +1,6 @@
 services:
 
 
-  kitchenai-setup:
-    image: kitchenai-bundle:latest
-    network_mode: host
-    command: python kitchenai/ init --local && python kitchenai/ manage migrate
-    depends_on:
-      postgres:
-        condition: service_healthy
-    env_file:
-      - .env
-
   redis:
     image: redis:latest
     container_name: redis
