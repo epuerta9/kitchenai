@@ -3,6 +3,11 @@
     <label for="collapse-deepeval-hallucination-{{ source_id }}" class="collapse-title text-base font-medium flex items-center gap-2 cursor-pointer">
       <svg data-src="https://unpkg.com/heroicons/20/solid/check-circle.svg" class="h-5 w-5"></svg>
       DeepEval Analysis: Hallucination Score ({{ evaluation.score|floatformat:3 }})
+      {% if evaluation.success %}
+        <div class="badge badge-success">Pass</div>
+      {% else %}
+        <div class="badge badge-error">Fail</div>
+      {% endif %}
     </label>
     <div class="collapse-content">
       <div class="overflow-x-auto">
