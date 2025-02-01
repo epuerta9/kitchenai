@@ -41,6 +41,7 @@
 # - nbconvert
 # - nbformat
 # - nest-asyncio
+# - openai
 # - pillow
 # - posthog
 # - psycopg[binary]
@@ -442,6 +443,7 @@ oauthlib==3.2.2
     # via requests-oauthlib
 openai==1.59.6
     # via
+    #   hatch.envs.default
     #   llama-index-agent-openai
     #   llama-index-embeddings-openai
     #   llama-index-llms-openai

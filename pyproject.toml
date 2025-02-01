@@ -72,6 +72,7 @@ dependencies = [
   "temporalio",
   "kitchenai_whisk",
   "llama-index",
+  "openai",
 
 ]
 
