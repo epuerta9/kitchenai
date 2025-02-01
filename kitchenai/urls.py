@@ -26,6 +26,7 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("accounts/", include("allauth.urls")),
     path("dashboard/", include("kitchenai.dashboard.urls", namespace="dashboard")),
+    path("apps/", include("kitchenai.apps.urls", namespace="apps")),
     #path("events/", include(django_eventstream.urls)) #TODO: Uncomment this when we have a streaming endpoint
 ] + djp.urlpatterns()
 

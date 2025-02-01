@@ -1,0 +1,69 @@
+{% load custom_filters %}
+
+<div hx-swap-oob="innerHTML:#chat-messages">
+  <div class="chat chat-end">
+    <div class="chat-image avatar">
+      <div class="w-10 rounded-full bg-base-300">
+        <svg data-src="https://unpkg.com/heroicons/20/solid/user.svg" class="h-6 w-6 m-2 text-primary"></svg>
+      </div>
+    </div>
+    <div class="chat-bubble chat-bubble-primary prose text-primary-content">
+      {{ message }}
+    </div>
+  </div>
+  <div class="chat chat-start">
+    <div class="chat-image avatar">
+      <div class="w-10 rounded-full bg-base-300">
+        <svg data-src="https://unpkg.com/heroicons/20/solid/cpu-chip.svg" class="h-6 w-6 m-2 text-primary"></svg>
+      </div>
+    </div>
+    <div class="chat-bubble chat-bubble-secondary prose text-secondary-content">
+      {{ metrics.output_text|markdown|safe }}
+    </div>
+  </div>
+</div>
+
+<div hx-swap-oob="innerHTML:#metrics-section">
+  <div class="flex flex-col h-full">
+    <h2 class="text-xl font-bold p-4 border-b">Evaluation Metrics</h2>
+    <div id="metrics-content" class="flex-grow overflow-y-auto p-4">
+      {% if metrics %}
+        <!-- Evaluation Button -->
+        <form hx-post="{% url 'apps:playground_evaluate' %}"
+              hx-swap="outerHTML"
+              class="mb-4">
+          {% csrf_token %}
+          <input type="hidden" name="message_id" value="{{ metrics.timestamp|slugify|hash_to_int }}">
+          <input type="hidden" name="selected_bento_id" value="{{ selected_bento.client_id }}">
+          <button type="submit" 
+                  class="btn btn-ghost btn-sm tooltip tooltip-right"
+                  data-tip="Run evaluations on this response">
+            <svg data-src="https://unpkg.com/heroicons/20/solid/clipboard-document-check.svg" 
+                 class="h-4 w-4 text-base-content hover:text-primary"></svg>
+            <span class="ml-2">Run Evaluation</span>
+          </button>
+        </form>
+
+        <!-- Plugin Widgets -->
+        {% for widget_url in plugin_widgets %}
+          {% with plugin_name=widget_url|cut:":"|cut:"_widget_for_source"|title %}
+            <div class="collapse bg-base-100 mt-2"
+                hx-get="{% url widget_url message_id %}?event=playground_evaluate"
+                hx-trigger="load"
+                hx-swap="outerHTML"
+                hx-indicator="#loading-{{ forloop.counter }}">
+                <div id="loading-{{ forloop.counter }}" class="flex items-center gap-2 p-4">
+                <div class="loading loading-spinner"></div>
+                <div class="font-medium">{{ plugin_name }} Analysis</div>
+                </div>
+            </div>
+        {% endwith %}
+        {% endfor %}
+      {% else %}
+        <div class="text-center text-base-content/70 mt-4">
+          <p>Run evaluations on a response to see metrics</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div> 

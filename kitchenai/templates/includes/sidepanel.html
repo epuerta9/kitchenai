@@ -35,7 +35,7 @@
           <svg data-src="https://unpkg.com/heroicons/20/solid/tag.svg"
                class="h-5 w-5">
           </svg>
-          Labels
+          Bento Clients
         </a>
         <a href="{% url 'dashboard:file' %}" 
            class="{% if 'file' in request.path %}active{% endif %}">
@@ -44,13 +44,13 @@
           </svg>
           Files
         </a>
-        <a href="{% url 'dashboard:embeddings' %}"
+        {% comment %} <a href="{% url 'dashboard:embeddings' %}"
            class="{% if 'embeddings' in request.path %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/squares-plus.svg"
                class="h-5 w-5">
           </svg>
           Embeddings
-        </a>
+        </a> {% endcomment %}
         <a href="{% url 'dashboard:chat' %}"
            class="{% if 'chat' in request.path %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/chat-bubble-left-right.svg"
@@ -58,7 +58,7 @@
           </svg>
           Chat
         </a>
-        <a href="/api/docs"
+        <a href="/v1/docs"
            class="{% if 'api' in request.path %}active{% endif %}">
           <svg data-src="https://unpkg.com/heroicons/20/solid/code-bracket.svg"
                class="h-5 w-5">

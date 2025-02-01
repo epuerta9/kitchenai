@@ -1,0 +1,98 @@
+<div class="flex flex-col h-screen">
+  <h2 class="text-xl font-bold p-4 border-b sticky top-0 bg-base-100 z-10">Bento Box Selection</h2>
+  
+  <!-- KitchenAI Bento Boxes -->
+  <div class="p-4 space-y-4">
+    {% for bento in kitchenai_bento_boxes %}
+    <a href="?bento={{ bento.client_id }}" class="block">
+      <div class="card {% if selected_bento and selected_bento.client_id == bento.client_id %}bg-primary text-primary-content{% else %}bg-base-200 hover:bg-base-300{% endif %} cursor-pointer">
+        <div class="card-body p-4">
+          <h3 class="card-title text-sm">{{ bento.name }}</h3>
+          <p class="text-xs {% if selected_bento and selected_bento.client_id == bento.client_id %}text-primary-content/70{% else %}text-base-content/70{% endif %}">
+            {{ bento.client_description }}
+          </p>
+          <div class="text-xs {% if selected_bento and selected_bento.client_id == bento.client_id %}text-primary-content/50{% else %}text-base-content/50{% endif %}">
+            <span class="badge badge-sm">v{{ bento.version }}</span>
+          </div>
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <div class="text-center text-base-content/70">
+      <p>No active bento boxes available</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Divider -->
+  <div class="divider px-4 bottom-[200px] bg-base-100">Your Bento Box</div>
+
+  <!-- Client Bento Section -->
+  <div class="p-4 bottom-0 bg-base-100">
+    {% if client_id %}
+      <!-- Client ID Display -->
+      <div class="border-2 border-base-300 rounded-lg p-4 bg-base-200/50">
+        <div class="flex flex-col gap-2">
+          <p class="text-sm font-semibold text-base-content/70">Your Client ID</p>
+          <div class="flex items-center justify-between gap-2">
+            <code class="text-sm font-mono bg-base-300 px-3 py-1.5 rounded flex-1">
+              {{ client_id|slice:":10" }}...
+              <span class="sr-only">{{ client_id }}</span>
+            </code>
+            <button 
+              class="btn btn-ghost btn-sm tooltip" 
+              data-tip="Copy to clipboard"
+              onclick="navigator.clipboard.writeText('{{ client_id }}')">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+              </svg>
+            </button>
+          </div>
+          <p class="text-xs text-base-content/50">Click the copy button to copy the full ID to your clipboard</p>
+        </div>
+      </div>
+
+      {% if client_bento_box %}
+        <a href="?bento={{ client_bento_box.client_id }}" class="block">
+          <div class="card {% if selected_bento and selected_bento.client_id == client_bento_box.client_id %}bg-primary text-primary-content{% else %}bg-base-200 hover:bg-base-300{% endif %} mt-4 cursor-pointer">
+            <div class="card-body p-4">
+              <h3 class="card-title text-sm">{{ client_bento_box.name }}</h3>
+              <p class="text-xs {% if selected_bento and selected_bento.client_id == client_bento_box.client_id %}text-primary-content/70{% else %}text-base-content/70{% endif %}">
+                {{ client_bento_box.client_description }}
+              </p>
+              <div class="text-xs {% if selected_bento and selected_bento.client_id == client_bento_box.client_id %}text-primary-content/50{% else %}text-base-content/50{% endif %}">
+                <span class="badge badge-sm">v{{ client_bento_box.version }}</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      {% endif %}
+    {% else %}
+      <div class="flex justify-center">
+        <div class="tooltip" data-tip="Add your bento box">
+          <button class="btn btn-circle btn-ghost" onclick="window.my_modal.showModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Modal -->
+    <dialog id="my_modal" class="modal">
+      <form method="POST" class="modal-box">
+        {% csrf_token %}
+        <h3 class="font-bold text-lg">Add Your Bento Box</h3>
+        <p class="py-4">Generate a unique client ID to connect your bento box</p>
+        <div class="flex flex-col items-center gap-4">
+          <input type="hidden" name="request_client_id" value="true">
+          <button type="submit" class="btn btn-primary">
+            Generate Client ID
+          </button>
+          <button type="button" class="btn btn-ghost" onclick="my_modal.close()">Close</button>
+        </div>
+      </form>
+    </dialog>
+  </div>
+</div> 

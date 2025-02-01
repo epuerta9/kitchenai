@@ -1,0 +1,145 @@
+{% load custom_filters %}
+
+
+<div class="flex flex-col h-full">
+  <div class="flex justify-between items-center p-4 border-b sticky top-0 bg-base-100 z-10">
+    <h2 class="text-xl font-bold">Chat</h2>
+    <button class="btn btn-ghost btn-sm tooltip tooltip-left" 
+            data-tip="Clear chat history"
+            hx-post="{% url 'apps:playground_clear_chat' %}"
+            hx-target="#chat-messages"
+            hx-swap="innerHTML"
+            hx-confirm="Are you sure you want to clear the chat history?">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/trash.svg" 
+           class="h-5 w-5 text-base-content/70 hover:text-error"></svg>
+    </button>
+  </div>
+  
+  <!-- Chat Messages -->
+  <div id="chat-messages" class="flex-grow overflow-y-auto p-4 space-y-4">
+    {% if chat_history %}
+      {% for message in chat_history %}
+        <div class="chat chat-end">
+          <div class="chat-image avatar">
+            <div class="w-10 rounded-full bg-base-300">
+              <svg data-src="https://unpkg.com/heroicons/20/solid/user.svg" class="h-6 w-6 m-2 text-base-content"></svg>
+            </div>
+          </div>
+          <div class="chat-bubble chat-bubble-primary prose text-primary-content">{{ message.input_text|markdown|safe }}</div>
+        </div>
+
+        <div class="chat chat-start">
+          <div class="chat-image avatar">
+            <div class="w-10 rounded-full bg-primary/10">
+              <svg data-src="https://unpkg.com/heroicons/20/solid/cpu-chip.svg" class="h-6 w-6 m-2 text-primary"></svg>
+            </div>
+          </div>
+          <div class="chat-bubble chat-bubble-secondary prose text-secondary-content">{{ message.output_text|markdown|safe }}</div>
+        </div>
+
+        <!-- Metrics display for each historical message -->
+        <div class="chat-metrics bg-base-200 rounded-lg p-4 text-sm space-y-2">
+          {% if message.embedding_tokens %}
+          <div>Embedding Tokens: {{ message.embedding_tokens }}</div>
+          {% endif %}
+          {% if message.llm_prompt_tokens %}
+          <div>LLM Prompt Tokens: {{ message.llm_prompt_tokens }}</div>
+          {% endif %}
+          {% if message.llm_completion_tokens %}
+          <div>LLM Completion Tokens: {{ message.llm_completion_tokens }}</div>
+          {% endif %}
+          {% if message.total_llm_tokens %}
+          <div>Total LLM Tokens: {{ message.total_llm_tokens }}</div>
+          {% endif %}
+          
+          <!-- Collapsible Sources -->
+          <div class="collapse bg-base-100">
+            <input type="checkbox" id="sources-{{ message.timestamp|slugify }}" /> 
+            <label for="sources-{{ message.timestamp|slugify }}" class="collapse-title text-base font-medium flex items-center gap-2 cursor-pointer">
+              <svg data-src="https://unpkg.com/heroicons/20/solid/document-magnifying-glass.svg" class="h-5 w-5"></svg>
+              Retrieved Sources
+            </label>
+            <div class="collapse-content">
+              <div class="overflow-x-auto">
+                <table class="table table-xs">
+                  <thead>
+                    <tr>
+                      <th>Source Text</th>
+                      <th>Score</th>
+                      <th>Metadata</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for source in message.sources_used %}
+                    <tr>
+                      <td class="whitespace-pre-wrap">{{ source.text }}</td>
+                      <td>{{ source.score|floatformat:3 }}</td>
+                      <td>
+                        {% for key, value in source.metadata.items %}
+                        <div><span class="font-semibold">{{ key }}:</span> {{ value }}</div>
+                        {% endfor %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-center text-base-content/70">
+        {% if selected_bento %}
+          <p>No messages yet</p>
+        {% else %}
+          <div class="alert alert-info shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+              <h3 class="font-bold">Welcome to the Chat!</h3>
+              <p class="text-sm">Please select a Bento Box from the left panel to start chatting.</p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Chat Input -->
+  <div class="p-4 border-t sticky bottom-0 bg-base-100">
+    {% if selected_bento %}
+      <form hx-post="{% url 'apps:playground_chat_send' %}"
+            hx-target="#chat-messages"
+            hx-swap="beforeend"
+            hx-indicator="#loading-indicator"
+            hx-on::after-request="this.reset()"
+            class="flex gap-2">
+        {% csrf_token %}
+        <input type="hidden" name="selected_bento_id" value="{{ selected_bento.client_id }}" />
+        <input type="text" 
+               name="message"
+               placeholder="What's in this bento?" 
+               class="input input-bordered flex-grow" 
+               required />
+        <button type="submit" class="btn btn-primary">
+          <span class="htmx-indicator" id="loading-indicator">
+            <span class="loading loading-spinner loading-sm"></span>
+          </span>
+          <span class="htmx-indicator-hide">
+            <svg data-src="https://unpkg.com/heroicons/20/solid/paper-airplane.svg" class="h-5 w-5"></svg>
+          </span>
+        </button>
+      </form>
+    {% else %}
+      <div class="flex gap-2">
+        <input type="text" 
+               placeholder="Select a Bento Box to start chatting..." 
+               class="input input-bordered flex-grow" 
+               disabled />
+        <button class="btn btn-primary" disabled>
+          Send
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</div> 

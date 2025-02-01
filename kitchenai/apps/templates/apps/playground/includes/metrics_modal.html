@@ -1,0 +1,89 @@
+<!-- Modal -->
+<dialog id="metrics_modal" class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">Test Details</h3>
+    <div class="overflow-x-auto">
+      <table class="table">
+        <tbody>
+          <tr>
+            <td class="font-medium">Input Text</td>
+            <td>{{ current_metrics.input_text }}</td>
+          </tr>
+          <tr>
+            <td class="font-medium">Output Text</td>
+            <td>{{ current_metrics.output_text }}</td>
+          </tr>
+          {% if current_metrics.embedding_tokens %}
+          <tr>
+            <td class="font-medium">Embedding Tokens</td>
+            <td>{{ current_metrics.embedding_tokens }}</td>
+          </tr>
+          {% endif %}
+          {% if current_metrics.llm_prompt_tokens %}
+          <tr>
+            <td class="font-medium">LLM Prompt Tokens</td>
+            <td>{{ current_metrics.llm_prompt_tokens }}</td>
+          </tr>
+          {% endif %}
+          {% if current_metrics.llm_completion_tokens %}
+          <tr>
+            <td class="font-medium">LLM Completion Tokens</td>
+            <td>{{ current_metrics.llm_completion_tokens }}</td>
+          </tr>
+          {% endif %}
+          {% if current_metrics.total_llm_tokens %}
+          <tr>
+            <td class="font-medium">Total LLM Tokens</td>
+            <td>{{ current_metrics.total_llm_tokens }}</td>
+          </tr>
+          {% endif %}
+          {% if current_metrics.sources_used %}
+          <tr>
+            <td class="font-medium">Sources Used</td>
+            <td>
+              <div x-data="{ open: false }" class="bg-base-200 rounded-lg">
+                <button @click="open = !open" 
+                        class="w-full px-4 py-2 text-left flex justify-between items-center">
+                  <span class="text-sm font-medium">{{ current_metrics.sources_used|length }} Sources Found</span>
+                  <svg :class="{'rotate-180': open}" class="w-4 h-4 transition-transform" 
+                       xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" 
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                       stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                <div x-show="open" 
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 transform -translate-y-2"
+                     x-transition:enter-end="opacity-100 transform translate-y-0"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100 transform translate-y-0"
+                     x-transition:leave-end="opacity-0 transform -translate-y-2"
+                     class="px-4 py-2">
+                  {% for source in current_metrics.sources_used %}
+                  <div class="mb-2 p-2 bg-base-100 rounded">
+                    <p class="text-sm"><span class="font-medium">Text:</span> {{ source.text }}</p>
+                    <p class="text-sm"><span class="font-medium">Score:</span> {{ source.score }}</p>
+                    {% if source.metadata %}
+                    <p class="text-sm"><span class="font-medium">Metadata:</span> {{ source.metadata }}</p>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn">Close</button>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog> 

@@ -1,9 +1,9 @@
+import logging
 import multiprocessing
 import os
+import warnings
 from email.utils import parseaddr
 from pathlib import Path
-import warnings
-import logging
 
 import djp
 import sentry_sdk
@@ -15,7 +15,7 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 
 # 0. Setup
 # --------------------------------------------------------------------------------------------
-from kitchenai import __version__ 
+from kitchenai import __version__
 
 VERSION = __version__
 
@@ -76,7 +76,7 @@ elif env.bool("KITCHENAI_REDIS_CACHE", default=False):
             "LOCATION": env.str("REDIS_LOCATION", default="redis://127.0.0.1:6379/1"),
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            }
+            },
         }
     }
 
@@ -101,9 +101,7 @@ DEFAULT_FROM_EMAIL = env.str(
     validate=lambda v: Email()(parseaddr(v)[1]),
 )
 
-EMAIL_BACKEND = (
-    "django.core.mail.backends.console.EmailBackend"
-)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DJANGO_APPS = [
     "django.contrib.admin",
@@ -144,10 +142,11 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "kitchenai.core",
-    #"kitchenai.notebooks",
+    # "kitchenai.notebooks",
     "kitchenai.bento",
     "kitchenai.plugins",
     "kitchenai.dashboard",
+    "kitchenai.apps",
     # "kitchenai.django_webhook", # TODO: Uncomment this when we have a model to test with
 ]
 
@@ -159,7 +158,7 @@ if DEBUG:
         "django_browser_reload",
         "django_fastdev",
         "django_watchfiles",
-        'django_seed',
+        "django_seed",
         *THIRD_PARTY_APPS,
     ]
 
@@ -172,8 +171,6 @@ if DEBUG or KITCHENAI_LOCAL:
     ]
 
 LANGUAGE_CODE = "en-us"
-
-
 
 
 # LOGGING = {
@@ -262,7 +259,6 @@ MEDIA_URL = "/media/"
 MIDDLEWARE = [
     # Cache middleware - commented out to prevent unwanted caching
     # "django.middleware.cache.UpdateCacheMiddleware",  # Cache middleware start
-    
     # Standard middleware
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -329,8 +325,12 @@ AWS_STORAGE_BUCKET_NAME = env.str("AWS_STORAGE_BUCKET_NAME", default=None)
 AWS_S3_ENDPOINT_URL = env.str("AWS_S3_ENDPOINT_URL", default=None)
 AWS_DEFAULT_REGION = env.str("AWS_DEFAULT_REGION", default="us-east-1")
 AWS_S3_ADDRESSING_STYLE = env.str("AWS_S3_ADDRESSING_STYLE", default="path")
-AWS_S3_USE_SSL = env.bool("AWS_S3_USE_SSL", default=False) if (DEBUG or KITCHENAI_LOCAL) else True
-AWS_S3_VERIFY = env.bool("AWS_S3_VERIFY", default=False) if (DEBUG or KITCHENAI_LOCAL) else True
+AWS_S3_USE_SSL = (
+    env.bool("AWS_S3_USE_SSL", default=False) if (DEBUG or KITCHENAI_LOCAL) else True
+)
+AWS_S3_VERIFY = (
+    env.bool("AWS_S3_VERIFY", default=False) if (DEBUG or KITCHENAI_LOCAL) else True
+)
 
 STORAGES = {
     "default": {
@@ -469,30 +469,29 @@ ACCOUNT_UNIQUE_EMAIL = True
 
 # Forms and UI
 ACCOUNT_FORMS = {
-    'login': 'allauth.account.forms.LoginForm',
-    'signup': 'kitchenai.core.forms.KitchenAISignupForm',
+    "login": "allauth.account.forms.LoginForm",
+    "signup": "kitchenai.core.forms.KitchenAISignupForm",
 }
 
 LOGIN_REDIRECT_URL = "dashboard:home"
 
 # Allauth settings
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_EMAIL_VERIFICATION = "optional"
 
 # AllAuth Configuration
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ALLOW_REGISTRATION", default=True)
 
 
-AUTH_USER_MODEL = 'core.OSSUser'
-AUTH_ORGANIZATION_MODEL = 'core.OSSOrganization'
-AUTH_ORGANIZATIONMEMBER_MODEL = 'core.OSSOrganizationMember'
+AUTH_USER_MODEL = "core.OSSUser"
+AUTH_ORGANIZATION_MODEL = "core.OSSOrganization"
+AUTH_ORGANIZATIONMEMBER_MODEL = "core.OSSOrganizationMember"
 
 # AllAuth settings
-ACCOUNT_ADAPTER = 'kitchenai.core.adapters.KitchenAIAccountAdapter'
+ACCOUNT_ADAPTER = "kitchenai.core.adapters.KitchenAIAccountAdapter"
 
 if not ACCOUNT_ALLOW_REGISTRATION:
     ACCOUNT_ADAPTER = "kitchenai.users.adapters.NoNewUsersAccountAdapter"
-
 
 
 # django-anymail
@@ -574,7 +573,7 @@ ADMIN_URL = env.str("ADMIN_URL", default="kitchenai-admin/")
 KITCHENAI_LLM_PROVIDER = env.str("KITCHENAI_LLM_PROVIDER", default="openai")
 KITCHENAI_LLM_MODEL = env.str("KITCHENAI_LLM_MODEL", default="gpt-4o")
 
-#main kitchenai settings
+# main kitchenai settings
 KITCHENAI = {
     "bento": [],
     "plugins": [],
@@ -599,22 +598,22 @@ KITCHENAI_APP = "bento"
 
 # Theme settings
 KITCHENAI_THEMES = [
-    "cupcake",    # Light, cute
-    "dark",       # Dark mode
-    "light",      # Light mode
-    "dracula",    # Dark purple
-    "night",      # Dark blue
-    "winter",     # Light blue
-    "forest",     # Dark green
-    "sunset",     # Orange/pink
-    "business",   # Professional light
+    "cupcake",  # Light, cute
+    "dark",  # Dark mode
+    "light",  # Light mode
+    "dracula",  # Dark purple
+    "night",  # Dark blue
+    "winter",  # Light blue
+    "forest",  # Dark green
+    "sunset",  # Orange/pink
+    "business",  # Professional light
     "cyberpunk",  # Neon
     "synthwave",  # Retro dark
-    "retro",      # Vintage light
+    "retro",  # Vintage light
     "valentine",  # Pink theme
     "garden",
-    "wireframe",    # Nature green
-    "aqua",       # Light blue
+    "wireframe",  # Nature green
+    "aqua",  # Light blue
 ]
 
 # Default theme (can be overridden by env var)
@@ -629,6 +628,3 @@ if KITCHENAI_THEME not in KITCHENAI_THEMES:
 
 # Django plugin system. This has to be the last line
 djp.settings(globals())
-
-
-

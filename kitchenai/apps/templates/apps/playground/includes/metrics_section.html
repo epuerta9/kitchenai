@@ -1,0 +1,57 @@
+{% load custom_filters %}
+
+
+<div id="metrics-section" class="flex flex-col h-full">
+  <h2 class="text-xl font-bold p-4 border-b flex justify-between items-center">
+    <span>Evaluation Metrics</span>
+    <div class="flex gap-2">
+      {% if current_metrics %}
+      <!-- Info Button that opens modal -->
+      <button class="btn btn-ghost btn-xs tooltip tooltip-left"
+              data-tip="View test details"
+              onclick="metrics_modal.showModal()">
+        <svg data-src="https://unpkg.com/heroicons/20/solid/information-circle.svg" 
+             class="h-4 w-4 text-base-content hover:text-primary"></svg>
+      </button>
+
+      {% include "apps/playground/includes/metrics_modal.html" %}
+      {% endif %}
+
+      <form hx-post="{% url 'apps:playground_evaluate' %}"
+            hx-swap="innerHTML"
+            hx-target="#metrics-section"
+            class="inline">
+        {% csrf_token %}
+        <button type="submit" 
+                class="btn btn-ghost btn-xs tooltip tooltip-left"
+                data-tip="Run evaluations">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/clipboard-document-check.svg" 
+               class="h-4 w-4 text-base-content hover:text-primary"></svg>
+        </button>
+      </form>
+    </div>
+  </h2>
+  
+  <div id="metrics-content" class="flex-grow overflow-y-auto p-4">
+    {% if plugin_widgets %}
+      <!-- Plugin Widgets -->
+      {% for widget_url in plugin_widgets %}
+        {% with plugin_name=widget_url|cut:":"|cut:"_widget_for_source"|title %}
+        <div class="collapse bg-base-100 mt-2"
+             hx-get="{% url widget_url user_id %}?event=playground_evaluate"
+             hx-trigger="load"
+             hx-swap="outerHTML"
+             hx-indicator="#loading-{{ forloop.counter }}">
+          <div id="loading-{{ forloop.counter }}" class="flex items-center gap-2 p-4">
+            <div class="loading loading-spinner"></div>
+            <div class="font-medium">{{ plugin_name }} Analysis</div>
+          </div>
+        </div>
+        {% endwith %}
+      {% endfor %}
+      <div class="text-center text-base-content/70 mt-4">
+        <p>Click the evaluation button to analyze the last response</p>
+      </div>
+    {% endif %}
+  </div>
+</div> 

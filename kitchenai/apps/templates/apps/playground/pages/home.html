@@ -1,0 +1,80 @@
+{% extends "apps/base.html" %}
+{% load partials static %}
+
+{% block content %}
+<div class="min-h-[100dvh] p-2 md:p-4">
+  <!-- Header with Warning -->
+  <div class="text-center mb-2">
+    <div class="alert alert-warning max-w-xl mx-auto py-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+      <span class="text-xs">This is a playground server. Do not share any sensitive information.</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex flex-col sm:flex-row lg:flex-row gap-4">
+    <!-- Left Column - Tabbed Bento/Code -->
+    <div class="w-full sm:w-1/4 lg:w-1/4 h-[70vh] sm:h-[calc(100vh-8rem)]" x-data="{ activeTab: 'bento' }">
+      <div class="bg-base-100 rounded-lg shadow-xl h-full">
+        <div class="tabs tabs-boxed m-2">
+          <button 
+            class="tab" 
+            :class="{ 'tab-active': activeTab === 'bento' }"
+            @click="activeTab = 'bento'">
+            Bento Box
+          </button>
+          <button 
+            class="tab" 
+            :class="{ 'tab-active': activeTab === 'code' }"
+            @click="activeTab = 'code'">
+            Code
+          </button>
+        </div>
+        
+        <div x-show="activeTab === 'bento'" class="h-[calc(100%-3.5rem)] overflow-y-auto">
+          {% include "apps/playground/includes/bento_selection.html" %}
+        </div>
+        
+        <div x-show="activeTab === 'code'" class="h-[calc(100%-3.5rem)] overflow-y-auto">
+          {% include "apps/playground/includes/code_display.html" %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Column - Chat (Larger) -->
+    <div class="w-full sm:w-2/4 lg:w-2/4 h-[70vh] sm:h-[calc(100vh-8rem)]">
+      <div class="bg-base-100 rounded-lg shadow-xl h-full">
+        {% include "apps/playground/includes/chat_section.html" %}
+      </div>
+    </div>
+
+    <!-- Right Column - Metrics -->
+    <div class="w-full sm:w-1/4 lg:w-1/4 h-[70vh] sm:h-[calc(100vh-8rem)]">
+      <div class="bg-base-100 rounded-lg shadow-xl h-full">
+        {% include "apps/playground/includes/metrics_section.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block inline_javascript %}
+<script>
+  // Scroll to bottom on initial page load
+  document.addEventListener('DOMContentLoaded', function() {
+    const messagesDiv = document.getElementById('chat-messages');
+    if (messagesDiv) {
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+  });
+
+  // Scroll to bottom after HTMX swaps
+  document.body.addEventListener('htmx:afterSwap', function(event) {
+    // Only scroll if the swap target was the chat-messages div
+    if (event.detail.target.id === 'chat-messages') {
+      const messagesDiv = document.getElementById('chat-messages');
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+  });
+</script>
+{% endblock inline_javascript %}
