@@ -3,6 +3,17 @@
 
 {% block content %}
 <div class="min-h-[100dvh] p-2 md:p-4">
+  {% if user.is_authenticated %}
+  <!-- Back to Dashboard Button -->
+  <div class="text-right mb-2">
+    <a href="{% url 'dashboard:home' %}" 
+       class="btn btn-ghost btn-sm gap-2 text-base-content/70 hover:text-base-content">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/arrow-left.svg" class="h-4 w-4"></svg>
+      Back to Dashboard
+    </a>
+  </div>
+  {% endif %}
+
   <!-- Header with Warning -->
   <div class="text-center mb-2">
     <div class="alert alert-warning max-w-xl mx-auto py-2">

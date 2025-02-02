@@ -1,95 +1,139 @@
 {% load static %}
 <aside class="drawer-side z-10">
+  <style>
+    [x-cloak] { display: none !important; }
+  </style>
   <label for="my-drawer" class="drawer-overlay"></label>
   <!-- sidebar menu -->
   <nav class="flex min-h-screen w-64 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
+    <!-- Header -->
     <div class="mx-4 flex flex-col">
       <div class="flex items-center gap-2 font-black">
         <img src="{% static 'images/icon-logo.png' %}" alt="KitchenAI" class="h-10 w-15">
-        <span>KitchenAI </span>
+        <span>KitchenAI</span>
       </div>
-
       <span class="text-sm text-base-content/70 mt-1 text-center w-full">{{ request.user.username }}</span>
     </div>
     <div class="divider"></div>
 
-      {% if KITCHENAI_LOCAL %}
-        <div class="flex justify-center">
-          <div class="badge badge-warning badge-lg text-xs font-medium px-4 py-2">
-            DEVELOPMENT SERVER
-          </div>
+    {% if KITCHENAI_LOCAL %}
+      <div class="flex justify-center">
+        <div class="badge badge-warning badge-lg text-xs font-medium px-4 py-2">
+          DEVELOPMENT SERVER
         </div>
-      {% endif %}
+      </div>
+    {% endif %}
 
-    <ul class="menu">
+    <!-- Navigation Menu -->
+    <ul class="menu menu-md gap-1">
+      <!-- Dashboard -->
       <li>
         <a href="{% url 'dashboard:home' %}"
            class="{% if request.path == '/dashboard/' %}active{% endif %}">
-          <svg data-src="https://unpkg.com/heroicons/20/solid/home.svg"
-               class="h-5 w-5">
-          </svg>
+          <svg data-src="https://unpkg.com/heroicons/20/solid/home.svg" class="h-5 w-5"></svg>
           Dashboard
         </a>
+      </li>
+
+      <!-- Bento Clients -->
+      <li>
         <a href="{% url 'dashboard:labels' %}"
            class="{% if 'labels' in request.path %}active{% endif %}">
-          <svg data-src="https://unpkg.com/heroicons/20/solid/tag.svg"
-               class="h-5 w-5">
-          </svg>
+          <svg data-src="https://unpkg.com/heroicons/20/solid/tag.svg" class="h-5 w-5"></svg>
           Bento Clients
         </a>
-        <a href="{% url 'dashboard:file' %}" 
+      </li>
+
+      <!-- Files -->
+      <li>
+        <a href="{% url 'dashboard:file' %}"
            class="{% if 'file' in request.path %}active{% endif %}">
-          <svg data-src="https://unpkg.com/heroicons/20/solid/document.svg"
-               class="h-5 w-5">
-          </svg>
+          <svg data-src="https://unpkg.com/heroicons/20/solid/document.svg" class="h-5 w-5"></svg>
           Files
         </a>
-        {% comment %} <a href="{% url 'dashboard:embeddings' %}"
-           class="{% if 'embeddings' in request.path %}active{% endif %}">
-          <svg data-src="https://unpkg.com/heroicons/20/solid/squares-plus.svg"
-               class="h-5 w-5">
-          </svg>
-          Embeddings
-        </a> {% endcomment %}
+      </li>
+
+      <!-- Chat -->
+      <li>
         <a href="{% url 'dashboard:chat' %}"
            class="{% if 'chat' in request.path %}active{% endif %}">
-          <svg data-src="https://unpkg.com/heroicons/20/solid/chat-bubble-left-right.svg"
-               class="h-5 w-5">
-          </svg>
+          <svg data-src="https://unpkg.com/heroicons/20/solid/chat-bubble-left-right.svg" class="h-5 w-5"></svg>
           Chat
         </a>
+      </li>
+
+      <!-- Apps Section -->
+      <li x-data="{ open: {% if 'playground' in request.path %}true{% else %}false{% endif %} }">
+        <div class="flex w-full items-center justify-between"
+             @click="open = !open">
+          <div class="flex items-center gap-2">
+            <svg data-src="https://unpkg.com/heroicons/20/solid/squares-2x2.svg" class="h-5 w-5"></svg>
+            <span>Apps</span>
+          </div>
+          <svg data-src="https://unpkg.com/heroicons/20/solid/chevron-down.svg"
+               class="h-4 w-4 transition-transform"
+               :class="{ 'rotate-180': open }">
+          </svg>
+        </div>
+        <!-- Submenu -->
+        <ul x-cloak
+            x-show="open" 
+            x-transition:enter="transition ease-out duration-100"
+            x-transition:enter-start="opacity-0 -translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-75"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 -translate-y-1"
+            class="menu menu-sm">
+          <li>
+            <a href="{% url 'apps:playground_home' %}"
+               class="{% if 'playground' in request.path %}active{% endif %}">
+              <svg data-src="https://unpkg.com/heroicons/20/solid/beaker.svg" class="h-4 w-4"></svg>
+              Playground
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- API -->
+      <li>
         <a href="/v1/docs"
            class="{% if 'api' in request.path %}active{% endif %}">
-          <svg data-src="https://unpkg.com/heroicons/20/solid/code-bracket.svg"
-               class="h-5 w-5">
-          </svg>
+          <svg data-src="https://unpkg.com/heroicons/20/solid/code-bracket.svg" class="h-5 w-5"></svg>
           API
         </a>
+      </li>
+
+      <!-- Settings -->
+      <li>
         <a href="{% url 'dashboard:settings' %}"
            class="{% if 'settings' in request.path %}active{% endif %}">
-          <svg data-src="https://unpkg.com/heroicons/20/solid/adjustments-horizontal.svg"
-               class="h-5 w-5">
-          </svg>
+          <svg data-src="https://unpkg.com/heroicons/20/solid/adjustments-horizontal.svg" class="h-5 w-5"></svg>
           Settings
         </a>
+      </li>
+
+      <!-- Account -->
+      <li>
         <a href="{% url 'account_email' %}"
            class="{% if 'account' in request.path %}active{% endif %}">
-          <svg data-src="https://unpkg.com/heroicons/20/solid/user-circle.svg"
-               class="h-5 w-5">
-          </svg>
+          <svg data-src="https://unpkg.com/heroicons/20/solid/user-circle.svg" class="h-5 w-5"></svg>
           Account
         </a>
+      </li>
+
+      <!-- Documentation -->
+      <li>
         <a href="https://docs.kitchenai.dev"
            target="_blank"
            class="{% if 'docs' in request.path %}active{% endif %}">
-          <svg data-src="https://unpkg.com/heroicons/20/solid/book-open.svg"
-               class="h-5 w-5">
-          </svg>
+          <svg data-src="https://unpkg.com/heroicons/20/solid/book-open.svg" class="h-5 w-5"></svg>
           Documentation
         </a>
       </li>
     </ul>
 
+    <!-- Footer -->
     <div class="mt-auto text-center text-sm text-base-content/70 space-x-2">
       <span class="inline-flex items-center rounded-full bg-base-200 px-2 py-1 text-xs font-medium">
         v{{ VERSION }}
