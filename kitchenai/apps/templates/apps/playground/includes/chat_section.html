@@ -115,7 +115,7 @@
             hx-on::after-request="this.reset()"
             class="flex gap-2">
         {% csrf_token %}
-        <input type="hidden" name="selected_bento_id" value="{{ selected_bento.client_id }}" />
+        <input type="hidden" name="selected_bento_id" value="{{ selected_bento.id }}" />
         <input type="text" 
                name="message"
                placeholder="What's in this bento?" 

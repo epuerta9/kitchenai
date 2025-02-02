@@ -30,9 +30,10 @@ async def chat_send(request: HttpRequest):
             "apps/playground/includes/chat_response.html", 
             {"error": "Missing required parameters"}
         )
-        #get the selected bento
+    logger.info(f"selected_bento_client_id: {selected_bento_client_id}")
+    #get the selected bento
     selected_bento = await BentoClient.objects.filter(
-        client_id=selected_bento_client_id,
+        id=int(selected_bento_client_id),
         ack=True
     ).afirst()
 
@@ -46,14 +47,22 @@ async def chat_send(request: HttpRequest):
     #lets make sure the client id is either part of the session of the allowed bentos
     allowed_bento_ids = await request.session.aget('allowed_bento_ids', [])
     client_id = await request.session.aget('client_id', None)
-    allowed_bento_ids.append(client_id)
-    if selected_bento.client_id not in allowed_bento_ids:
+    if client_id:
+        #get bento from db with client_id
+        client_bento = await BentoClient.objects.filter(
+            client_id=client_id,
+            ack=True
+        ).afirst()
+        if client_bento:
+            allowed_bento_ids.append(client_bento.id)
+
+    if selected_bento.id not in allowed_bento_ids:
         return TemplateResponse(
             request, 
             "apps/playground/includes/chat_response.html", 
-            {"error": "Client ID not allowed"}
+            {"error": "Bento not allowed"}
         )
-
+    logger.info(f"selected_bento: {selected_bento.client_id}")
     try:
         result = await whisk_query(
             selected_bento.client_id,

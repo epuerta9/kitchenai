@@ -1,0 +1,50 @@
+<div class="p-4 space-y-6">
+  {% if selected_bento %}
+    <!-- Bento Name Section -->
+    <div class="bg-base-200 rounded-lg p-4">
+      <h3 class="font-semibold text-sm text-base-content/70 mb-2">Bento Name</h3>
+      <div class="font-mono text-sm">
+        {{ selected_bento.name }}
+        <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded ml-2">v{{ selected_bento.version }}</span>
+      </div>
+    </div>
+
+    <!-- Code Snippet Section -->
+    <div class="bg-base-200 rounded-lg p-4">
+      <h3 class="font-semibold text-sm text-base-content/70 mb-2">Code Snippet</h3>
+      {% if selected_bento.code_snippet %}
+        <pre class="bg-base-300 p-3 rounded-lg text-xs overflow-x-auto"><code>{{ selected_bento.code_snippet }}</code></pre>
+      {% else %}
+        <div class="bg-base-300 p-3 rounded-lg text-sm flex items-center gap-2 text-base-content/70">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/code-bracket-square.svg" class="h-5 w-5"></svg>
+          <span>No code snippet available for this bento</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- GitHub Link Section -->
+    <div class="bg-base-200 rounded-lg p-4">
+      <h3 class="font-semibold text-sm text-base-content/70 mb-2">Source Code</h3>
+      {% if selected_bento.github_url %}
+        <a href="{{ selected_bento.github_url }}" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="flex items-center gap-2 text-sm text-primary hover:text-primary-focus">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/code-bracket.svg" class="h-4 w-4"></svg>
+          View on GitHub
+          <svg data-src="https://unpkg.com/heroicons/20/solid/arrow-top-right-on-square.svg" class="h-3 w-3"></svg>
+        </a>
+      {% else %}
+        <div class="flex items-center gap-2 text-sm text-base-content/70">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/book-open.svg" class="h-4 w-4"></svg>
+          <span>Source code not available</span>
+        </div>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="flex flex-col items-center justify-center h-full text-base-content/70 space-y-3">
+      <svg data-src="https://unpkg.com/heroicons/20/solid/cube.svg" class="h-12 w-12"></svg>
+      <p class="text-sm text-center">Select a bento box to view its details</p>
+    </div>
+  {% endif %}
+</div> 

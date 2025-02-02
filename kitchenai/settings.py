@@ -581,6 +581,7 @@ KITCHENAI = {
     "settings": {
         "auth": env.bool("KITCHENAI_AUTH", default=False),
     },
+    'ALLOW_ANONYMOUS_PLUGINS': True,  # or False
 }
 
 WHISK_SETTINGS = {

@@ -14,6 +14,9 @@ from django.http import HttpResponse
 
 from falco_toolbox.types import HttpRequest
 import logging
+from functools import wraps
+from django.conf import settings
+from .decorators import optional_login_required
 
 logger = logging.getLogger(__name__)
 
@@ -238,7 +241,7 @@ def dataset(request, dataset_id: int):
         }
     )
 
-@login_required
+@optional_login_required
 async def chat_widget_for_source(request: HttpRequest, source_id: int):
     # Check if this is a chat send event
     #this means the user has sent a message and we need to run the tests. we now know which tests we need to poll for
@@ -291,7 +294,8 @@ async def chat_widget_for_source(request: HttpRequest, source_id: int):
         "deepeval_plugin/widgets/chat_widget.html",
         results
     )
-@login_required
+
+@optional_login_required
 def check_results(request: HttpRequest, source_id: int, test_name: str):
     # a poller will check this endpoint and return the test result for that section
     # if the test result is not ready, it will return a loading message

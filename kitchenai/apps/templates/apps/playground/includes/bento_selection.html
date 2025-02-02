@@ -4,14 +4,14 @@
   <!-- KitchenAI Bento Boxes -->
   <div class="p-4 space-y-4">
     {% for bento in kitchenai_bento_boxes %}
-    <a href="?bento={{ bento.client_id }}" class="block">
-      <div class="card {% if selected_bento and selected_bento.client_id == bento.client_id %}bg-primary text-primary-content{% else %}bg-base-200 hover:bg-base-300{% endif %} cursor-pointer">
+    <a href="?bento={{ bento.id }}" class="block">
+      <div class="card {% if selected_bento and selected_bento.id == bento.id %}bg-primary text-primary-content{% else %}bg-base-200 hover:bg-base-300{% endif %} cursor-pointer">
         <div class="card-body p-4">
           <h3 class="card-title text-sm">{{ bento.name }}</h3>
-          <p class="text-xs {% if selected_bento and selected_bento.client_id == bento.client_id %}text-primary-content/70{% else %}text-base-content/70{% endif %}">
+          <p class="text-xs {% if selected_bento and selected_bento.id == bento.id %}text-primary-content/70{% else %}text-base-content/70{% endif %}">
             {{ bento.client_description }}
           </p>
-          <div class="text-xs {% if selected_bento and selected_bento.client_id == bento.client_id %}text-primary-content/50{% else %}text-base-content/50{% endif %}">
+          <div class="text-xs {% if selected_bento and selected_bento.id == bento.id %}text-primary-content/50{% else %}text-base-content/50{% endif %}">
             <span class="badge badge-sm">v{{ bento.version }}</span>
           </div>
         </div>
@@ -53,14 +53,14 @@
       </div>
 
       {% if client_bento_box %}
-        <a href="?bento={{ client_bento_box.client_id }}" class="block">
-          <div class="card {% if selected_bento and selected_bento.client_id == client_bento_box.client_id %}bg-primary text-primary-content{% else %}bg-base-200 hover:bg-base-300{% endif %} mt-4 cursor-pointer">
+        <a href="?bento={{ client_bento_box.id }}" class="block">
+          <div class="card {% if selected_bento and selected_bento.id == client_bento_box.id %}bg-primary text-primary-content{% else %}bg-base-200 hover:bg-base-300{% endif %} mt-4 cursor-pointer">
             <div class="card-body p-4">
               <h3 class="card-title text-sm">{{ client_bento_box.name }}</h3>
-              <p class="text-xs {% if selected_bento and selected_bento.client_id == client_bento_box.client_id %}text-primary-content/70{% else %}text-base-content/70{% endif %}">
+              <p class="text-xs {% if selected_bento and selected_bento.id == client_bento_box.id %}text-primary-content/70{% else %}text-base-content/70{% endif %}">
                 {{ client_bento_box.client_description }}
               </p>
-              <div class="text-xs {% if selected_bento and selected_bento.client_id == client_bento_box.client_id %}text-primary-content/50{% else %}text-base-content/50{% endif %}">
+              <div class="text-xs {% if selected_bento and selected_bento.id == client_bento_box.id %}text-primary-content/50{% else %}text-base-content/50{% endif %}">
                 <span class="badge badge-sm">v{{ client_bento_box.version }}</span>
               </div>
             </div>
