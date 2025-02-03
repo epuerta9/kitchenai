@@ -176,10 +176,11 @@ docs-upgrade:
 
 # Bump project version and update changelog
 #bumpver VERSION:
+#deprecated: we manage the versions manually via __about__.py
+#just run bump-my-version bump {{ VERSION }}
 bumpver:
     #!/usr/bin/env bash
     set -euo pipefail
-    #just run bump-my-version bump {{ VERSION }}
     just run git-cliff --output CHANGELOG.md
 
     if [ -z "$(git status --porcelain)" ]; then
