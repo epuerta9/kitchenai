@@ -21,7 +21,7 @@ WorkingDirectory=/root/kitchenai
 
 # Ensure we're on the Docker network
 ExecStartPre=/usr/bin/docker network inspect kitchenai-network >/dev/null 2>&1 || /usr/bin/docker network create kitchenai-network
-ExecStart=/root/kitchenai/.venv/bin/python kitchenai/ run
+ExecStart=/root/kitchenai/.venv/bin/uv python kitchenai/ run
 ExecStartPost=/bin/bash -c '/usr/bin/docker network connect kitchenai-network $$'
 
 # Cleanup on stop
