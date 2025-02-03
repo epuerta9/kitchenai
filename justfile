@@ -175,10 +175,11 @@ docs-upgrade:
 # ----------------------------------------------------------------------
 
 # Bump project version and update changelog
-bumpver VERSION:
+#bumpver VERSION:
+bumpver:
     #!/usr/bin/env bash
     set -euo pipefail
-    just run bump-my-version bump {{ VERSION }}
+    #just run bump-my-version bump {{ VERSION }}
     just run git-cliff --output CHANGELOG.md
 
     if [ -z "$(git status --porcelain)" ]; then
