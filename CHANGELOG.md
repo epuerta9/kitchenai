@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🚀 Features
+
+- *(openai)* Implementation for chat completion and files
+- *(whisk)* Openai integration tweaks
+
+### 🚀 Plugins
+
+- *(deepeval)* Pass badge on label
+- *(deepeval)* Updated views to have optional endpoints depending on setting
+
+### ⚙️ Miscellaneous Tasks
+
+- Playground notebook
+- *(build)* Deps and jupyter notebook
+
+### Whisk
+
+- *(examples)* Added llama index examples
+
 ## [0.16.0] - 2025-01-22
 
 ### 🚀 Features
