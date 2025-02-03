@@ -1,0 +1,85 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - kitchenai-network
+    command: redis-server --appendonly yes
+    # Remove network_mode: host
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    expose:
+      - "5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - kitchenai-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: "minioadmin"
+      MINIO_ROOT_PASSWORD: "minioadmin"
+    volumes:
+      - minio_data:/data
+    expose:
+      - "9000"
+      - "9001"
+    networks:
+      - kitchenai-network
+    command: server /data --console-address ":9001"
+
+  chroma:
+    image: chromadb/chroma:latest
+    volumes:
+      - chroma_data:/chroma/chroma
+    expose:
+      - "8000"
+    networks:
+      - kitchenai-network
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8000
+      - ALLOW_RESET=true
+
+  nats:
+    container_name: nats
+    image: nats:latest
+    command: ["-c", "/etc/nats/nats-server.conf"]
+    expose:
+      - "4222"
+      - "8222"
+      - "6222"
+    volumes:
+      - ./config/nats-local.conf:/etc/nats/nats-server.conf
+      - nats-data:/data
+    networks:
+      - kitchenai-network
+
+networks:
+  kitchenai-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  postgres_data:
+  minio_data:
+  chroma_data:
+  nats-data:
+    driver: local

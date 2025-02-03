@@ -1,0 +1,34 @@
+[Unit]
+Description=KitchenAI Development Q Cluster
+After=docker.service kitchenai-dev.service
+Requires=docker.service
+Wants=kitchenai-dev.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment=KITCHENAI_LOCAL=True
+Environment=DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
+Environment=VECTOR_STORE_ENDPOINT=chroma
+Environment=REDIS_URL=redis://redis:6379
+Environment=NATS_URL=nats://nats:4222
+Environment=MINIO_ENDPOINT=minio:9000
+Environment=MINIO_ROOT_USER=minioadmin
+Environment=MINIO_ROOT_PASSWORD=minioadmin
+EnvironmentFile=/root/kitchenai/.env
+WorkingDirectory=/root/kitchenai
+
+# Ensure we're on the Docker network
+ExecStartPre=/usr/bin/docker network inspect kitchenai-network >/dev/null 2>&1 || /usr/bin/docker network create kitchenai-network
+ExecStart=/root/kitchenai/.venv/bin/python manage.py qcluster
+ExecStartPost=/bin/bash -c '/usr/bin/docker network connect kitchenai-network $$'
+
+# Cleanup on stop
+ExecStopPost=/bin/bash -c '/usr/bin/docker network disconnect kitchenai-network $$ 2>/dev/null || true'
+
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
