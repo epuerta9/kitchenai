@@ -55,6 +55,15 @@ ALLOWED_HOSTS = env.list(
     subcast=str,
 )
 
+
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=["https://playground.kitchenai.dev"],
+    subcast=str,
+)
+
+
+
 ASGI_APPLICATION = "kitchenai.asgi.application"
 
 # https://grantjenks.com/docs/diskcache/tutorial.html#djangocache
@@ -173,35 +182,6 @@ if DEBUG or KITCHENAI_LOCAL:
 LANGUAGE_CODE = "en-us"
 
 
-# LOGGING = {
-#     "version": 1,
-#     "disable_existing_loggers": False,
-#     "formatters": {
-#         "plain_console": {
-#             "format": "%(levelname)s %(message)s",
-#         },
-#         "verbose": {
-#             "format": "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
-#         },
-#     },
-#     "handlers": {
-#         "stdout": {
-#             "class": "logging.StreamHandler",
-#             "stream": sys.stdout,
-#             # "formatter": "verbose",
-#         },
-#     },
-#     "loggers": {
-#         "django": {
-#             "handlers": ["stdout"],
-#             "level": env.log_level("DJANGO_LOG_LEVEL", default="INFO"),
-#         },
-#         "kitchenai": {
-#             "handlers": ["stdout"],
-#             "level": env.log_level("KITCHENAI_LOG_LEVEL", default="INFO"),
-#         },
-#     },
-# }
 
 LOGGING = {
     "version": 1,
@@ -307,7 +287,7 @@ SECURE_HSTS_SECONDS = (
 # https://noumenal.es/notes/til/django/csrf-trusted-origins/
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-# SECURE_SSL_REDIRECT = not DEBUG
+# SECURE_SSL_REDIRECT = not (DEBUG or KITCHENAI_LOCAL)
 
 SERVER_EMAIL = env.str(
     "SERVER_EMAIL",
@@ -491,7 +471,7 @@ AUTH_ORGANIZATIONMEMBER_MODEL = "core.OSSOrganizationMember"
 ACCOUNT_ADAPTER = "kitchenai.core.adapters.KitchenAIAccountAdapter"
 
 if not ACCOUNT_ALLOW_REGISTRATION:
-    ACCOUNT_ADAPTER = "kitchenai.users.adapters.NoNewUsersAccountAdapter"
+    ACCOUNT_ADAPTER = "kitchenai.adapters.NoNewUsersAccountAdapter"
 
 
 # django-anymail

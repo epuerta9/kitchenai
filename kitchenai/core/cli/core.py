@@ -178,7 +178,10 @@ def runserver(
 def run(
     lite: Annotated[
         bool, typer.Option(help="Lite version of ASGI server")
-    ] = False
+    ] = False,
+    address: Annotated[
+        str, typer.Option(help="Address to run the server on.")
+    ] = "0.0.0.0:8001"
 ) -> None:
     """Run Django runserver."""
     sys.argv = [sys.argv[0]]
@@ -186,9 +189,9 @@ def run(
 
 
     if lite:
-        _run_dev_uvicorn(sys.argv)
+        _run_dev_uvicorn(sys.argv, address)
     else:
-        _run_uvicorn(sys.argv)
+        _run_uvicorn(sys.argv, address)
 
 
 @app.command()
@@ -425,7 +428,7 @@ def _run_with_honcho(commands: dict):
         manager.terminate()
 
 
-def _run_uvicorn(argv: list) -> None:
+def _run_uvicorn(argv: list, address: str = "0.0.0.0:8001") -> None:
     """
     Run gunicorn + uvicorn workers server.
     https://docs.gunicorn.org/en/stable/settings.html
@@ -439,7 +442,7 @@ def _run_uvicorn(argv: list) -> None:
     gunicorn_args = [
         "kitchenai.asgi:application",  # Replace WSGI with ASGI app
         "--bind",
-        "0.0.0.0:8001",
+        address,
         # "unix:/run/kitchenai_demo.gunicorn.sock",  # Use this if you're using a socket file
         "--max-requests",
         "1000",
@@ -459,7 +462,7 @@ def _run_uvicorn(argv: list) -> None:
     wsgiapp.run()
 
 
-def _run_dev_uvicorn(argv: list) -> None:
+def _run_dev_uvicorn(argv: list, address: str = "0.0.0.0:8001") -> None:
     """
     Run gunicorn + uvicorn workers server.
     https://docs.gunicorn.org/en/stable/settings.html
@@ -471,7 +474,7 @@ def _run_dev_uvicorn(argv: list) -> None:
     gunicorn_args = [
         "kitchenai.asgi:application",  # Replace WSGI with ASGI app
         "--bind",
-        "0.0.0.0:8001",
+        address,
         # "unix:/run/kitchenai_demo.gunicorn.sock",  # Use this if you're using a socket file
         "--max-requests",
         "1000",

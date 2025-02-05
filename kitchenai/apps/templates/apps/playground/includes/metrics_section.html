@@ -38,7 +38,7 @@
       {% for widget_url in plugin_widgets %}
         {% with plugin_name=widget_url|cut:":"|cut:"_widget_for_source"|title %}
         <div class="collapse bg-base-100 mt-2"
-             hx-get="{% url widget_url user_id %}?event=playground_evaluate"
+             hx-get="{% url widget_url user_id %}?event=chat_send"
              hx-trigger="load"
              hx-swap="outerHTML"
              hx-indicator="#loading-{{ forloop.counter }}">

@@ -10,11 +10,15 @@ import hashlib
 
 logger = logging.getLogger(__name__)
 
-def hash_uuid_to_int(uuid_string: str) -> int:
-    """Convert a UUID string to a positive integer using hash."""
-    # Take first 8 characters of hash to keep number manageable
-    hash_hex = hashlib.md5(uuid_string.encode()).hexdigest()[:8]
-    return int(hash_hex, 16)  # Convert hex to int
+def hash_uuid_to_int(uuid_str):
+    """
+    Convert UUID to a 32-bit integer that fits in PostgreSQL's integer range
+    """
+    # Convert UUID to bytes and take first 4 bytes
+    uuid_int = int(uuid_str.replace('-', ''), 16)
+    # Use modulo to ensure it fits in 32-bit signed integer range
+    max_int32 = 2147483647  # PostgreSQL integer max
+    return uuid_int % max_int32
 
 async def evaluate_response(request: HttpRequest) -> HttpResponse:
     """Handle evaluation of chat responses."""
