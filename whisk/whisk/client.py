@@ -141,10 +141,8 @@ class WhiskClient:
             else "kitchenai.service"
         )
 
-        if self.user == "playground":
-            args = ()
-        else:
-            args = ("queue",)
+
+        args = ("queue",)
         # Setup subscribers
         self.handle_query = self.broker.subscriber(f"{client_prefix}.query.*", *args)(
             self._handle_query

@@ -83,10 +83,11 @@ def run(
         help="NATS server URL"
     ),
     client_id: str = typer.Option(
-        "whisk_client",
+        ...,
         "--client-id",
         "-c",
-        help="Client ID"
+        help="Client ID",
+        prompt="Please enter your client ID",
     ),
     user: str = typer.Option(
         "playground",
