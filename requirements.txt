@@ -49,7 +49,7 @@
 # - redis
 # - refreshcss
 # - rich
-# - sentry-sdk
+# - sentry-sdk[django]
 # - slippers
 # - starlette
 # - temporalio
@@ -190,6 +190,7 @@ django==5.1.2
     #   djp
     #   falco-app
     #   heroicons
+    #   sentry-sdk
     #   slippers
 django-allauth==65.0.2
     # via hatch.envs.default

@@ -52,7 +52,7 @@ dependencies = [
   "pyyaml",
   "refreshcss",
   "rich",
-  "sentry-sdk",
+  "sentry-sdk[django]",
   "slippers",
   "typer",
   "whitenoise",
