@@ -296,18 +296,18 @@ async def chat_widget_for_source(request: HttpRequest, source_id: int):
     )
 
 @optional_login_required
-def check_results(request: HttpRequest, source_id: int, test_name: str):
+async def check_results(request: HttpRequest, source_id: int, test_name: str):
     # a poller will check this endpoint and return the test result for that section
     # if the test result is not ready, it will return a loading message
     # if the test result is ready, it will return the test result
 
     # get the data instance
-    data = Data.objects.filter(source_id=source_id).first()
+    data = await Data.objects.filter(source_id=source_id).afirst()
 
     if not data:
         return HttpResponse("")
     
-    evaluation = data.get_test_result(test_name)
+    evaluation = await data.aget_test_result(test_name)
 
 
     if evaluation is None:

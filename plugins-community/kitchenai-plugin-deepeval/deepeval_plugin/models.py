@@ -111,7 +111,7 @@ class Data(TimeStamped):
             
         model_class = test_map[test_name]
         logger.info(f"Getting test result for {test_name} for source {self.source_id}")
-        result = await model_class.objects.filter(data=self).afirst()
+        result = await model_class.objects.select_related('data').filter(data=self).afirst()
         logger.info(f"Test after async get for {test_name} for source {self.source_id}: {result}")
         return result
 
