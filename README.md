@@ -1,173 +1,134 @@
-# 🍽️ **KitchenAI**  
+# KitchenAI
 
 <p align="center">
   <img src="docs/_static/images/logo.png" alt="KitchenAI" width="100" height="100">
 </p>
 
-**Empower Your AI Development with KitchenAI: An AI Runtime for Experimentation, Integration, and Deployment**  
-
-[![Docs](https://img.shields.io/badge/Docs-kitchenai.dev-blue)](https://docs.kitchenai.dev)  
-[![Falco](https://img.shields.io/badge/built%20with-falco-success)](https://github.com/Tobi-De/falco)  
-[![Hatch Project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)  
+**KitchenAI** is a control plane for AI implementations — designed to bridge the gap between application developers and AI teams. Our platform simplifies AI integration with a loosely coupled, modular architecture that delivers production-grade reliability while letting your teams focus on what they do best.
 
 ---
 
-**[Documentation](https://docs.kitchenai.dev)**
-**[KitchenAI Cloud](#-get-early-access)**
+## 🚀 Quick Start
 
-## 🚀 **What is KitchenAI?**  
-
-KitchenAI is an open-source AI runtime designed to simplify experimentation, integration, and deployment for AI development teams. It transforms complex AI projects into scalable, distributed systems using lightweight, shareable AI components called Bento Boxes.
-
-With KitchenAI, you can:
-
-- **Experiment and test** AI techniques like RAG or embeddings effortlessly.
-- **Integrate and deploy** distributed AI applications seamlessly.
-- **Scale and unify** polyglot AI systems under one API.
-
-### **Key Features**:  
-1. **Distributed AI Runtime**: Build and scale AI systems with polyglot components.  
-2. **Framework & Cloud Agnostic**: Use any AI framework or cloud platform.  
-3. **Lightweight Bento Boxes**: Package and share AI implementations in minutes.
-
+- **Explore Our Interactive Playground:**  
+  [Try KitchenAI in Action](https://playground.kitchenai.dev/apps/playground)
+- **Take a Guided Tour:**  
+  [Watch the Guided Tour](https://app.arcade.software/share/j5ORenX65H5xuZWRppR4)
 
 ---
 
-## 🛠️ **Who is KitchenAI For?**  
+## 🌟 What Makes KitchenAI Unique
 
-- **AI Development Teams**: Build, test, and deploy AI systems quickly without operational overhead.
-- **Application Developers**: Simplify AI integration with unified APIs.
-- **Data Scientists**: Deploy your experiments into production-ready services effortlessly.
-- **Infrastructure Engineers**: Optimize distributed AI systems with modular components and observability tools.
+### Modular Architecture
+- **Bento Boxes:** Package your AI workflows into independent "bento boxes" that encapsulate complex logic.  
+- **Flexibility:** Update, replace, or scale individual modules without disrupting your overall system.  
+- **Clear Separation:** Let AI teams build advanced logic in a reproducible and swappable space, while app developers enjoy a simple, stable API.
 
----
-**Say goodbye to complexity!**  
+### High-Performance Messaging
+- **Powered by NATS:**  
+  - Lightning-fast, reliable communication between AI modules  
+  - Dynamic service discovery and routing  
+  - Robust support for event-driven workflows in distributed environments
 
-## 🚀 **Transform AI development with KitchenAI**
-Example: Turn AI experiments into Bento Boxes and deploy distributed AI systems:  
-
-
----
-
-## 💡 **Why KitchenAI?**  
-
-KitchenAI eliminates the hurdles of AI development by offering:
-
-1. **Unified AI Runtime**: Seamlessly integrate diverse frameworks, tools, and languages.  
-2. **NATS-Powered Messaging Fabric**: Connect Bento Boxes to create distributed, scalable AI systems.  
-3. **Plugin Ecosystem**: Extend capabilities with prompt management, evaluations, and more.  
-4. **Vendor Neutral**: Keep your AI stack portable and flexible.  
-5. **Faster Experimentation to Deployment**: Focus on innovation, not infrastructure.
+### Framework Agnostic
+- **Plug & Play:**  
+  - No vendor lock-in—integrate with any AI framework or model  
+  - Native support for LangChain, LlamaIndex, and custom implementations  
+  - Future-proof your AI infrastructure with flexible integration options
 
 ---
 
-## ⚡ **Quickstart**  
+## 🛠️ How It Works
 
-1. **Start the KitchenAI Control Plane**  
-   ```bash
-   export OPENAI_API_KEY=<your key>
-   git clone https://github.com/epuerta9/kitchenai.git 
-   docker compose up -d 
-   ```
+KitchenAI’s three-layer architecture makes it easy to manage your AI workflows:
 
-2. **Create a Local Account**  
-    go to `http://localhost:8001` and create an account.
-    ![kitchenai-dev](docs/_static/images/sign-in.png)
-    
+1. **Application Layer:**  
+   Your business applications call a simple, unified API (just like using OpenAI’s Chat Completions).
+   
+2. **NATS Messaging Layer:**  
+   This is our high-performance backbone for routing messages and discovering services dynamically.
+   
+3. **Bento Boxes Layer:**  
+   Modular AI implementations where your AI team builds the complex logic (be it LLM logic, RAG, agents, or custom workflows).
 
-3. **Run the Example Bento Box**
-    This will connect to the KitchenAI Control Plane and run the example bento box.
-   ```bash
-   uv run bento-community/polyglot-rag/openai-simple.py
-   ```
-4. **Chat with your Bento Box**
-    Go to the chat tab and start a new session using your bento box.
+### For Application Developers
+Your code remains clean and simple:
 
-5. **(for RAG bentos)Create a default Minio Bucket**
-    kitchenai uses s3 storage as default so it needs a base kitchenai bucket 
-    1. go to `http://localhost:9001` 
-    2. log in as minioadmin / minioadmin
-    3. create bucket **kitchenai** 
+```python
+    # Simple integration using OpenAI's Chat Completions
+    response = await openai_client.chat.completions.create(
+        model="@llama-index-agents/query", #your bento box client id 
+        messages=[{"role": "user", "content": data.query}]
+    )
+```
 
-6. **Make Your Own Bento Box**  
+### For AI Teams
+Focus on building powerful AI code:
 
-
-📖 Full quickstart guide at [docs.kitchenai.dev](https://docs.kitchenai.dev/cookbooks/quickstarts/).  
-
----
-
-## ✨ **Features**  
-
-- **🚀 Distributed AI Runtime**: Build AI systems with ease.  
-- **🛠️ NATS Messaging Fabric**: Connect components for scalable, distributed workflows.  
-- **🔌 Plugin Ecosystem**: Extend capabilities with custom integrations.  
-- **📦 Bento Boxes**: Shareable, lightweight AI implementations.  
-- **🌐 Framework & Cloud Agnostic**: Deploy anywhere, with any stack.  
+```python
+@kitchen.query.handler("query")
+async def query_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema:
+    # Advanced RAG implementation with best practices built-in
+    index = VectorStoreIndex.from_vector_store(vector_store)
+    query_engine = index.as_query_engine(
+        chat_mode="best",
+        filters=filters,
+        llm=llm,
+        verbose=True
+    )
+```
 
 ---
 
-## 📊 **AI Lifecycle with KitchenAI**  
+## 📚 Documentation
 
-1. **Experiment**: Develop AI techniques and annotate them for deployment.  
-2. **Build**: Package techniques into Bento Boxes.  
-3. **Deploy**: Run distributed systems with observability and scaling tools.  
-4. **Iterate**: Improve using built-in performance and tracing features.  
-
----
-
-## 🔧 **Under the Hood**  
-
-- **NATS Messaging Fabric**: Seamless connectivity for distributed systems.  
-- **Bento Boxes**: Lightweight, shareable AI components.  
-- **Plugin System**: Extend with prompt management, evaluations, and more.  
-- **Observability Built-In**: Tools for tracing, monitoring, and debugging.  
+- [Getting Started](https://kitchenai.dev/docs/getting-started)
+- [Core Concepts](https://kitchenai.dev/docs/core-concepts)
+- [Deployment Guide](https://kitchenai.dev/docs/deployment)
+- [API Reference](https://kitchenai.dev/docs/api-reference)
 
 ---
 
-### **LLMOps Infrastructure (Baked In)**  
+## 🛠️ Key Features
 
-**Every KitchenAI instance includes a complete LLMOps suite for production visibility and control:**  
-
-- **✅ OpenTelemetry Integration:** Full tracing across **workflows**, **agent calls**, and **vector stores**.  
-- **✅ DeepEval Integration:** Real-time **AI performance evaluation**—track accuracy, relevance, and quality metrics out-of-the-box.  
-- **✅ Grafana Dashboards:** Pre-configured **visual dashboards** for monitoring workflow health, latencies, and throughput.  
-- **✅ Sentry Integration:** Capture **errors** and exceptions across your **entire AI stack**, from vector lookups to LLM responses.  
-- **✅ Prompt Management:** Define reusable **prompt templates** with version control and easy debugging.  
-- **✅ Query Modifiers:** Dynamically **transform** user queries before they reach the model for better results.  
-- **✅ Response Synthesizer:** Ensure **consistent outputs** by applying customizable response transformations.  
-
-
-## 🚀 **Roadmap**  
-
-- Streaming support.
-- Agent orchestration workflows.
-- Advanced observability features.
-- OpenAI API compatibility.
-- Marimo integrations.
-
-📣 **Have suggestions or want to contribute?** Reach out to join the KitchenAI journey!  
+- **Version Control & Rollback:** Safely iterate and revert as needed.
+- **Monitoring & Observability Hooks:** Integrate with your favorite tools.
+- **Plugin Ecosystem:** Extend KitchenAI with additional capabilities.
+- **Security Integrations:** Designed with production-grade best practices.
 
 ---
 
-## 🤝 **Contribute**  
+## 🙋‍♂️ Join the Beta!
 
-KitchenAI is open-source and thrives on community contributions:  
-- ⭐ Star the repo on GitHub!  
-- 🛠️ Submit PRs or share feedback.  
-- 🧑‍🍳 Build plugins and share AI modules.
-
----
-
-## 🙏 **Acknowledgements**  
-
-KitchenAI draws inspiration from the open-source community and modern AI challenges. Together, we simplify AI development!  
+KitchenAI is still in beta—we're excited to have early adopters help shape the platform.  
+- **Join the Waitlist:** [Get Early Access](https://kitchenai.dev/#waitlist)  
+- **Play in Our Playground:** [Try it out now](https://playground.kitchenai.dev)
 
 ---
 
-## 📊 **Telemetry**  
+## 🔗 Quick Links
 
-KitchenAI collects **anonymous usage data** to improve the framework—no PII or sensitive data is collected.  
+- [Website](https://kitchenai.dev)
+- [Documentation](https://kitchenai.dev/docs)
+- [Interactive Playground](https://playground.kitchenai.dev)
+- [GitHub](https://github.com/epuerta9/kitchenai)
 
-> Let’s build the future of AI development together!
+---
 
-"{\"client_id\":\"openai-simple\",\"namespace\": \"openai\",\"label\":\"chat\"}"
+## 📄 License
+
+KitchenAI is released under the [Apache 2.0 License](LICENSE).
+
+---
+
+## 🙋‍♂️ Support & Community
+
+- [Community Forum](https://kitchenai.dev/community)
+- [GitHub Issues](https://github.com/epuerta9/kitchenai/issues)
+- [Email Support](mailto:support@kitchenai.dev)
+
+---
+
+<p align="center">
+  Built with ❤️ by the KitchenAI Team
+</p>

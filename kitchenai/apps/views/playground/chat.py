@@ -137,18 +137,16 @@ async def chat_send(request: HttpRequest):
         },
     )
 
-#making this function sync for now
-def clear_chat_history(request: HttpRequest) -> HttpResponse:
+async def clear_chat_history(request: HttpRequest) -> HttpResponse:
     """Clear the chat history from the session."""
-    if 'chat_history' in request.session:
-        del request.session['chat_history']
-        request.session.modified = True
+    await request.session.aset('chat_history', [])
+    request.session.modified = True
     
     # Return empty state template for HTMX
     return TemplateResponse(
         request,
         "apps/playground/includes/empty_chat.html",
         {
-            "selected_bento": request.session.get('selected_bento')
+            "selected_bento": await request.session.aget('selected_bento')
         }
     )
