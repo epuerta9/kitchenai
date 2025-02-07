@@ -79,6 +79,34 @@ async def query_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema:
 ```
 
 ---
+## Self hosting the control plane 
+
+KitchenAI is designed to be self-hosted. You can deploy the control plane and the bento boxes separately.
+
+
+
+1. Clone the KitchenAI repository
+```bash
+git clone https://github.com/epuerta9/kitchenai.git
+```
+
+2. Bring up the control plane and dependencies
+```bash
+docker compose up -d
+```
+
+4. Creating the Bucket for media. KitchenAI uses S3 for media. For local development, the compose file has a minio container. This only needs to be done the first time. 
+
+you will need to login to the minio container and create a bucket called `kitchenai`.
+
+endpoint: http://localhost:9001
+username: minioadmin
+password: minioadmin
+
+bucket name: kitchenai
+
+3. Bring up the bento boxes using this demo [demo notebooks](https://github.com/epuerta9/kitchenai-demo)
+---
 
 ## 📚 Documentation
 
