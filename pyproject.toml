@@ -65,6 +65,7 @@ dependencies = [
   "django-redis", 
   "temporalio",
   "kitchenai_whisk",
+  "llama-index-llms-litellm",
   "llama-index",
   "openai",
   "deepeval"

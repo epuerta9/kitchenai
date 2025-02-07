@@ -15,6 +15,8 @@ from .models import (
     Toxicity,
     Data
 )
+#TODO: create a custom lite llm for deepevals
+#from .custom import CustomLiteLLM
 
 from .types import TestResultReason
 
@@ -44,7 +46,7 @@ def run_answer_relevance(data_id):
             actual_output=data.output,
             retrieval_context=context
         )
-        metric = AnswerRelevancyMetric()
+        metric = AnswerRelevancyMetric(include_reason=True)
         metric.measure(test_case)
 
         verdicts = [verdict.model_dump() for verdict in metric.verdicts]

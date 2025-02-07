@@ -34,6 +34,7 @@
 # - heroicons[django]
 # - kitchenai-whisk
 # - llama-index
+# - llama-index-llms-litellm
 # - markdown2
 # - nest-asyncio
 # - openai
@@ -62,6 +63,7 @@ aiohttp==3.11.11
     #   fsspec
     #   langchain
     #   langchain-community
+    #   litellm
     #   llama-index-core
 aiosignal==1.3.2
     # via aiohttp
@@ -89,6 +91,8 @@ asgiref==3.8.1
 attrs==24.2.0
     # via
     #   aiohttp
+    #   jsonschema
+    #   referencing
     #   svix
 backoff==2.2.1
     # via posthog
@@ -124,6 +128,7 @@ click==8.1.7
     # via
     #   cookiecutter
     #   django-typer
+    #   litellm
     #   llama-parse
     #   nltk
     #   typer
@@ -305,6 +310,7 @@ httpx==0.27.2
     # via
     #   kitchenai-whisk
     #   langsmith
+    #   litellm
     #   llama-cloud
     #   llama-index-core
     #   openai
@@ -312,7 +318,9 @@ httpx==0.27.2
 httpx-sse==0.4.0
     # via langchain-community
 huggingface-hub==0.28.1
-    # via datasets
+    # via
+    #   datasets
+    #   tokenizers
 idna==3.10
     # via
     #   anyio
@@ -322,11 +330,14 @@ idna==3.10
 importlib-metadata==8.5.0
     # via
     #   deepeval
+    #   litellm
     #   opentelemetry-api
 iniconfig==2.0.0
     # via pytest
 jinja2==3.1.4
-    # via cookiecutter
+    # via
+    #   cookiecutter
+    #   litellm
 jiter==0.8.2
     # via openai
 jmespath==1.0.1
@@ -339,6 +350,10 @@ jsonpatch==1.33
     # via langchain-core
 jsonpointer==3.0.0
     # via jsonpatch
+jsonschema==4.23.0
+    # via litellm
+jsonschema-specifications==2024.10.1
+    # via jsonschema
 kitchenai-whisk==0.1.1
     # via hatch.envs.default
 langchain==0.3.17
@@ -363,6 +378,8 @@ langsmith==0.3.6
     #   langchain
     #   langchain-community
     #   langchain-core
+litellm==1.60.0
+    # via llama-index-llms-litellm
 llama-cloud==0.1.8
     # via llama-index-indices-managed-llama-cloud
 llama-index==0.12.10
@@ -382,6 +399,7 @@ llama-index-core==0.12.10.post1
     #   llama-index-cli
     #   llama-index-embeddings-openai
     #   llama-index-indices-managed-llama-cloud
+    #   llama-index-llms-litellm
     #   llama-index-llms-openai
     #   llama-index-multi-modal-llms-openai
     #   llama-index-program-openai
@@ -395,6 +413,8 @@ llama-index-embeddings-openai==0.3.1
     #   llama-index-cli
 llama-index-indices-managed-llama-cloud==0.6.3
     # via llama-index
+llama-index-llms-litellm==0.3.0
+    # via hatch.envs.default
 llama-index-llms-openai==0.3.13
     # via
     #   llama-index
@@ -467,6 +487,7 @@ openai==1.59.6
     # via
     #   hatch.envs.default
     #   langchain-openai
+    #   litellm
     #   llama-index-agent-openai
     #   llama-index-embeddings-openai
     #   llama-index-llms-openai
@@ -546,6 +567,7 @@ pydantic==2.9.2
     #   langchain
     #   langchain-core
     #   langsmith
+    #   litellm
     #   llama-cloud
     #   llama-index-core
     #   llama-parse
@@ -584,6 +606,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
     # via
     #   environs
+    #   litellm
     #   pydantic-settings
 python-slugify==8.0.4
     # via cookiecutter
@@ -606,6 +629,10 @@ redis==5.2.1
     # via
     #   hatch.envs.default
     #   django-redis
+referencing==0.36.2
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
 refreshcss==0.5.1
     # via hatch.envs.default
 regex==2024.11.6
@@ -642,6 +669,10 @@ rich==13.9.2
     #   typer
 rjsmin==1.2.2
     # via django-compressor
+rpds-py==0.22.3
+    # via
+    #   jsonschema
+    #   referencing
 s3transfer==0.10.3
     # via boto3
 sentry-sdk==2.16.0
@@ -699,7 +730,10 @@ text-unidecode==1.3
 tiktoken==0.8.0
     # via
     #   langchain-openai
+    #   litellm
     #   llama-index-core
+tokenizers==0.21.0
+    # via litellm
 tqdm==4.67.1
     # via
     #   datasets
@@ -737,6 +771,7 @@ typing-extensions==4.12.2
     #   psycopg
     #   pydantic
     #   pydantic-core
+    #   referencing
     #   slippers
     #   sqlalchemy
     #   temporalio

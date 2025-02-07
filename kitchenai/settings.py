@@ -617,6 +617,9 @@ KITCHENAI_THEME = env.str("KITCHENAI_THEME", default="winter")
 if KITCHENAI_THEME not in KITCHENAI_THEMES:
     KITCHENAI_THEME = "winter"  # Fallback to default if invalid theme specified
 
+
+LITELLM_PROVIDER = "gpt-4o"
+
 # WEBHOOKS
 # DJANGO_WEBHOOK = dict(MODELS=["core.TestObject"])
 

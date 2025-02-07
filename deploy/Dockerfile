@@ -21,8 +21,8 @@ COPY ./requirements.txt ./
 RUN pip install --upgrade pip uv \
  && python -m uv venv $VENV_PATH && uv pip install -r requirements.txt
 
-# install plugins 
-RUN uv pip install "deepeval_plugin>=0.2.1"
+# install plugins here
+#i.e RUN uv pip install "deepeval_plugin>=0.2.1"
 
 # Create base requirements file
 RUN uv pip list > "$VENV_PATH/base-requirements.txt"
