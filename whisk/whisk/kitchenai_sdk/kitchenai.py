@@ -15,7 +15,7 @@ class KitchenAIApp:
         self.storage = StorageTask(namespace, manager)
         self.embeddings = EmbedTask(namespace, manager)
         self.agent = AgentTask(namespace, manager)
-        self._default_hook = "kitchenai.contrib.kitchenai_sdk.hooks.default_hook"
+        #self._default_hook = "kitchenai.contrib.kitchenai_sdk.hooks.default_hook"
 
     def set_manager(self, manager):
         """Update the manager for the app and all tasks."""
