@@ -5,14 +5,49 @@ services:
     image: epuerta18/kitchenai-bundle:latest
     ports:
       - "8001:8001"
+    # Uncomment the following line to use an .env file for environment variables
     # env_file:
     #   - .env
     environment:
-      - DEBUG=False
-      - KITCHENAI_LOCAL=False
-      - DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
-      - VECTOR_STORE_ENDPOINT=localhost
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      DEBUG: "False"
+      KITCHENAI_LOCAL: "False"
+      KITCHENAI_LICENSE: "oss"
+      ALLOWED_HOSTS: "*"
+      CSRF_TRUSTED_ORIGINS: ""
+      CACHE_LOCATION: ""
+      KITCHENAI_REDIS_CACHE: "False"
+      REDIS_LOCATION: "redis://127.0.0.1:6379/1"
+      DATABASE_URL: "postgres://postgres:postgres@localhost:5432/postgres"
+      CONN_MAX_AGE: "60"
+      DEFAULT_FROM_EMAIL: "example@example.com"
+      SECRET_KEY: "django-insecure-ef6nIh7LcUjPtixFdz0_aXyUwlKqvBdJEcycRR6RvRY"
+      MEDIA_ROOT: "./media"
+      SECURE_HSTS_SECONDS: "120"
+      SECURE_HSTS_INCLUDE_SUBDOMAINS: "True"
+      SECURE_HSTS_PRELOAD: "True"
+      SESSION_COOKIE_SECURE: "True"
+      SERVER_EMAIL: "example@example.com"
+      AWS_ACCESS_KEY_ID: ""
+      AWS_SECRET_ACCESS_KEY: ""
+      AWS_STORAGE_BUCKET_NAME: ""
+      AWS_S3_ENDPOINT_URL: ""
+      AWS_DEFAULT_REGION: "us-east-1"
+      AWS_S3_ADDRESSING_STYLE: "path"
+      AWS_S3_USE_SSL: "True"
+      AWS_S3_VERIFY: "True"
+      USE_S3: "False"
+      DJANGO_ALLOW_REGISTRATION: "True"
+      RESEND_API_KEY: ""
+      ADMIN_URL: "kitchenai-admin/"
+      KITCHENAI_LLM_PROVIDER: "openai"
+      KITCHENAI_LLM_MODEL: "gpt-4o"
+      KITCHENAI_AUTH: "False"
+      KITCHENAI_JWT_SECRET: ""
+      WHISK_USER: "kitchenai"
+      WHISK_PASSWORD: "kitchenai_admin"
+      NATS_URL: "nats://localhost:4222"
+      KITCHENAI_THEME: "winter"
     #command: python kitchenai/ run --module kitchenai.dynamic.app:kitchen
     command: python kitchenai/ run
     depends_on:
