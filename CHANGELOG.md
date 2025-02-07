@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.16.1] - 2025-02-03
+## [unreleased]
 
 ### 🚀 Features
 
@@ -13,6 +13,11 @@ All notable changes to this project will be documented in this file.
 
 - *(deepeval)* Pass badge on label
 - *(deepeval)* Updated views to have optional endpoints depending on setting
+- *(deepeval)* Async
+
+### 🚜 Refactor
+
+- *(kitchenai)* Cleaned up all unused code
 
 ### ⚙️ Miscellaneous Tasks
 
@@ -22,6 +27,9 @@ All notable changes to this project will be documented in this file.
 ### Whisk
 
 - *(examples)* Added llama index examples
+- *(refactor)* Added client ID as mantatory option
+- *(bump)* Whisk version upgrade
+- *(clean)* Fix
 
 ## [0.16.0] - 2025-01-22
 
