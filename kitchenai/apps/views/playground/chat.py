@@ -70,6 +70,7 @@ async def chat_send(request: HttpRequest):
             WhiskQuerySchema(
                 query=message,
                 stream=False,
+                label=selected_bento.label,
                 metadata={"environment": "playground"}
             )
         )

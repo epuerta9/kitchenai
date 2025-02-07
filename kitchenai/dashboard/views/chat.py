@@ -156,7 +156,8 @@ async def chat_send(request: HttpRequest, chat_id: int):
             chat.chatsetting.selected_label, 
             WhiskQuerySchema(
                 query=message, 
-                stream=False, 
+                stream=False,
+                label=chat.chatsetting.selected_label,
                 metadata=chat.chatsetting.metadata
             )
         )
