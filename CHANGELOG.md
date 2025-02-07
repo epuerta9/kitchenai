@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### 🚜 Refactor
+
+- *(deepeval)* Moved deepeval plugin to core application. Observability should be a core feature
+
+## [0.17.0] - 2025-02-07
+
 ### 🚀 Features
 
 - *(openai)* Implementation for chat completion and files
