@@ -218,6 +218,8 @@ build-bin:
     export PYAPP_PROJECT_VERSION="${current_version}"
     export PYAPP_PROJECT_PATH="${wheel_path}"
     export PYAPP_DISTRIBUTION_EMBED="1"
+    # Add extra packages here, separated by spaces
+    export PYAPP_EXTRA_PACKAGES="deepeval_plugin>=0.2.1"
     hatch build -t binary
 
 # Build linux binary in docker

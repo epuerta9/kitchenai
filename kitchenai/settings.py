@@ -155,6 +155,7 @@ LOCAL_APPS = [
     "kitchenai.plugins",
     "kitchenai.dashboard",
     "kitchenai.apps",
+    "kitchenai.deepeval_plugin",
     # "kitchenai.django_webhook", # TODO: Uncomment this when we have a model to test with
 ]
 
@@ -555,12 +556,25 @@ KITCHENAI_LLM_MODEL = env.str("KITCHENAI_LLM_MODEL", default="gpt-4o")
 # main kitchenai settings
 KITCHENAI = {
     "bento": [],
-    "plugins": [],
+    "plugins": [{
+        "name": "deepeval_plugin",
+        "description": "deepeval integration with kitchenai",
+        "namespace": "deepeval",
+        "home": "home",
+        "tags": ["deepeval", "plugin", "deepeval_plugin", "kitchenai-plugin-deepeval"],
+        "version": "0.2.1",
+    }],
     "apps": [],
     "settings": {
         "auth": env.bool("KITCHENAI_AUTH", default=False),
     },
     'ALLOW_ANONYMOUS_PLUGINS': True,  # or False
+}
+
+DEEPEVAL_PLUGIN = {
+    "is_enabled": True,
+    "api_signal": False, 
+    "chat_signal": True,
 }
 
 WHISK_SETTINGS = {

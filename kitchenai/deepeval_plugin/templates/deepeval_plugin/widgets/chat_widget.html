@@ -1,0 +1,25 @@
+{% if enabled_tests.answer_relevance and answer_relevance %}
+  {% include "deepeval_plugin/components/answer_relevance.html" with evaluation=answer_relevance %}
+{% endif %}
+
+{% if enabled_tests.faithfulness and faithfulness %}
+  {% include "deepeval_plugin/components/faithfulness.html" with evaluation=faithfulness %}
+{% endif %}
+
+{% if enabled_tests.contextual_relevancy and contextual_relevancy %}
+  {% include "deepeval_plugin/components/contextual_relevancy.html" with evaluation=contextual_relevancy %}
+{% endif %}
+
+{% if enabled_tests.hallucination and hallucination %}
+  {% include "deepeval_plugin/components/hallucination.html" with evaluation=hallucination %}
+{% endif %}
+
+{% if enabled_tests.toxicity and toxicity %}
+  {% include "deepeval_plugin/components/toxicity.html" with evaluation=toxicity %}
+{% endif %}
+
+{% if not answer_relevance and not faithfulness and not contextual_relevancy and not hallucination and not toxicity %}
+  <div class="p-4">
+    <div class="font-medium">DeepEval Analysis not found...</div>
+  </div>
+{% endif %}

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col items-center p-8 space-y-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between w-full max-w-2xl mb-4">
+    <a href="{% url 'deepeval:home' %}" class="btn btn-ghost btn-circle">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </a>
+    <div class="text-center flex-1">
+      <h1 class="text-3xl font-bold mb-2">DeepEval Settings <span class="badge badge-primary">v{{ plugin_descriptions.version }}</span></h1>
+      <p class="text-base-content/60">Configure your evaluation parameters and test settings</p>
+    </div>
+    <div class="w-10"></div>
+  </div>
+
+  <!-- Build Settings Card -->
+  <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex items-center gap-2 mb-4">
+        <svg data-src="https://unpkg.com/heroicons/20/solid/cog.svg" class="h-6 w-6 text-primary"></svg>
+        <h2 class="card-title">Build Settings</h2>
+      </div>
+      <div class="mockup-code">
+        <pre><code>PLUGIN_NAME: {{ plugin_descriptions.name }}
+PLUGIN_DESCRIPTION: {{ plugin_descriptions.description }}
+PLUGIN_NAMESPACE: {{ plugin_descriptions.namespace }}
+IS_ENABLED: {{ plugin_settings.is_enabled }}
+API_SIGNAL: {{ plugin_settings.api_signal }}
+CHAT_SIGNAL: {{ plugin_settings.chat_signal }}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test Settings Card -->
+  <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex items-center gap-2 mb-4">
+        <svg data-src="https://unpkg.com/heroicons/20/solid/beaker.svg" class="h-6 w-6 text-secondary"></svg>
+        <h2 class="card-title">Test Settings</h2>
+      </div>
+      
+      <form hx-post="{% url 'deepeval:settings' %}" 
+            hx-swap="afterend"
+            hx-target="#toast-container"
+            class="space-y-4">
+        {% csrf_token %}
+        
+        <!-- Answer Relevance Toggle -->
+        <div class="form-control">
+          <label class="label cursor-pointer">
+            <span class="label-text">Answer Relevance Test</span>
+            <input type="checkbox" class="switch switch-primary" name="is_answer_relevance_enabled" 
+                   {% if test_settings.is_answer_relevance_enabled %}checked{% endif %} />
+          </label>
+          <p class="text-sm text-base-content/60">Evaluates if the response directly answers the user's question</p>
+        </div>
+
+        <!-- Faithfulness Toggle -->
+        <div class="form-control">
+          <label class="label cursor-pointer">
+            <span class="label-text">Faithfulness Test</span>
+            <input type="checkbox" class="switch switch-secondary" name="is_faithfulness_enabled"
+                   {% if test_settings.is_faithfulness_enabled %}checked{% endif %} />
+          </label>
+          <p class="text-sm text-base-content/60">Checks if the response is consistent with provided context</p>
+        </div>
+
+        <!-- Contextual Relevancy Toggle -->
+        <div class="form-control">
+          <label class="label cursor-pointer">
+            <span class="label-text">Contextual Relevancy Test</span>
+            <input type="checkbox" class="switch switch-accent" name="is_contextual_relevancy_enabled"
+                   {% if test_settings.is_contextual_relevancy_enabled %}checked{% endif %} />
+          </label>
+          <p class="text-sm text-base-content/60">Verifies if the retrieved context is relevant to the query</p>
+        </div>
+
+        <!-- Hallucination Toggle -->
+        <div class="form-control">
+          <label class="label cursor-pointer">
+            <span class="label-text">Hallucination Test</span>
+            <input type="checkbox" class="switch switch-info" name="is_hallucination_enabled"
+                   {% if test_settings.is_hallucination_enabled %}checked{% endif %} />
+          </label>
+          <p class="text-sm text-base-content/60">Detects fabricated or unsupported information</p>
+        </div>
+
+        <!-- Toxicity Toggle -->
+        <div class="form-control">
+          <label class="label cursor-pointer">
+            <span class="label-text">Toxicity Test</span>
+            <input type="checkbox" class="switch switch-warning" name="is_toxicity_enabled"
+                   {% if test_settings.is_toxicity_enabled %}checked{% endif %} />
+          </label>
+          <p class="text-sm text-base-content/60">Screens for harmful or inappropriate content</p>
+        </div>
+
+        <div class="card-actions justify-end">
+          <button class="btn btn-primary" type="submit">Save Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+{% endblock %}

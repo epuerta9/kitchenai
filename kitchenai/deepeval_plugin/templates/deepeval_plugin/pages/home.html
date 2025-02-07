@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="p-4">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold">DeepEval Dashboard</h1>
+      <a href="{% url 'deepeval:settings' %}" class="btn btn-ghost btn-circle">
+        <svg data-src="https://unpkg.com/heroicons/20/solid/cog-6-tooth.svg" class="h-6 w-6"></svg>
+      </a>
+    </div>
+    <div class="stats shadow">
+      <div class="stat">
+        <div class="stat-title">Total Evaluations</div>
+        <div class="stat-value">{{ total_evaluations }}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Active Datasets</div>
+        <div class="stat-value">{{ active_datasets }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Datasets Section -->
+  <div class="space-y-6 mb-8">
+    {% for dataset in datasets %}
+    <!-- Aggregate Metrics Card -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <div class="flex items-center gap-2 mb-4">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/chart-bar.svg" class="h-6 w-6 text-primary"></svg>
+          <h3 class="text-lg font-bold">Aggregate Metrics</h3>
+        </div>
+        <div class="stats stats-vertical lg:stats-horizontal shadow">
+          {% with dataset.metrics as metrics %}
+          <div class="stat">
+            <div class="stat-title">Answer Relevance</div>
+            <div class="stat-value text-primary">{{ metrics.answer_relevance|floatformat:2 }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-title">Faithfulness</div>
+            <div class="stat-value text-secondary">{{ metrics.faithfulness|floatformat:2 }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-title">Contextual Relevancy</div>
+            <div class="stat-value text-accent">{{ metrics.contextual_relevancy|floatformat:2 }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-title">Hallucination Score</div>
+            <div class="stat-value text-info">{{ metrics.hallucination|floatformat:2 }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-title">Toxicity Score</div>
+            <div class="stat-value text-warning">{{ metrics.toxicity|floatformat:2 }}</div>
+          </div>
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Dataset Info Card -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <div class="flex items-center gap-2 mb-4">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/folder.svg" class="h-6 w-6 text-secondary"></svg>
+          <h3 class="text-lg font-bold">Dataset Information</h3>
+        </div>
+        <div class="flex justify-between items-center">
+          <a href="{% url 'deepeval:dataset' dataset.id %}" class="hover:underline">
+            <h2 class="text-xl font-semibold">{{ dataset.name }}</h2>
+          </a>
+          <div class="badge {% if dataset.enabled %}badge-success{% else %}badge-error{% endif %}">
+            {{ dataset.enabled|yesno:"Active,Inactive" }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Evaluations Card -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <div class="flex items-center gap-2 mb-4">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/clock.svg" class="h-6 w-6 text-accent"></svg>
+          <h3 class="text-lg font-bold">Recent Evaluations</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Source ID</th>
+                <th>User Input Query</th>
+                <th>Average Evaluation Score (0-1)</th>
+                <th>Evaluation Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for eval in dataset.recent_evaluations %}
+              <tr>
+                <td>
+                  <div class="tooltip" data-tip="Unique identifier for this evaluation">
+                    {{ eval.source_id }}
+                  </div>
+                </td>
+                <td class="max-w-md truncate">
+                  <div class="tooltip" data-tip="The original user query that was evaluated">
+                    {{ eval.input }}
+                  </div>
+                </td>
+                <td>
+                  <div class="tooltip" data-tip="Average of Answer Relevance, Faithfulness, Contextual Relevancy, Hallucination and Toxicity scores">
+                    {{ eval.avg_score|floatformat:2 }}
+                  </div>
+                </td>
+                <td>
+                  <div class="tooltip" data-tip="When this evaluation was performed">
+                    {{ eval.created_at|timesince }} ago
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
