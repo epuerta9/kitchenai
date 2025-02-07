@@ -9,12 +9,11 @@ django_asgi = get_asgi_application()
 # Starlette serving
 from starlette.applications import Starlette
 from starlette.routing import Mount
-from django.conf import settings
-
+            
 from contextlib import asynccontextmanager
 from kitchenai.core.broker import whisk
 
-@asynccontextmanager
+@asynccontextmanager    
 async def broker_lifespan(app):
     await whisk.broker.start()
     try:

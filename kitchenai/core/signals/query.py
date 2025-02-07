@@ -1,6 +1,5 @@
 import logging
 
-from kitchenai.contrib.kitchenai_sdk.schema import QueryBaseResponseSchema
 from django.dispatch import receiver, Signal
 
 from enum import StrEnum

@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from kitchenai.core.exceptions import QueryHandlerBadRequestError
 from kitchenai.core.api.query import whisk_query
 from kitchenai.core.signals.query import QuerySignalSender, query_signal
-from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema
+from whisk.kitchenai_sdk.schema import WhiskQuerySchema
 from collections import deque
 import logging
 import json
@@ -67,7 +67,7 @@ async def chat_send(request: HttpRequest):
         result = await whisk_query(
             selected_bento.client_id,
             "query",
-            QuerySchema(
+            WhiskQuerySchema(
                 query=message,
                 stream=False,
                 metadata={"environment": "playground"}

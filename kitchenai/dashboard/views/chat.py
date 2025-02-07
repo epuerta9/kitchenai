@@ -8,7 +8,7 @@ from django.apps import apps
 from django.http import HttpResponse
 from ..models import Chat, ChatMetric, AggregatedChatMetric, ChatSetting
 from kitchenai.core.exceptions import QueryHandlerBadRequestError
-from kitchenai.contrib.kitchenai_sdk.schema import QuerySchema
+from whisk.kitchenai_sdk.schema import WhiskQuerySchema
 from kitchenai.core.api.query import whisk_query
 from kitchenai.core.signals.query import QuerySignalSender, query_signal
 from django.contrib.auth.decorators import login_required
@@ -154,7 +154,7 @@ async def chat_send(request: HttpRequest, chat_id: int):
         result = await whisk_query(
             chat.bento_box.client_id,
             chat.chatsetting.selected_label, 
-            QuerySchema(
+            WhiskQuerySchema(
                 query=message, 
                 stream=False, 
                 metadata=chat.chatsetting.metadata

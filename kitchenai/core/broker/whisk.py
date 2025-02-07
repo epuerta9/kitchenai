@@ -6,8 +6,6 @@ from whisk.kitchenai_sdk.nats_schema import (
     StorageResponseMessage,
     EmbedResponseMessage,
 )
-import json
-import logging
 import logging
 from kitchenai.core.auth.oss.organization import OSSBentoClient
 from whisk.client import WhiskClient
@@ -27,7 +25,6 @@ class AccountLimits:
     streams: int = 10
     consumers: int = 100
 
-
 whisk = WhiskClient(
     settings.WHISK_SETTINGS["nats_url"],
     user=settings.WHISK_SETTINGS["user"],
@@ -42,7 +39,6 @@ whisk = WhiskClient(
 "kitchenai.service.*.mgmt.register",
 
 """
-
 
 @whisk.broker.subscriber("kitchenai.service.*.storage.*.response", "kitchenai-storage")
 async def on_message(msg: StorageResponseMessage):
@@ -70,7 +66,6 @@ async def on_message(msg: StorageResponseMessage):
         status=file_object.status,
         token_counts=msg.token_counts,
     )
-
 
 @whisk.broker.subscriber("kitchenai.service.*.storage.*.get", "kitchenai-storage-get")
 async def on_message(msg: StorageGetRequestMessage):

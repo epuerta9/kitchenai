@@ -3,8 +3,6 @@ import uuid
 from django.db import models
 from falco_toolbox.models import TimeStamped
 from django.conf import settings
-import boto3
-from storages.backends.s3boto3 import S3Boto3Storage
 
 def file_object_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/uuid/filename

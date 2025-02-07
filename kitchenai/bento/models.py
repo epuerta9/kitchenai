@@ -1,6 +1,5 @@
 from django.db import models
 from falco_toolbox.models import TimeStamped
-from kitchenai.core.utils import add_package_to_core
 from kitchenai.core.schema.rag import RAGConfigSchema
 import logging
 
@@ -19,12 +18,6 @@ class Bento(TimeStamped):
     def __str__(self):
         return self.name
     
-    def get_import_path(self):
-        return f"{self.name}.kitchen"
-    
-    def add_to_core(self):
-        add_package_to_core(self.get_import_path())
-
 
 class LoadedBento(TimeStamped):
     name = models.CharField(max_length=255)

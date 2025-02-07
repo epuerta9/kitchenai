@@ -1,13 +1,12 @@
-
+from whisk.kitchenai_sdk.kitchenai import KitchenAIApp
 
 import pytest
 import asyncio
-from kitchenai.contrib.kitchenai_sdk.kitchenai import KitchenAIAppV2  # Replace with the correct import path
 
 
 @pytest.fixture
 def app():
-    return KitchenAIAppV2(namespace="test_namespace")
+    return KitchenAIApp(namespace="test_namespace")
 
 def test_app_initialization(app):
     assert app is not None

@@ -1,5 +1,4 @@
 import logging
-import asyncio
 
 from django.apps import apps
 from django.db.models.signals import post_delete

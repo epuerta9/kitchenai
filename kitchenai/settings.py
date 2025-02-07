@@ -151,7 +151,6 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "kitchenai.core",
-    # "kitchenai.notebooks",
     "kitchenai.bento",
     "kitchenai.plugins",
     "kitchenai.dashboard",
@@ -602,7 +601,7 @@ KITCHENAI_THEME = env.str("KITCHENAI_THEME", default="winter")
 
 # Validate theme setting
 if KITCHENAI_THEME not in KITCHENAI_THEMES:
-    KITCHENAI_THEME = "cupcake"  # Fallback to default if invalid theme specified
+    KITCHENAI_THEME = "winter"  # Fallback to default if invalid theme specified
 
 # WEBHOOKS
 # DJANGO_WEBHOOK = dict(MODELS=["core.TestObject"])

@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from llama_index.core.agent import ReActAgent
 from llama_index.llms.openai import OpenAI
 from llama_index.core.tools import FunctionTool
-from kitchenai.core.tools import multiply
 from llama_index.core.llms import ChatMessage
 
 class BaseAgent(ABC):
@@ -14,7 +13,7 @@ class BaseAgent(ABC):
 class CoreAgent(BaseAgent):
     def __init__(self) -> None:
         self.llm = OpenAI(model="gpt-3.5-turbo", temperature=1)
-        multiply_tool = FunctionTool.from_defaults(fn=multiply)
+        #multiply_tool = FunctionTool.from_defaults(fn=multiply)
         self.agent = ReActAgent.from_tools([], llm=self.llm, verbose=True)
 
     async def achat(self, message: str) -> str:
