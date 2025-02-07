@@ -25,8 +25,7 @@ from kitchenai.core.api.openai.chat_types import (
     ChatCompletionUsage,
 )
 
-import datetime
-import asyncio
+
 from kitchenai.exceptions import NoRespondersError
 from pydantic import ValidationError
 
@@ -167,7 +166,6 @@ async def oachat(
         raise HttpError(500, "Error processing chat completion request")
 
     response_data = QueryResponseMessage(**response.decoded_body)
-    logger.info(f"Response data: {response_data}")
     # Add default empty dict for response_data if None
     if response_data.error:
         if "No task found for query" in response_data.error:

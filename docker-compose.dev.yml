@@ -20,14 +20,6 @@ services:
       - 4222:4222
       - 8222:8222
       - 6222:6222
-    # volumes:
-    #   - type: bind
-    #     source: ./config/nats/nats-server.conf
-    #     target: /etc/nats/nats-server.conf
-    #   - type: volume
-    #     source: nats-data
-    #     target: /data
-
     volumes:
       - ./config/nats-local.conf:/etc/nats/nats-server.conf
       - nats-data:/data
