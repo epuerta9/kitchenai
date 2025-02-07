@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### Bug
+
+- *(chat)* Missing label field in whiskbasequery
+
 ## [0.18.0] - 2025-02-07
 
 ### 🚜 Refactor
