@@ -282,3 +282,315 @@ For more examples and detailed documentation, visit our [documentation](https://
 ```bash
 whisk --help
 ```
+
+## Project Structure
+
+For larger projects, it's recommended to organize your handlers into modules. Here are some recommended patterns:
+
+### Pattern 1: Module-based Organization
+
+```plaintext
+my_whisk_app/
+├── app.py              # Main app initialization
+├── config.yml          # Configuration
+├── handlers/
+│   ├── __init__.py
+│   ├── query/          # Group query handlers by domain
+│   │   ├── __init__.py
+│   │   ├── chat.py
+│   │   ├── rag.py
+│   │   └── tools.py
+│   ├── storage/        # Storage handlers
+│   │   ├── __init__.py
+│   │   └── documents.py
+│   └── embed/          # Embedding handlers
+│       ├── __init__.py
+│       └── text.py
+└── dependencies/       # Dependency initialization
+    ├── __init__.py
+    ├── llm.py
+    └── vector_store.py
+```
+
+```python
+# app.py
+from whisk.kitchenai_sdk.kitchenai import KitchenAIApp
+from handlers.query import chat, rag, tools
+from handlers.storage import documents
+from handlers.embed import text
+
+# Initialize app
+kitchen = KitchenAIApp(namespace="large-app")
+
+# Register all handlers
+chat.register_handlers(kitchen)
+rag.register_handlers(kitchen)
+tools.register_handlers(kitchen)
+documents.register_handlers(kitchen)
+text.register_handlers(kitchen)
+```
+
+```python
+# handlers/query/chat.py
+from whisk.kitchenai_sdk.schema import WhiskQuerySchema, WhiskQueryBaseResponseSchema, DependencyType
+
+def register_handlers(kitchen):
+    @kitchen.query.handler("chat")
+    async def chat_handler(data: WhiskQuerySchema, llm=None) -> WhiskQueryBaseResponseSchema:
+        """Basic chat handler"""
+        ...
+
+    @kitchen.query.handler("chat_stream")
+    async def stream_handler(data: WhiskQuerySchema, llm=None) -> WhiskQueryBaseResponseSchema:
+        """Streaming chat handler"""
+        ...
+```
+
+### Pattern 2: Class-based Handlers
+
+For more complex handlers that share state or utilities:
+
+```python
+# handlers/query/rag.py
+from whisk.kitchenai_sdk.schema import WhiskQuerySchema, WhiskQueryBaseResponseSchema, DependencyType
+
+class RAGHandlers:
+    def __init__(self, kitchen):
+        self.kitchen = kitchen
+        self.register_handlers()
+    
+    def register_handlers(self):
+        # Use instance method to share utilities
+        self.kitchen.query.handler("rag")(self.rag_query)
+        self.kitchen.query.handler("rag_stream")(self.rag_stream)
+    
+    async def rag_query(self, data: WhiskQuerySchema, llm=None, vector_store=None) -> WhiskQueryBaseResponseSchema:
+        """RAG query handler"""
+        docs = await self._get_relevant_docs(data.query, vector_store)
+        return await self._generate_response(data.query, docs, llm)
+    
+    async def rag_stream(self, data: WhiskQuerySchema, llm=None, vector_store=None) -> WhiskQueryBaseResponseSchema:
+        """Streaming RAG handler"""
+        docs = await self._get_relevant_docs(data.query, vector_store)
+        return await self._stream_response(data.query, docs, llm)
+    
+    async def _get_relevant_docs(self, query, vector_store):
+        """Shared utility for document retrieval"""
+        ...
+    
+    async def _generate_response(self, query, docs, llm):
+        """Shared response generation logic"""
+        ...
+
+# app.py
+from handlers.query.rag import RAGHandlers
+
+rag_handlers = RAGHandlers(kitchen)
+```
+
+### Pattern 3: Router-based Organization
+
+For grouping related handlers with shared dependencies:
+
+```python
+# handlers/query/tools.py
+from typing import Protocol
+from whisk.kitchenai_sdk.schema import WhiskQuerySchema, WhiskQueryBaseResponseSchema
+
+class ToolRouter:
+    def __init__(self, kitchen):
+        self.kitchen = kitchen
+    
+    def register_handlers(self):
+        # Register all tool handlers with shared prefix
+        @self.kitchen.query.handler("tools/calculator")
+        async def calculator(data: WhiskQuerySchema, llm=None):
+            """Math calculation tool"""
+            ...
+        
+        @self.kitchen.query.handler("tools/weather")
+        async def weather(data: WhiskQuerySchema, llm=None):
+            """Weather lookup tool"""
+            ...
+        
+        @self.kitchen.query.handler("tools/search")
+        async def search(data: WhiskQuerySchema, llm=None):
+            """Web search tool"""
+            ...
+
+# app.py
+from handlers.query.tools import ToolRouter
+
+tool_router = ToolRouter(kitchen)
+tool_router.register_handlers()
+```
+
+### Best Practices
+
+1. **Handler Organization**:
+   - Group related handlers in modules
+   - Use clear naming conventions
+   - Keep handler files focused and single-purpose
+
+2. **Dependency Management**:
+   - Initialize dependencies at app startup
+   - Share dependencies across related handlers
+   - Use dependency injection for testing
+
+3. **Code Structure**:
+   - Use classes for complex handlers with shared logic
+   - Use routers for grouping related endpoints
+   - Keep handler registration clear and explicit
+
+4. **Testing**:
+   - Test handlers in isolation
+   - Use dependency injection for mocking
+   - Group tests by handler module
+
+5. **Documentation**:
+   - Document handler purposes and requirements
+   - Include example requests/responses
+   - Document any special dependencies
+
+This structure makes it easy to:
+- Add new handlers without touching existing code
+- Share utilities and dependencies between handlers
+- Test handlers in isolation
+- Maintain clear separation of concerns
+
+## Sub-Apps and Modular Organization
+
+Whisk supports a modular application structure through sub-apps, allowing you to organize handlers by domain and compose them together:
+
+```python
+from whisk.kitchenai_sdk.kitchenai import KitchenAIApp
+from whisk.kitchenai_sdk.schema import (
+    WhiskQuerySchema, 
+    WhiskQueryBaseResponseSchema,
+    DependencyType
+)
+
+# Create domain-specific sub-apps
+chat_app = KitchenAIApp(namespace="chat")
+rag_app = KitchenAIApp(namespace="rag")
+tools_app = KitchenAIApp(namespace="tools")
+
+# Define handlers in each sub-app
+@chat_app.query.handler("basic")
+async def basic_chat(data: WhiskQuerySchema, llm=None) -> WhiskQueryBaseResponseSchema:
+    """Basic chat handler"""
+    response = await llm.acomplete(data.query)
+    return WhiskQueryBaseResponseSchema.from_llm_invoke(
+        data.query,
+        response.text
+    )
+
+@rag_app.query.handler("search")
+async def rag_search(data: WhiskQuerySchema, llm=None, vector_store=None) -> WhiskQueryBaseResponseSchema:
+    """RAG search handler"""
+    docs = await vector_store.similarity_search(data.query)
+    response = await llm.acomplete(data.query, context=docs)
+    return WhiskQueryBaseResponseSchema.from_llm_invoke(
+        data.query,
+        response.text
+    )
+
+# Create main app and mount sub-apps
+main_app = KitchenAIApp(namespace="main")
+main_app.mount_app("chat", chat_app)    # Creates handler "chat.basic"
+main_app.mount_app("rag", rag_app)      # Creates handler "rag.search"
+main_app.mount_app("tools", tools_app)  # Creates handler "tools.calculator"
+```
+
+### Large Project Structure
+
+For larger projects, organize sub-apps in separate modules:
+
+```plaintext
+my_project/
+├── apps/
+│   ├── __init__.py
+│   ├── chat/
+│   │   ├── __init__.py
+│   │   ├── app.py          # chat_app definition
+│   │   ├── handlers.py     # Chat handlers
+│   │   └── utils.py        # Chat-specific utilities
+│   ├── rag/
+│   │   ├── __init__.py
+│   │   ├── app.py          # rag_app definition
+│   │   ├── handlers.py     # RAG handlers
+│   │   └── retriever.py    # RAG-specific utilities
+│   └── tools/
+│       ├── __init__.py
+│       ├── app.py          # tools_app definition
+│       └── handlers.py     # Tool handlers
+├── main.py                 # Main app composition
+└── dependencies.py         # Shared dependencies
+```
+
+```python
+# apps/chat/app.py
+from whisk.kitchenai_sdk.kitchenai import KitchenAIApp
+from .handlers import basic_chat, stream_chat
+
+chat_app = KitchenAIApp(namespace="chat")
+chat_app.query.handler("basic")(basic_chat)
+chat_app.query.handler("stream")(stream_chat)
+```
+
+```python
+# main.py
+from whisk.kitchenai_sdk.kitchenai import KitchenAIApp
+from apps.chat.app import chat_app
+from apps.rag.app import rag_app
+from apps.tools.app import tools_app
+from dependencies import setup_dependencies
+
+# Create main app
+kitchen = KitchenAIApp(namespace="main")
+
+# Setup shared dependencies
+setup_dependencies(kitchen)
+
+# Mount sub-apps
+kitchen.mount_app("chat", chat_app)
+kitchen.mount_app("rag", rag_app)
+kitchen.mount_app("tools", tools_app)
+
+# The resulting NATS subjects will be:
+# - kitchenai.service.{client_id}.query.chat.basic
+# - kitchenai.service.{client_id}.query.chat.stream
+# - kitchenai.service.{client_id}.query.rag.search
+# - kitchenai.service.{client_id}.query.tools.calculator
+```
+
+### Benefits of Sub-Apps
+
+1. **Modularity**: Each sub-app can be developed and tested independently
+2. **Organization**: Group related handlers and their dependencies
+3. **Reusability**: Sub-apps can be reused across different projects
+4. **Maintainability**: Easier to manage large codebases
+5. **Isolation**: Each sub-app maintains its own namespace
+
+### Dependency Management
+
+Dependencies can be:
+- Registered at the sub-app level for domain-specific dependencies
+- Registered at the main app level for shared dependencies
+- Automatically propagated to sub-apps when mounted
+
+```python
+# Register dependencies at sub-app level
+chat_app.register_dependency(DependencyType.LLM, chat_llm)
+rag_app.register_dependency(DependencyType.VECTOR_STORE, vector_store)
+
+# Or register shared dependencies at main app level
+main_app.register_dependency(DependencyType.LLM, shared_llm)
+```
+
+### Handler Labels
+
+When mounting sub-apps, handler labels are automatically prefixed with the sub-app name:
+- Original label: `"basic"` in chat_app
+- Mounted label: `"chat.basic"` in main_app
+- NATS subject: `kitchenai.service.{client_id}.query.chat.basic`

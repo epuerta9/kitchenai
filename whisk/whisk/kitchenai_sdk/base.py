@@ -28,10 +28,10 @@ class DependencyManager:
         return dependency_type in self._dependencies
 
 class KitchenAITask:
-    def __init__(self, namespace: str, dependency_manager=None):
+    def __init__(self, namespace: str, manager=None):
         self.namespace = namespace
-        self._manager = dependency_manager
-        self._tasks = {}
+        self._manager = manager
+        self._tasks = {}  # Task registry should be here in base class
         self._hooks = {}    
 
     def with_dependencies(self, *dep_types: DependencyType) -> Callable:
@@ -48,19 +48,18 @@ class KitchenAITask:
             return wrapper
         return decorator
 
-    def register_task(self, label: str, func: Callable) -> Callable:
-        task_key = f"{label}"
-        self._tasks[task_key] = func
-        return func
+    def register_task(self, label: str, task):
+        """Register a task with a label"""
+        self._tasks[label] = task
+        return task
 
-    def get_task(self, label: str) -> Callable | None:
-        logger.info(f"Getting task for {label}")
-        task_key = f"{label}"
-        logger.info(f"Task key: {task_key}")
-        return self._tasks.get(task_key)
-    
-    def list_tasks(self) -> dict:
-        return list(self._tasks.keys())
+    def get_task(self, label: str):
+        """Get a task by label"""
+        return self._tasks.get(label)
+
+    def list_tasks(self):
+        """List all registered tasks"""
+        return self._tasks
 
 
 class KitchenAITaskHookMixin:

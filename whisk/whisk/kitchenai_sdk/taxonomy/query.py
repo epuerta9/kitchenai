@@ -1,13 +1,12 @@
-from ..base import KitchenAITask
+from ..base import KitchenAITask, DependencyManager
 import functools
 from ..schema import DependencyType
 
 
 
 class QueryTask(KitchenAITask):
-    def __init__(self, namespace: str, dependency_manager=None):
-        super().__init__(namespace, dependency_manager)
-        self.namespace = namespace
+    def __init__(self, namespace: str, manager: DependencyManager):
+        super().__init__(namespace, manager)
 
     def handler(self, label: str, *dependencies: DependencyType):
         """Decorator for registering query tasks with dependencies."""
@@ -31,3 +30,11 @@ class QueryTask(KitchenAITask):
                 return await func(*args, **kwargs)
             return wrapper
         return decorator
+
+    def list_tasks(self):
+        """Return dictionary of registered tasks"""
+        return self._tasks
+
+    def get_task(self, label: str):
+        """Get a task by label"""
+        return self._tasks.get(label)
