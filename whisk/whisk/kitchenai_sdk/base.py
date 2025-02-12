@@ -11,30 +11,30 @@ class DependencyManager:
     """Manages dependencies for KitchenAI apps"""
     
     def __init__(self):
-        self._dependencies: Dict[DependencyType, Any] = {}
+        self._dependencies: Dict[str | DependencyType, Any] = {}
         
-    def register_dependency(self, dependency_type: DependencyType, dependency: Any):
-        """Register a dependency"""
-        self._dependencies[dependency_type] = dependency
+    def register_dependency(self, key: str | DependencyType, dependency: Any):
+        """Register a dependency by type or string key"""
+        self._dependencies[key] = dependency
         
-    def get_dependency(self, dependency_type: DependencyType) -> Any:
+    def get_dependency(self, key: str | DependencyType) -> Any:
         """Get a registered dependency"""
-        if dependency_type not in self._dependencies:
-            raise KeyError(f"Dependency {dependency_type} not registered")
-        return self._dependencies[dependency_type]
+        if key not in self._dependencies:
+            raise KeyError(f"Dependency {key} not registered")
+        return self._dependencies[key]
     
-    def has_dependency(self, dependency_type: DependencyType) -> bool:
+    def has_dependency(self, key: str | DependencyType) -> bool:
         """Check if a dependency is registered"""
-        return dependency_type in self._dependencies
+        return key in self._dependencies
 
 class KitchenAITask:
     def __init__(self, namespace: str, manager=None):
         self.namespace = namespace
         self._manager = manager
-        self._tasks = {}  # Task registry should be here in base class
-        self._hooks = {}    
+        self._tasks = {}
+        self._hooks = {}
 
-    def with_dependencies(self, *dep_types: DependencyType) -> Callable:
+    def with_dependencies(self, *dep_types: DependencyType | str) -> Callable:
         """Decorator to inject dependencies into task functions."""
         def decorator(func: Callable) -> Callable:
             @wraps(func)
@@ -43,7 +43,9 @@ class KitchenAITask:
                 if self._manager:
                     for dep_type in dep_types:
                         if self._manager.has_dependency(dep_type):
-                            kwargs[dep_type.value] = self._manager.get_dependency(dep_type)
+                            # Use value for enum types, or key directly for strings
+                            key = dep_type.value if isinstance(dep_type, DependencyType) else dep_type
+                            kwargs[key] = self._manager.get_dependency(dep_type)
                 return await func(*args, **kwargs)
             return wrapper
         return decorator

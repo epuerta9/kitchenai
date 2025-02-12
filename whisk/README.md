@@ -594,3 +594,98 @@ When mounting sub-apps, handler labels are automatically prefixed with the sub-a
 - Original label: `"basic"` in chat_app
 - Mounted label: `"chat.basic"` in main_app
 - NATS subject: `kitchenai.service.{client_id}.query.chat.basic`
+
+### Inter-Handler Dependencies
+
+Handlers can depend on other handlers using the built-in NATS client for inter-handler communication:
+
+```python
+from whisk.client import WhiskClient
+from whisk.kitchenai_sdk.schema import (
+    WhiskQuerySchema, 
+    WhiskStorageSchema,
+    WhiskQueryBaseResponseSchema
+)
+
+# Create a RAG handler that depends on storage and embedding handlers
+@rag_app.query.handler("answer")
+async def rag_answer(
+    data: WhiskQuerySchema, 
+    llm=None, 
+    client: WhiskClient=None  # Inject the NATS client
+) -> WhiskQueryBaseResponseSchema:
+    """RAG handler that uses other handlers for storage and embeddings"""
+    
+    # Use storage handler through NATS
+    storage_response = await client.request(
+        "storage.ingest",  # Will be prefixed with proper NATS subject
+        WhiskStorageSchema(
+            id="doc1",
+            data=data.metadata.get("document"),
+            metadata={"source": "rag_handler"}
+        )
+    )
+    
+    # Use embedding handler through NATS
+    embed_response = await client.request(
+        "embeddings.create",
+        WhiskEmbedSchema(
+            text=data.query,
+            metadata={"type": "query"}
+        )
+    )
+    
+    # Use the results to generate final response
+    response = await llm.acomplete(
+        data.query,
+        context=storage_response.data,
+        embeddings=embed_response.embeddings
+    )
+    
+    return WhiskQueryBaseResponseSchema.from_llm_invoke(
+        data.query,
+        response.text
+    )
+
+# The client is automatically injected by the WhiskClient when running the app
+client = WhiskClient(
+    nats_url="nats://localhost:4222",
+    kitchen=kitchen
+)
+```
+
+This pattern allows you to:
+1. Compose complex handlers from simpler ones
+2. Maintain loose coupling between handlers
+3. Reuse functionality across different handlers
+4. Scale handlers independently
+5. Handle failures gracefully
+
+### Best Practices for Inter-Handler Dependencies
+
+1. **Error Handling**: Always handle potential failures from dependent handlers
+2. **Timeouts**: Set appropriate timeouts for inter-handler requests
+3. **Circuit Breaking**: Implement fallbacks for when dependent handlers fail
+4. **Monitoring**: Track inter-handler dependencies for observability
+5. **Documentation**: Document handler dependencies clearly
+
+```python
+# Example with better error handling and timeouts
+@rag_app.query.handler("answer")
+async def rag_answer(data: WhiskQuerySchema, llm=None, client: WhiskClient=None):
+    try:
+        # Set timeout for storage request
+        storage_response = await client.request(
+            "storage.ingest",
+            WhiskStorageSchema(...),
+            timeout=5.0  # 5 second timeout
+        )
+    except TimeoutError:
+        # Fallback behavior
+        logger.error("Storage handler timeout")
+        storage_response = default_storage_response()
+    except Exception as e:
+        logger.error(f"Storage handler error: {e}")
+        raise
+
+    # Continue with embedding and response generation...

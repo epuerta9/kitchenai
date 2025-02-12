@@ -93,6 +93,9 @@ class WhiskClient:
             if not self.is_kitchenai:
                 self._setup_subscribers()
 
+            # Register self as a dependency for handlers
+            self.kitchen.register_dependency("client", self)
+
         except NatsError as e:
             if "Authorization" in str(e):
                 raise WhiskAuthError(

@@ -206,7 +206,7 @@ class NatsMessage(BaseModel):
             decoded_body=msg._decoded_body
         )
 
-class DependencyType(StrEnum):
+class DependencyType(str, auto):
     """Types of dependencies that can be registered"""
     LLM = "llm"
     VECTOR_STORE = "vector_store"
