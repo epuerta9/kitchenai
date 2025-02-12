@@ -1,0 +1,15 @@
+# Caddyfile
+
+# Reverse proxy for kitchenai
+:8080 {
+	# Serve media files directly
+	handle_path /media/* {
+		root * /app/media
+		file_server
+	}
+
+	# Reverse proxy requests to Django
+	handle {
+		reverse_proxy kitchenai:8001
+	}
+}

@@ -108,6 +108,53 @@ bucket name: kitchenai
 3. Bring up the bento boxes using this demo [demo notebooks](https://github.com/epuerta9/kitchenai-demo)
 ---
 
+## Settings
+
+available environment variables
+```
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      DEBUG: "False"
+      KITCHENAI_LOCAL: "False"
+      KITCHENAI_LICENSE: "oss"
+      ALLOWED_HOSTS: "*"
+      CSRF_TRUSTED_ORIGINS: ""
+      CACHE_LOCATION: ""
+      KITCHENAI_REDIS_CACHE: "False"
+      REDIS_LOCATION: "redis://127.0.0.1:6379/1"
+      DATABASE_URL: "postgres://postgres:postgres@postgres:5432/postgres"
+      CONN_MAX_AGE: "60"
+      DEFAULT_FROM_EMAIL: "example@example.com"
+      SECRET_KEY: "django-insecure-ef6nIh7LcUjPtixFdz0_aXyUwlKqvBdJEcycRR6RvRY"
+      MEDIA_ROOT: "./media"
+      SECURE_HSTS_SECONDS: "120"
+      SECURE_HSTS_INCLUDE_SUBDOMAINS: "True"
+      SECURE_HSTS_PRELOAD: "True"
+      SESSION_COOKIE_SECURE: "True"
+      SERVER_EMAIL: "example@example.com"
+      AWS_ACCESS_KEY_ID: "minioadmin"
+      AWS_SECRET_ACCESS_KEY: "minioadmin"
+      AWS_STORAGE_BUCKET_NAME: "kitchenai"
+      AWS_S3_ENDPOINT_URL: "http://minio:9000"
+      AWS_DEFAULT_REGION: "us-east-1"
+      AWS_S3_ADDRESSING_STYLE: "path"
+      AWS_S3_USE_SSL: "True"
+      AWS_S3_VERIFY: "True"
+      USE_S3: "False"
+      DJANGO_ALLOW_REGISTRATION: "True"
+      RESEND_API_KEY: ""
+      ADMIN_URL: "kitchenai-admin/"
+      KITCHENAI_LLM_PROVIDER: "openai"
+      KITCHENAI_LLM_MODEL: "gpt-4o"
+      KITCHENAI_AUTH: "False"
+      KITCHENAI_JWT_SECRET: ""
+      WHISK_USER: "kitchenai"
+      WHISK_PASSWORD: "kitchenai_admin"
+      NATS_URL: "nats://nats:4222"
+      KITCHENAI_THEME: "winter"
+      MEDIA_BASE_URL: "http://localhost:8080"
+```
+
+
 ## 📚 Documentation
 
 - [Getting Started](https://kitchenai.dev/docs/getting-started)
