@@ -40,7 +40,6 @@ async def file_object_created(sender, instance, created, **kwargs):
     if created:
         # Ninja api should have all bolted on routes and a storage tasks
         logger.info(f"<kitchenai_core>: FileObject created: {instance.pk}")
-        posthog.capture("file_object", "kitchenai_file_object_created")
         await whisk.store_message(
             StorageRequestMessage(
                 id=instance.pk,
@@ -71,6 +70,9 @@ def file_object_deleted(sender, instance, **kwargs):
         
         # Use async_to_sync to properly run and await the async function
         async_to_sync(whisk.store_delete)(message)
+
+        if instance.file:
+            instance.file.delete(save=False)
         
     except Exception as e:
         logger.error(f"Error deleting file from storage: {e}")

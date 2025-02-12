@@ -234,6 +234,8 @@ MEDIA_ROOT = env.path("MEDIA_ROOT", default=APPS_DIR / "media")
 
 MEDIA_URL = "/media/"
 
+MEDIA_BASE_URL = env.str("MEDIA_BASE_URL", default="http://localhost:8080")
+
 # https://docs.djangoproject.com/en/dev/topics/http/middleware/
 # https://docs.djangoproject.com/en/dev/ref/middleware/#middleware-ordering
 MIDDLEWARE = [
@@ -336,7 +338,7 @@ STORAGES = {
 }
 
 # Only use local storage if not using S3 and in debug/local mode
-if (DEBUG or KITCHENAI_LOCAL) and not env.bool("USE_S3", default=False):
+if not env.bool("USE_S3", default=False):
     STORAGES["default"] = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     }
@@ -584,7 +586,6 @@ WHISK_SETTINGS = {
 }
 
 KITCHENAI_JWT_SECRET = env.str("KITCHENAI_JWT_SECRET", default="")
-
 
 KITCHENAI_BENTO_CLIENT_MODEL = "core.OSSBentoClient"
 

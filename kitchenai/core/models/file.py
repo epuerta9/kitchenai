@@ -3,6 +3,8 @@ import uuid
 from django.db import models
 from falco_toolbox.models import TimeStamped
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+from urllib.parse import urljoin
 
 def file_object_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/uuid/filename
@@ -37,16 +39,22 @@ class FileObject(TimeStamped):
 
     def generate_presigned_url(self, expires_in=3600):
         """
-        Generate a pre-signed URL for the file.
-        :param expires_in: Time in seconds for the URL to remain valid.
-        :return: A pre-signed URL string.
+        Generate a URL for the file.
+        :param expires_in: Time in seconds for the URL to remain valid (only applicable for S3).
+        :return: A URL string for downloading the file.
         """
         if not self.file:
             return None
 
         storage = self.file.storage
+
+        if isinstance(storage, FileSystemStorage):
+           # Construct the URL for local file storage
+           base_url = settings.MEDIA_BASE_URL
+           return urljoin(base_url, f"{settings.MEDIA_URL}{self.file.name}")
+       
         try:
-            # Generate the pre-signed URL
+            # Generate the pre-signed URL for S3
             url = storage.connection.meta.client.generate_presigned_url(
                 'get_object',
                 Params={

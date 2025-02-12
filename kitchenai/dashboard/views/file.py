@@ -9,6 +9,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from kitchenai.core.utils import get_bento_clients_by_user
 from django.urls import reverse
+import logging
+logger = logging.getLogger(__name__)
 
 @login_required
 async def file(request: HttpRequest):
