@@ -16,6 +16,9 @@ import sys
 import os
 import importlib
 from .kitchenai_sdk.nats_schema import QueryResponseMessage
+from .config import WhiskConfig
+from pathlib import Path
+from cookiecutter.main import cookiecutter
 
 app = typer.Typer(
     name="whisk",
@@ -42,7 +45,7 @@ def main(
     """KitchenAI Whisk - Task Management"""
     pass
 
-def run_app(path: str, nats_url: str, client_id: str, user: str, password: str):
+def run_app(path: str, config: WhiskConfig):
     # Split the path into module and attribute
     module_path, attr = path.split(":")
     
@@ -54,10 +57,10 @@ def run_app(path: str, nats_url: str, client_id: str, user: str, password: str):
     kitchen = getattr(kitchen_module, attr)
 
     client = WhiskClient(
-        nats_url=nats_url, 
-        client_id=client_id,
-        user=user,
-        password=password,
+        nats_url=config.nats.url,
+        client_id=config.client.id,
+        user=config.nats.user,
+        password=config.nats.password,
         kitchen=kitchen
     )
     
@@ -76,30 +79,11 @@ def run(
         "whisk.examples.app:kitchen",
         help="App to run"
     ),
-    nats_url: str = typer.Option(
-        "nats://localhost:4222",
-        "--nats-url",
-        "-n",
-        help="NATS server URL"
-    ),
-    client_id: str = typer.Option(
-        ...,
-        "--client-id",
-        "-c",
-        help="Client ID",
-        prompt="Please enter your client ID",
-    ),
-    user: str = typer.Option(
-        "playground",
-        "--user",
-        "-u",
-        help="NATS user (clienta or clientb)"
-    ),
-    password: str = typer.Option(
-        "kitchenai_playground",
-        "--password",
-        "-p",
-        help="NATS password from environment (CLIENTA_PASSWORD or CLIENTB_PASSWORD)"
+    config_file: Optional[Path] = typer.Option(
+        None,
+        "--config",
+        "-c", 
+        help="Path to config file"
     ),
     reload: bool = typer.Option(
         False,
@@ -141,19 +125,20 @@ def run(
     if not example and kitchen.startswith("whisk.examples."):
         console.print("[red]Please use the --example flag to run example apps[/red]")
         raise typer.Exit(1)
-    
- 
+
+    # Load config
+    config = WhiskConfig.from_file(config_file) if config_file else WhiskConfig.from_env()
 
     # Add current directory to Python path
     sys.path.append(os.getcwd())
     
     if reload:
-        watch_extensions = watch_extensions or [".py"]
+        watch_extensions = watch_extensions or [".py", ".yml", ".yaml"]
         console.print(f"[green]Running with reload (watching {', '.join(watch_extensions)} files)[/green]")
         run_process(
             ".",
             target=run_app,
-            args=(kitchen, nats_url, client_id, user, password),
+            args=(kitchen, config),
             watch_filter=lambda change, filename: any(filename.endswith(ext) for ext in watch_extensions)
         )
     else:
@@ -164,7 +149,7 @@ def run(
             for i in range(workers):
                 p = multiprocessing.Process(
                     target=run_app,
-                    args=(kitchen, nats_url, f"{client_id}", user, password)
+                    args=(kitchen, config)
                 )
                 p.start()
                 processes.append(p)
@@ -173,15 +158,11 @@ def run(
                 for p in processes:
                     p.join()
             except KeyboardInterrupt:
-                console.print("\n[yellow]Shutting down workers...[/yellow]")
                 for p in processes:
                     p.terminate()
+                console.print("\nShutting down gracefully...")
         else:
-            run_app(kitchen, nats_url, client_id, user, password)
-
-
-
-
+            run_app(kitchen, config)
 
 @app.command()
 def query(
@@ -414,6 +395,58 @@ def embed(
         # ))
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
+        raise typer.Exit(1)
+
+@app.command()
+def new(
+    output_dir: str = typer.Option(
+        ".",
+        "--output-dir",
+        "-o",
+        help="Directory to create the project in"
+    ),
+    template: str = typer.Option(
+        "https://github.com/kitchenai/whisk-template.git",
+        "--template",
+        "-t",
+        help="Cookiecutter template URL or path"
+    ),
+    no_input: bool = typer.Option(
+        False,
+        "--no-input",
+        help="Do not prompt for parameters and use defaults",
+    ),
+    config_file: Optional[Path] = typer.Option(
+        None,
+        "--config",
+        "-c",
+        help="Path to cookiecutter config file",
+    ),
+):
+    """Create a new Whisk project from a template"""
+    try:
+        console.print("[green]Creating new Whisk project...[/green]")
+        
+        # Get absolute path for output directory
+        output_dir = os.path.abspath(output_dir)
+        
+        # Create project from template
+        cookiecutter(
+            template=template,
+            output_dir=output_dir,
+            no_input=no_input,
+            config_file=config_file,
+        )
+        
+        console.print(f"[green]✓ Project created successfully in {output_dir}[/green]")
+        console.print("\nNext steps:")
+        console.print("1. cd into your project directory")
+        console.print("2. Install dependencies: pip install -e '.[dev]'")
+        console.print("3. Configure your NATS settings in config.yml")
+        console.print("4. Run your project: whisk run app:kitchen")
+        
+    except Exception as e:
+        console.print(f"[red]Error creating project: {str(e)}[/red]")
         raise typer.Exit(1)
 
 

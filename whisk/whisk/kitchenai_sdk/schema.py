@@ -207,10 +207,9 @@ class NatsMessage(BaseModel):
         )
 
 class DependencyType(StrEnum):
-    """Types of dependencies that can be managed."""
-    LLM = auto()
-    VECTOR_STORE = auto()
-    EMBEDDING = auto()  # For future use
-    RETRIEVER = auto()  # For future use
-    PROMPT = auto()     # For future use 
-    MEMORY = auto()     # For future use
+    """Types of dependencies that can be registered"""
+    LLM = "llm"
+    VECTOR_STORE = "vector_store"
+    SYSTEM_PROMPT = "system_prompt"
+    EMBEDDINGS = "embeddings"
+    RETRIEVER = "retriever"

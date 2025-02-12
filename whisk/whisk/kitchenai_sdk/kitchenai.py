@@ -2,20 +2,26 @@ from whisk.kitchenai_sdk.taxonomy.query import QueryTask
 from whisk.kitchenai_sdk.taxonomy.storage import StorageTask
 from whisk.kitchenai_sdk.taxonomy.embeddings import EmbedTask
 from whisk.kitchenai_sdk.taxonomy.agent import AgentTask
+from .base import DependencyManager
+from .schema import DependencyType
+from typing import Any
 
 
 class KitchenAIApp:
-    def __init__(self, namespace: str = "default", manager = None, version: str = "0.0.1"):
+    def __init__(self, namespace: str = "default", version: str = "0.0.1"):
         self.namespace = namespace
-        self.manager = manager
         self.version = version
         self.client_type = 'bento_box'
         self.client_description = 'Bento box'
-        self.query = QueryTask(namespace, manager)
-        self.storage = StorageTask(namespace, manager)
-        self.embeddings = EmbedTask(namespace, manager)
-        self.agent = AgentTask(namespace, manager)
-        #self._default_hook = "kitchenai.contrib.kitchenai_sdk.hooks.default_hook"
+        self.manager = DependencyManager()
+        self.query = QueryTask(namespace, self.manager)
+        self.storage = StorageTask(namespace, self.manager)
+        self.embeddings = EmbedTask(namespace, self.manager)
+        self.agent = AgentTask(namespace, self.manager)
+
+    def register_dependency(self, dependency_type: DependencyType, dependency: Any):
+        """Register a dependency"""
+        self.manager.register_dependency(dependency_type, dependency)
 
     def set_manager(self, manager):
         """Update the manager for the app and all tasks."""

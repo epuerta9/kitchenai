@@ -3,7 +3,29 @@ import logging
 from functools import wraps
 import asyncio
 from .schema import DependencyType
+from typing import Any, Dict
+
 logger = logging.getLogger(__name__)
+
+class DependencyManager:
+    """Manages dependencies for KitchenAI apps"""
+    
+    def __init__(self):
+        self._dependencies: Dict[DependencyType, Any] = {}
+        
+    def register_dependency(self, dependency_type: DependencyType, dependency: Any):
+        """Register a dependency"""
+        self._dependencies[dependency_type] = dependency
+        
+    def get_dependency(self, dependency_type: DependencyType) -> Any:
+        """Get a registered dependency"""
+        if dependency_type not in self._dependencies:
+            raise KeyError(f"Dependency {dependency_type} not registered")
+        return self._dependencies[dependency_type]
+    
+    def has_dependency(self, dependency_type: DependencyType) -> bool:
+        """Check if a dependency is registered"""
+        return dependency_type in self._dependencies
 
 class KitchenAITask:
     def __init__(self, namespace: str, dependency_manager=None):
@@ -15,26 +37,15 @@ class KitchenAITask:
     def with_dependencies(self, *dep_types: DependencyType) -> Callable:
         """Decorator to inject dependencies into task functions."""
         def decorator(func: Callable) -> Callable:
-            # If no dependencies specified, return the original function
-            if not dep_types:
-                return func
-
-            def get_dependencies():
-                return [self._manager.get_dependency(dep_type) for dep_type in dep_types]
-
             @wraps(func)
-            async def async_wrapper(*args, **kwargs):
-                deps = get_dependencies()
-                return await func(*args, *deps, **kwargs)
-
-            @wraps(func)
-            def sync_wrapper(*args, **kwargs):
-                deps = get_dependencies()
-                return func(*args, *deps, **kwargs)
-
-            wrapper = async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
+            async def wrapper(*args, **kwargs):
+                # Inject requested dependencies into kwargs
+                if self._manager:
+                    for dep_type in dep_types:
+                        if self._manager.has_dependency(dep_type):
+                            kwargs[dep_type.value] = self._manager.get_dependency(dep_type)
+                return await func(*args, **kwargs)
             return wrapper
-
         return decorator
 
     def register_task(self, label: str, func: Callable) -> Callable:
