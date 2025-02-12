@@ -72,8 +72,8 @@ class KitchenAIApp:
         """Generate a summary of all registered tasks."""
         return {
             "namespace": self.namespace,
-            "query_handlers": self.query.list_tasks(),
-            "storage_handlers": self.storage.list_tasks(),
-            "embed_handlers": self.embeddings.list_tasks(),
-            "agent_handlers": self.agent.list_tasks(),
+            "query_handlers": list(self.query.list_tasks().keys()),
+            "storage_handlers": list(self.storage.list_tasks().keys()),
+            "embed_handlers": list(self.embeddings.list_tasks().keys()),
+            "agent_handlers": list(self.agent.list_tasks().keys()),
         }

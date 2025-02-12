@@ -93,9 +93,6 @@ class WhiskClient:
             if not self.is_kitchenai:
                 self._setup_subscribers()
 
-            # Register self as a dependency for handlers
-            self.kitchen.register_dependency("client", self)
-
         except NatsError as e:
             if "Authorization" in str(e):
                 raise WhiskAuthError(
@@ -308,6 +305,7 @@ class WhiskClient:
             raise WhiskClientError(
                 f"Error getting presigned url: {presigned_message.error}"
             )
+        
         logger.info(f"Presigned url: {presigned_message.presigned_url}")
         # Use httpx to download the file using the presigned URL
         try:

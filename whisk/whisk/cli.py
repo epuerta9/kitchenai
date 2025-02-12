@@ -85,6 +85,13 @@ def run(
         "-c", 
         help="Path to config file"
     ),
+    client_id: Optional[str] = typer.Option(
+        None,
+        "--client-id",
+        "-i",
+        help="Client ID for this instance. Will override WHISK_CLIENT_ID env var.",
+        envvar="WHISK_CLIENT_ID",
+    ),
     reload: bool = typer.Option(
         False,
         "--reload",
@@ -112,7 +119,11 @@ def run(
         help="Run example app"
     )
 ):
-    """Run Whisk Server"""
+    """Run a KitchenAI app."""
+    if client_id:
+        # Set environment variable so config will pick it up
+        os.environ["WHISK_CLIENT_ID"] = client_id
+    
     if reload and workers > 1:
         raise SetupError("You can't use reload option with multiprocessing")
     
