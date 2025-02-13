@@ -25,23 +25,21 @@ class NatsMessageBase(BaseModel):
     # version: str | None = None
 
 class BentoBox(BaseModel):
+    """Schema for bento box configuration"""
     namespace: str
-    query_handlers: list[str]
-    storage_handlers: list[str]
-    embed_handlers: list[str]
-    agent_handlers: list[str]
-    
+    query_handlers: List[str]
+    storage_handlers: List[str]
+    embed_handlers: List[str]
+    agent_handlers: List[str]
 
 class NatsRegisterMessage(BaseModel):
-    name: str
+    """Message for registering a client with KitchenAI"""
     client_id: str
-    client_description: str | None = None
-    client_type: str = "bento"
-    ack: bool = False
-    message: str = ""
-    bento_box: BentoBox | None = None
-    error: str | None = None
     version: str
+    name: str
+    bento_box: BentoBox
+    client_type: str = "bento_box"
+    client_description: str = "Bento box"
 
 # Request Messages
 class QueryRequestMessage(NatsMessageBase, WhiskQuerySchema):

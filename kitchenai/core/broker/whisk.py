@@ -39,7 +39,6 @@ whisk = WhiskClient(
 "kitchenai.service.*.mgmt.register",
 
 """
-
 @whisk.broker.subscriber("kitchenai.service.*.storage.*.response", "kitchenai-storage")
 async def on_message(msg: StorageResponseMessage):
     """Updates the FileObject status and creates a StorageRequestMessage"""

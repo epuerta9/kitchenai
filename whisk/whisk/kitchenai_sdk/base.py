@@ -3,53 +3,65 @@ import logging
 from functools import wraps
 import asyncio
 from .schema import DependencyType
+from typing import Any, Dict
+
 logger = logging.getLogger(__name__)
 
-class KitchenAITask:
-    def __init__(self, namespace: str, dependency_manager=None):
-        self.namespace = namespace
-        self._manager = dependency_manager
-        self._tasks = {}
-        self._hooks = {}    
+class DependencyManager:
+    """Manages dependencies for KitchenAI apps"""
+    
+    def __init__(self):
+        self._dependencies: Dict[str | DependencyType, Any] = {}
+        
+    def register_dependency(self, key: str | DependencyType, dependency: Any):
+        """Register a dependency by type or string key"""
+        self._dependencies[key] = dependency
+        
+    def get_dependency(self, key: str | DependencyType) -> Any:
+        """Get a registered dependency"""
+        if key not in self._dependencies:
+            raise KeyError(f"Dependency {key} not registered")
+        return self._dependencies[key]
+    
+    def has_dependency(self, key: str | DependencyType) -> bool:
+        """Check if a dependency is registered"""
+        return key in self._dependencies
 
-    def with_dependencies(self, *dep_types: DependencyType) -> Callable:
+class KitchenAITask:
+    def __init__(self, namespace: str, manager=None):
+        self.namespace = namespace
+        self._manager = manager
+        self._tasks = {}
+        self._hooks = {}
+
+    def with_dependencies(self, *dep_types: DependencyType | str) -> Callable:
         """Decorator to inject dependencies into task functions."""
         def decorator(func: Callable) -> Callable:
-            # If no dependencies specified, return the original function
-            if not dep_types:
-                return func
-
-            def get_dependencies():
-                return [self._manager.get_dependency(dep_type) for dep_type in dep_types]
-
             @wraps(func)
-            async def async_wrapper(*args, **kwargs):
-                deps = get_dependencies()
-                return await func(*args, *deps, **kwargs)
-
-            @wraps(func)
-            def sync_wrapper(*args, **kwargs):
-                deps = get_dependencies()
-                return func(*args, *deps, **kwargs)
-
-            wrapper = async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
+            async def wrapper(*args, **kwargs):
+                # Inject requested dependencies into kwargs
+                if self._manager:
+                    for dep_type in dep_types:
+                        if self._manager.has_dependency(dep_type):
+                            # Use value for enum types, or key directly for strings
+                            key = dep_type.value if isinstance(dep_type, DependencyType) else dep_type
+                            kwargs[key] = self._manager.get_dependency(dep_type)
+                return await func(*args, **kwargs)
             return wrapper
-
         return decorator
 
-    def register_task(self, label: str, func: Callable) -> Callable:
-        task_key = f"{label}"
-        self._tasks[task_key] = func
-        return func
+    def register_task(self, label: str, task):
+        """Register a task with a label"""
+        self._tasks[label] = task
+        return task
 
-    def get_task(self, label: str) -> Callable | None:
-        logger.info(f"Getting task for {label}")
-        task_key = f"{label}"
-        logger.info(f"Task key: {task_key}")
-        return self._tasks.get(task_key)
-    
-    def list_tasks(self) -> dict:
-        return list(self._tasks.keys())
+    def get_task(self, label: str):
+        """Get a task by label"""
+        return self._tasks.get(label)
+
+    def list_tasks(self):
+        """List all registered tasks"""
+        return self._tasks
 
 
 class KitchenAITaskHookMixin:

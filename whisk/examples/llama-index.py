@@ -18,7 +18,8 @@ from whisk.kitchenai_sdk.schema import (
     WhiskStorageResponseSchema,
     WhiskEmbedSchema,
     WhiskEmbedResponseSchema,
-    TokenCountSchema
+    TokenCountSchema,
+    DependencyType
 )
 
 from llama_index.core import VectorStoreIndex, StorageContext, Document
@@ -37,6 +38,7 @@ from kitchenai_llama.storage.llama_parser import Parser
 import os
 import tempfile
 from pathlib import Path
+from llama_index.core.prompts.system import SHAKESPEARE_WRITING_ASSISTANT
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -57,16 +59,19 @@ chroma_collection = chroma_client.get_or_create_collection("quickstart")
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 
 # Initialize KitchenAI App
-kitchen = KitchenAIApp(namespace="llama-index")
+kitchen = KitchenAIApp(namespace="example")
 
-@kitchen.query.handler("query")
-async def query_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema:
+# Register dependencies
+kitchen.register_dependency(DependencyType.LLM, llm)
+kitchen.register_dependency(DependencyType.SYSTEM_PROMPT, SHAKESPEARE_WRITING_ASSISTANT)
+
+@kitchen.query.handler("query", DependencyType.LLM, DependencyType.SYSTEM_PROMPT)
+async def query_handler(data: WhiskQuerySchema, llm=None, system_prompt=None) -> WhiskQueryBaseResponseSchema:
     """Query handler with RAG"""
     # Create filters from metadata if provided
     filters = None
     if data.metadata:
         from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
-        print(data.metadata)
         filter_list = [
             MetadataFilter(key=key, value=value)
             for key, value in data.metadata.items()
@@ -79,6 +84,7 @@ async def query_handler(data: WhiskQuerySchema) -> WhiskQueryBaseResponseSchema:
         chat_mode="best",
         filters=filters,
         llm=llm,
+        system_prompt=system_prompt,
         verbose=True
     )
 
@@ -189,8 +195,8 @@ async def embed_handler(data: WhiskEmbedSchema) -> WhiskEmbedResponseSchema:
 
 if __name__ == "__main__":
     client = WhiskClient(
-        nats_url="nats://nats.playground.kitchenai.dev",
-        client_id="0bc262c4-b594-4209-852a-cbe4a055792b",
+        nats_url="nats://localhost:4222",
+        client_id="0bc262c4-b594-4209-852a-cbe4a055792222",
         user="playground",
         password="kitchenai_playground",
         kitchen=kitchen,

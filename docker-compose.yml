@@ -8,6 +8,8 @@ services:
     # Uncomment the following line to use an .env file for environment variables
     # env_file:
     #   - .env
+    volumes:
+      - media_data:/app/media  # Persistent volume
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       DEBUG: "False"
@@ -53,6 +55,18 @@ services:
     depends_on:
       kitchenai-setup:
         condition: service_completed_successfully
+
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - media_data:/app/media  # Ensure Caddy can access media files
+    depends_on:
+      - kitchenai
 
 
   kitchenai-qcluster:
@@ -140,28 +154,12 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
 
-
-
-  minio:
-    image: minio/minio:latest
-    container_name: minio
-    environment:
-      MINIO_ROOT_USER: "minioadmin"
-      MINIO_ROOT_PASSWORD: "minioadmin"
-      MINIO_DEFAULT_BUCKETS: "my-bucket:public"
-    volumes:
-      - minio_data:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    command: server /data --console-address ":9001"
-
-
-
 volumes:
   redis_data:
   postgres_data:
   minio_data:
   chroma_data:
   nats-data:
+    driver: local
+  media_data:  # Named volume for persistent media storage
     driver: local

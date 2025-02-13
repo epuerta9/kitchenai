@@ -305,6 +305,7 @@ class WhiskClient:
             raise WhiskClientError(
                 f"Error getting presigned url: {presigned_message.error}"
             )
+        
         logger.info(f"Presigned url: {presigned_message.presigned_url}")
         # Use httpx to download the file using the presigned URL
         try:
