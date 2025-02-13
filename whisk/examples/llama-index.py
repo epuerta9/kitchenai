@@ -195,8 +195,8 @@ async def embed_handler(data: WhiskEmbedSchema) -> WhiskEmbedResponseSchema:
 
 if __name__ == "__main__":
     client = WhiskClient(
-        nats_url="nats://nats.playground.kitchenai.dev",
-        client_id="0bc262c4-b594-4209-852a-cbe4a055792b",
+        nats_url="nats://localhost:4222",
+        client_id="0bc262c4-b594-4209-852a-cbe4a055792222",
         user="playground",
         password="kitchenai_playground",
         kitchen=kitchen,

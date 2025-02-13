@@ -417,10 +417,10 @@ def new(
         help="Directory to create the project in"
     ),
     template: str = typer.Option(
-        "https://github.com/kitchenai/whisk-template.git",
+        "https://github.com/kitchenai/whisk-templates.git",
         "--template",
         "-t",
-        help="Cookiecutter template URL or path"
+        help="Template URL or path. Can include subdirectory after '#' (e.g. repo#cookiecutter-rag)"
     ),
     no_input: bool = typer.Option(
         False,
@@ -441,9 +441,16 @@ def new(
         # Get absolute path for output directory
         output_dir = os.path.abspath(output_dir)
         
+        # Split template into repo URL and subdirectory
+        if "#" in template:
+            repo_url, directory = template.split("#", 1)
+        else:
+            repo_url, directory = template, None
+            
         # Create project from template
         cookiecutter(
-            template=template,
+            template=repo_url,
+            directory=directory,  # This will point to the subdirectory in the template repo
             output_dir=output_dir,
             no_input=no_input,
             config_file=config_file,
