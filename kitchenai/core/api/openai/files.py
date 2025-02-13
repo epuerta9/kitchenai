@@ -109,7 +109,6 @@ def list_files(request, query: FileListQuery = Query(...)):
     """
     try:
         file_objects = FileObject.objects.select_related('bento_box').all()
-        
         # Convert FileObject instances to FileResponse objects
         files = [
             FileResponse(

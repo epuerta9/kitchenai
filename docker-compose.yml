@@ -67,7 +67,6 @@ services:
       - media_data:/app/media  # Ensure Caddy can access media files
     depends_on:
       - kitchenai
-      - minio
 
 
   kitchenai-qcluster:
