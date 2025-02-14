@@ -5,7 +5,7 @@ from django.apps import apps
 from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from kitchenai.core.broker import whisk
+from kitchenai.core.broker.whisk import whisk
 import uuid
 import time
 import posthog
@@ -16,6 +16,7 @@ from enum import StrEnum
 from django.conf import settings
 from whisk.kitchenai_sdk.nats_schema import StorageRequestMessage
 from asgiref.sync import async_to_sync
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -42,13 +43,14 @@ async def file_object_created(sender, instance, created, **kwargs):
         logger.info(f"<kitchenai_core>: FileObject created: {instance.pk}")
         await whisk.store_message(
             StorageRequestMessage(
-                id=instance.pk,
-                request_id=str(uuid.uuid4()),
-                timestamp=time.time(),
+                id=instance.id,
                 name=instance.name,
                 label=instance.ingest_label,
-                client_id=instance.bento_box.client_id,
+                data=b"",  # Empty for now
                 metadata=instance.metadata,
+                request_id=str(uuid.uuid4()),
+                timestamp=datetime.now().timestamp(),
+                client_id=instance.bento_box.client_id,
             )
         )
 

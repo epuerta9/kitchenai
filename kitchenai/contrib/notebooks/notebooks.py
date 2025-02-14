@@ -12,7 +12,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kitchenai.settings")
 django.setup()
 nest_asyncio.apply()
 
-from kitchenai.notebooks.models import CodeFunction,Notebook, CodeImport, CodeSetup
+from kitchenai.contrib.notebooks.models import CodeFunction,Notebook, CodeImport, CodeSetup
 from django.template import loader
 from django.conf import settings
 from django.template import Template, Context

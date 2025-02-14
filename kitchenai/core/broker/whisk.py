@@ -15,6 +15,7 @@ from datetime import datetime
 from kitchenai.core.models.file import FileObject
 from kitchenai.core.models.embed import EmbedObject
 from kitchenai.core.models.file import StorageRequestMessage as StorageRequestMessageModel
+from faststream import FastStream
 
 logger = logging.getLogger(__name__)
 
@@ -25,12 +26,19 @@ class AccountLimits:
     streams: int = 10
     consumers: int = 100
 
-whisk = WhiskClient(
-    settings.WHISK_SETTINGS["nats_url"],
-    user=settings.WHISK_SETTINGS["user"],
-    password=settings.WHISK_SETTINGS["password"],
-    is_kitchenai=True,
-)
+def create_whisk(app: FastStream = None):
+    """Create a WhiskClient instance with optional FastStream app"""
+    return WhiskClient(
+        settings.WHISK_SETTINGS["nats_url"],
+        user=settings.WHISK_SETTINGS["user"],
+        password=settings.WHISK_SETTINGS["password"],
+        is_kitchenai=True,
+        app=app
+    )
+
+# Default instance if no custom app provided
+whisk = create_whisk()
+
 """
 "kitchenai.service.*.storage.*.response",
 "kitchenai.service.*.storage.*.response.playground",
