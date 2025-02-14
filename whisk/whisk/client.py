@@ -85,9 +85,10 @@ class WhiskClient:
                 nats_url, name=client_id, user=user, password=password
             )
 
-            self.app = FastStream(
-                broker=self.broker, title=f"Whisk-{client_id}", lifespan=self.lifespan
-            )
+            if not self.app:
+                self.app = FastStream(
+                    broker=self.broker, title=f"Whisk-{client_id}", lifespan=self.lifespan
+                )
 
             # Register subscribers immediately
             if not self.is_kitchenai:
